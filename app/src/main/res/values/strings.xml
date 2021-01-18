@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Move Better</string>
+    <string name="mapbox_access_token">pk.eyJ1IjoiY3ViYWxhdGlubzk5IiwiYSI6ImNrazJsbWF3azEyMm0yeHJ1cWRuaTY3eXEifQ.T3Foy0B517bUEiy1Cvt57w</string>
 </resources>
