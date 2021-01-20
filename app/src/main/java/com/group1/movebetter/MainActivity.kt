@@ -1,12 +1,17 @@
 package com.group1.movebetter
 
 import android.annotation.SuppressLint
+import android.graphics.BitmapFactory
+import android.graphics.PixelFormat
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
+import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
@@ -16,9 +21,16 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListener {
+    private val SOURCE_ID = "SOURCE_ID"
+    private val ICON_ID = "ICON_ID"
+    private val LAYER_ID = "LAYER_ID"
+
     private var mapView: MapView? = null
     private var mapboxMap: MapboxMap? = null
     private var permissionsManager: PermissionsManager? = null
@@ -33,15 +45,38 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
         mapView = findViewById(R.id.mapView)
         mapView?.onCreate(savedInstanceState)
         mapView?.getMapAsync(this)
-
-        }
+    }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
+
+        //TODO get List from DataModel of Stations and Networks
+        val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
+        symbolLayerIconFeatureList.add(Feature.fromGeometry(
+                Point.fromLngLat(-57.225365, -33.213144)))
+        symbolLayerIconFeatureList.add(Feature.fromGeometry(
+                Point.fromLngLat(-54.14164, -33.981818)))
+        symbolLayerIconFeatureList.add(Feature.fromGeometry(
+                Point.fromLngLat(-56.990533, -30.583266)))
+
         this.mapboxMap = mapboxMap
 
-        mapboxMap.setStyle(
-            Style.MAPBOX_STREETS
-        ) { enableLocationComponent(it) }
+        mapboxMap.setStyle(Style.Builder().fromUri("mapbox://styles/mapbox/cjf4m44iw0uza2spb3q0a7s41") // Add the SymbolLayer icon image to the map style
+                .withImage(ICON_ID, BitmapFactory.decodeResource(
+                        this.resources, R.raw.bike)) // Adding a GeoJson source for the SymbolLayer icons.
+                .withSource(GeoJsonSource(SOURCE_ID,
+                        FeatureCollection.fromFeatures(symbolLayerIconFeatureList))) // Adding the actual SymbolLayer to the map style. An offset is added that the bottom of the red
+                // marker icon gets fixed to the coordinate, rather than the middle of the icon being fixed to
+                // the coordinate point. This is offset is not always needed and is dependent on the image
+                // that you use for the SymbolLayer icon.
+                .withLayer(SymbolLayer(LAYER_ID, SOURCE_ID)
+                        .withProperties(
+                                iconImage(ICON_ID),
+                                iconAllowOverlap(true),
+                                iconIgnorePlacement(true)
+                        )
+                )) {
+            enableLocationComponent(it)
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -52,7 +87,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 // Create and customize the LocationComponent's options
             val customLocationComponentOptions = LocationComponentOptions.builder(this)
                 .trackingGesturesManagement(true)
-                .accuracyColor(ContextCompat.getColor(this, R.color.mapboxGreen))
+                .accuracyColor(ContextCompat.getColor(this, R.color.blue))
                 .build()
 
             val locationComponentActivationOptions = LocationComponentActivationOptions.builder(this, loadedMapStyle)
@@ -99,31 +134,36 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListene
 
     public override fun onResume() {
         super.onResume()
-        mapView?.onResume()
+        mapView!!.onResume()
     }
 
     public override fun onPause() {
         super.onPause()
-        mapView?.onPause()
+        mapView!!.onPause()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapView!!.onStart()
     }
 
     override fun onStop() {
         super.onStop()
-        mapView?.onStop()
+        mapView!!.onStop()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        mapView?.onSaveInstanceState(outState)
+        mapView!!.onSaveInstanceState(outState)
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        mapView?.onLowMemory()
+        mapView!!.onLowMemory()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mapView?.onDestroy()
+        mapView!!.onDestroy()
     }
 }
