@@ -32,23 +32,41 @@ data class Company (
         val company: List<String>
 )
 
+data class CityBikesNetworksList (
+        val network : CityBikesNetwork
+)
+
 data class CityBikesNetwork (
-        val name: String,
-        val stations: List<CityBikesStations>,
         val company: Company,
         val href: String,
-        val location: List<CityBikesLocation>,
-        val id: String
+        val location: CityBikesLocation,
+        val id: String,
+        val name: String,
+        val stations: List<CityBikesStations>
 )
 
 
 data class CityBikesStations (
-        val
         val name: String,
         val timestamp: String,
         val longitude: Double,
         val free_bikes: Long,
         val latitude: Double,
         val empty_slots: Long,
-        val id: Long
+        val id: String,
+        val extra: CityBikesStationsExtra
+)
+
+data class CityBikesStationsExtra (
+        val banking: Boolean,
+        val bikes_overflow: Long,
+        val dueDate: Long,
+        val ebikes: Long,
+        val ebikes_overflow: Long,
+        val has_ebikes: Boolean,
+        val normal_bikes: Long,
+        val online: Boolean,
+        val slots: Long,
+        val status: String,
+        val uid: Long
 )

@@ -27,5 +27,9 @@ class MainActivity : AppCompatActivity() {
         viewModel.getResponseNetwork.observe(this, Observer {
                 res -> Log.d("Response", res.toString())
         })
+
+        /*viewModel.getResponseNetworkFiltered.observe(this, Observer {
+            res -> Log.d("Response", res.toString())
+        })*/
     }
 }

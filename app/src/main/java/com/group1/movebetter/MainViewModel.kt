@@ -6,13 +6,16 @@ import androidx.lifecycle.viewModelScope
 import com.group1.movebetter.model.CityBikes
 import com.group1.movebetter.model.CityBikesNetwork
 import com.group1.movebetter.model.CityBikesNetworks
+import com.group1.movebetter.model.CityBikesNetworksList
 import com.group1.movebetter.repository.Repository
 import kotlinx.coroutines.launch
 
 class MainViewModel(private val repository: Repository) : ViewModel() {
 
     val getResponseNetworks: MutableLiveData<CityBikes> = MutableLiveData()
-    val getResponseNetwork: MutableLiveData<CityBikesNetwork> = MutableLiveData()
+    val getResponseNetwork: MutableLiveData<CityBikesNetworksList> = MutableLiveData()
+    val getResponseNetworkFiltered: MutableLiveData<CityBikesNetworksList> = MutableLiveData()
+
     fun getNetworks()
     {
         viewModelScope.launch {
@@ -21,6 +24,8 @@ class MainViewModel(private val repository: Repository) : ViewModel() {
 
             val responseNetwork = repository.getNetwork("velib")
             getResponseNetwork.value = responseNetwork
+            /*val responseNetworkFiltered = repository.getNetwork("")
+            getResponseNetworkFiltered.value = responseNetworkFiltered*/
         }
     }
 }
