@@ -57,7 +57,7 @@ dependencies {
     // Navigation
     implementation "android.arch.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "android.arch.navigation:navigation-ui-ktx:$navigationVersion"
-}
+
     //Retrofit
     implementation 'com.squareup.okhttp3:logging-interceptor:3.11.0'
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
