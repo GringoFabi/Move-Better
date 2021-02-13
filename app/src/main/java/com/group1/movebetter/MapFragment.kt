@@ -11,6 +11,8 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.DataBindingUtil.inflate
+import androidx.lifecycle.ViewModelProvider
+import com.example.android.trackmysleepquality.sleeptracker.MapViewModelFactory
 import com.group1.movebetter.databinding.FragmentMapBinding
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -73,6 +75,19 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         val binding : FragmentMapBinding = inflate(inflater, R.layout.fragment_map, container, false)
 
         mapView = binding.mapView
+
+        val viewModelFactory = MapViewModelFactory()
+
+        // Get a reference to the ViewModel associated with this fragment.
+        val mapViewModel =
+                ViewModelProvider(
+                        this, viewModelFactory).get(MapViewModel::class.java)
+
+        binding.mapViewModel = mapViewModel;
+
+
+        binding.setLifecycleOwner(this)
+
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
