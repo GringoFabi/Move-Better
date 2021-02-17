@@ -20,17 +20,18 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.group1.movebetter.MapViewModel
+import com.group1.movebetter.repository.Repository
 
 /**
  * This is pretty much boiler plate code for a ViewModel Factory.
  *
  * Provides the SleepDatabaseDao and context to the ViewModel.
  */
-class MapViewModelFactory() : ViewModelProvider.Factory {
+class MapViewModelFactory(private val repository: Repository) : ViewModelProvider.Factory {
     @Suppress("unchecked_cast")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MapViewModel::class.java)) {
-            return MapViewModel() as T
+            return MapViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
