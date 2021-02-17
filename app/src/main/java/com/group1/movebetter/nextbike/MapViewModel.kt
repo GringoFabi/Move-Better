@@ -1,9 +1,6 @@
 package com.group1.movebetter.nextbike
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.group1.movebetter.model.CityBikes
 import com.group1.movebetter.model.CityBikesNetworksList
 import com.group1.movebetter.repository.Repository
@@ -26,6 +23,10 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
     private val _getResponseNetwork: MutableLiveData<CityBikesNetworksList> = MutableLiveData()
     val getResponseNetwork: LiveData<CityBikesNetworksList>
         get() = _getResponseNetwork
+
+    val networksText = Transformations.map(getResponseNetworks) {
+        bikes -> bikes.toString()
+    }
 
     private val _getResponseNetworkFiltered: MutableLiveData<CityBikesNetworksList> = MutableLiveData()
 
