@@ -5,6 +5,6 @@
 
     <fragment
         android:id="@+id/mapFragment"
-        android:name="com.group1.movebetter.MapFragment"
+        android:name="com.group1.movebetter.nextbike.MapFragment"
         android:label="MapFragment" />
 </navigation>

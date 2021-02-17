@@ -1,4 +1,4 @@
-package com.group1.movebetter
+package com.group1.movebetter.nextbike
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -42,7 +42,7 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
         }
     }
 
-    //ehemals controller:
+    //ehemals MapController:
 
     val BIKE_ICON_ID = "BIKE"
     val PROPERTY_SELECTED = "selected"

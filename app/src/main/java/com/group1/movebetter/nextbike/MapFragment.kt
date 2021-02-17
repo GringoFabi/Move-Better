@@ -1,4 +1,4 @@
-package com.group1.movebetter
+package com.group1.movebetter.nextbike
 
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -15,7 +15,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
-import com.example.android.trackmysleepquality.sleeptracker.MapViewModelFactory
+import com.group1.movebetter.R
 import com.group1.movebetter.databinding.FragmentMapBinding
 import com.group1.movebetter.repository.Repository
 import com.mapbox.android.core.permissions.PermissionsListener
@@ -107,7 +107,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     }
 
     private fun loadImages(style: Style) {
-        style.addImage(mapViewModel.BIKE_ICON_ID, BitmapFactory.decodeResource(this.resources, R.raw.bike))
+        style.addImage(mapViewModel.BIKE_ICON_ID, BitmapFactory.decodeResource(this.resources,
+            R.raw.bike
+        ))
     }
 
     private fun configSymbolManager(style: Style) {

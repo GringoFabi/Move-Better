@@ -1,4 +1,4 @@
-package com.example.android.trackmysleepquality.sleeptracker
+package com.group1.movebetter.nextbike
 
 /*
  * Copyright 2019, The Android Open Source Project
@@ -16,10 +16,8 @@ package com.example.android.trackmysleepquality.sleeptracker
  * limitations under the License.
  */
 
-import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.group1.movebetter.MapViewModel
 import com.group1.movebetter.repository.Repository
 
 /**

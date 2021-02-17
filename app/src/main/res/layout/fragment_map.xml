@@ -8,7 +8,7 @@
 
         <variable
             name="mapViewModel"
-            type="com.group1.movebetter.MapViewModel" />
+            type="com.group1.movebetter.nextbike.MapViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
