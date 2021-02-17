@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.databinding.DataBindingUtil
 import androidx.databinding.DataBindingUtil.inflate
 import androidx.lifecycle.ViewModelProvider
 import android.Manifest
@@ -37,20 +36,7 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
 import com.mapbox.mapboxsdk.style.layers.Property.ICON_ANCHOR_BOTTOM
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [MapFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
     private val CALLOUT_LAYER_ID = "CALLOUT_LAYER_ID"
     private val GEOJSON_SOURCE_ID = "GEOJSON_SOURCE_ID"
@@ -65,39 +51,21 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         context?.let { Mapbox.getInstance(it, getString(R.string.mapbox_access_token)) }
-
-        //mapController!!.withActivity(this)
-
-        /*setContentView(R.layout.mapbox)
-
-        mapView = findViewById(R.id.mapView)
-        mapView?.onCreate(savedInstanceState)
-        mapView?.getMapAsync(this)*/
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val binding : FragmentMapBinding = inflate(inflater, R.layout.fragment_map, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
+        val binding : FragmentMapBinding = inflate(inflater, R.layout.fragment_map, container, false)
         mapView = binding.mapView
 
+        // Get a reference to the ViewModel associated with this fragment.
         val repository = Repository();
         val viewModelFactory = MapViewModelFactory(repository)
-
-        // Get a reference to the ViewModel associated with this fragment.
-        mapViewModel =
-                ViewModelProvider(
-                        this, viewModelFactory).get(MapViewModel::class.java)
-
+        mapViewModel = ViewModelProvider(this, viewModelFactory).get(MapViewModel::class.java)
         binding.mapViewModel = mapViewModel;
 
-
-        binding.setLifecycleOwner(this)
+        binding.lifecycleOwner = this
 
         binding.button.setOnClickListener {
             mapViewModel.addNetworks(symbolManager);
@@ -107,7 +75,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         mapView.getMapAsync(this)
 
         mapViewModel.getNetworks()
-
         mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer { res -> Log.d("RESPONSE_NETWORKS", res.toString()) })
 
         return binding.root
@@ -261,25 +228,5 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     override fun onDestroy() {
         super.onDestroy()
         mapView!!.onDestroy()
-    }
-
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment MapFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            MapFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
     }
 }
