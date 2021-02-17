@@ -67,15 +67,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
         binding.lifecycleOwner = this
 
-        binding.button.setOnClickListener {
-            mapViewModel.addNetworks(symbolManager);
-        }
-
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
         mapViewModel.getNetworks()
-        mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer { res -> Log.d("RESPONSE_NETWORKS", res.toString()) })
+        mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer {
+            res -> Log.d("RESPONSE_NETWORKS", res.toString())
+            mapViewModel.addNetworks(res, symbolManager);
+        })
         mapViewModel.getResponseNetwork.observe(viewLifecycleOwner, Observer { res -> Log.d("RESPONSE_NETWORK", res.toString()) })
 
         return binding.root
@@ -90,10 +89,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         mapboxMap.setStyle(Style.MAPBOX_STREETS) {
             configSymbolManager(it)
             loadImages(it)
-            setUpInfoWindowLayer(it)
+            //setUpInfoWindowLayer(it)
             enableLocationComponent(it)
         }
     }
+
     private fun setUpInfoWindowLayer(style: Style) {
         // TODO https://docs.mapbox.com/android/maps/examples/symbol-layer-info-window/
         // TODO this
@@ -116,7 +116,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     private fun configSymbolManager(style: Style) {
         symbolManager = SymbolManager(mapView!!, this.mapboxMap!!, style)
 
-        symbolManager!!.iconAllowOverlap = true
+        symbolManager!!.iconAllowOverlap = false
 
         symbolManager!!.addClickListener(OnSymbolClickListener { symbol: Symbol ->
             Toast.makeText(
@@ -135,6 +135,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
         //TODO working with Layers to make infoWindow
     }
+
     private fun enableLocationComponent(loadedMapStyle: Style) {
 // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(context)) {
@@ -200,36 +201,36 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
     public override fun onResume() {
         super.onResume()
-        mapView!!.onResume()
+        mapView.onResume()
     }
 
     public override fun onPause() {
         super.onPause()
-        mapView!!.onPause()
+        mapView.onPause()
     }
 
     override fun onStart() {
         super.onStart()
-        mapView!!.onStart()
+        mapView.onStart()
     }
 
     override fun onStop() {
         super.onStop()
-        mapView!!.onStop()
+        mapView.onStop()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        mapView!!.onSaveInstanceState(outState)
+        mapView.onSaveInstanceState(outState)
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        mapView!!.onLowMemory()
+        mapView.onLowMemory()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mapView!!.onDestroy()
+        mapView.onDestroy()
     }
 }

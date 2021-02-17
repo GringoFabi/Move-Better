@@ -22,12 +22,6 @@
         mapbox:mapbox_cameraTargetLng="-56.149056"
         mapbox:mapbox_cameraZoom="12">
 
-        <Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ADD Markers" />
-
     </com.mapbox.mapboxsdk.maps.MapView>
 
 </layout>

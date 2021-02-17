@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.group1.movebetter.model.CityBikes
+import com.group1.movebetter.model.CityBikesNetworks
 import com.group1.movebetter.model.CityBikesNetworksList
 import com.group1.movebetter.repository.Repository
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -48,86 +49,42 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
     val PROPERTY_SELECTED = "selected"
     val SCOOTER_ICON_ID = "SCOOTER"
 
-    private val markerStations: HashMap<LatLng, List<LatLng>> = HashMap()
-    private val random: Random = Random()
+    private val markerNetwork: HashMap<LatLng, CityBikesNetworks> = HashMap()
 
-    private fun getMarkers(): HashMap<String, LatLng> {
-        //TODO get List from DataModel of Stations and Networks
-
-        val latLng = ArrayList<LatLng>()
-
-        latLng.add(LatLng(-34.603684, -58.381559)) // Buenos Aires
-        latLng.add(LatLng(48.85819, 2.29458)) //Eiffel Tower
-        latLng.add(LatLng(45.42153, -75.697193)) //Ottawa
-        latLng.add(LatLng(35.709026, 139.731992)) //Tokyo
-        latLng.add(LatLng(23.05407, -82.345189)) //Havana
-        latLng.add(LatLng(52.520007, 13.404954)) //Berlin
-        latLng.add(LatLng(37.983917, 23.72936)) //Athen
-        latLng.add(LatLng(14.634915, -90.506882)) //Guatemala
-        latLng.add(LatLng(51.507351, -0.127758)) //London
-
-        val cities = HashMap<String, LatLng>()
-
-        cities["Buenos Aires"] = latLng[0]
-        cities["Eiffel Tower"] = latLng[1]
-        cities["Ottawa"] = latLng[2]
-        cities["Tokyo"] = latLng[3]
-        cities["Havana"] = latLng[4]
-        cities["Berlin"] = latLng[5]
-        cities["Athen"] = latLng[6]
-        cities["Guatemala"] = latLng[7]
-        cities["London"] = latLng[8]
-
-        return cities
-    }
-
-    fun addNetworks(symbolManager: SymbolManager?) {
-        val cities = getMarkers()
-
+    fun addNetworks(networks: CityBikes, symbolManager: SymbolManager?) {
         val markers = ArrayList<SymbolOptions>()
 
-        for ((key, value) in cities) {
-            val symbol = createSymbolOptions(key, value)
+        for (network in networks.networks) {
+            val location = network.location
+
+            val symbol = createSymbolOptions("", LatLng(location.latitude, location.longitude))
             markers.add(symbol)
 
-            val stations = ArrayList<LatLng>()
-
-            // TODO would be good have an reference of (network) marker to stations you can create the stations markers based on that
-            // TODO HashMap or something
-
-            for (i in 0..5) {
-                val latLng = createRandomLatLng()
-                stations.add(latLng)
-            }
-
-            markerStations[value] = stations
+            markerNetwork[LatLng(location.latitude, location.longitude)] = network
         }
 
         symbolManager!!.create(markers)
     }
 
     private fun createSymbolOptions(key: String, value: LatLng): SymbolOptions {
-        return SymbolOptions().withLatLng(value).withIconImage(BIKE_ICON_ID).withIconSize(0.5f).withTextField(key)
+        return SymbolOptions().withLatLng(value).withIconImage(BIKE_ICON_ID).withIconSize(0.2f).withTextField(key)
     }
 
     fun addStations(symbolManager: SymbolManager?, symbol: Symbol) {
-        if (markerStations.containsKey(symbol.latLng)) {
-            symbolManager!!.delete(symbol);
+        if (markerNetwork.containsKey(symbol.latLng)) {
+            symbolManager!!.delete(symbol)
 
-            val stations = markerStations[symbol.latLng]
+            val network = markerNetwork[symbol.latLng]
 
             val markers = ArrayList<SymbolOptions>()
 
-            for (i in stations!!) {
-                markers.add(createSymbolOptions(symbol.textField, i))
-            }
-
-            symbolManager.create(markers)
+            // TODO Send request -> if successful then create markers like this and then add to map
+//            for (i in res) {
+//                markers.add(createSymbolOptions("", i))
+//            }
+//
+//            // TODO add to map
+//            symbolManager.create(markers)
         }
-    }
-
-    private fun createRandomLatLng(): LatLng {
-        return LatLng(random.nextDouble() * -180.0 + 90.0,
-            random.nextDouble() * -360.0 + 180.0)
     }
 }
