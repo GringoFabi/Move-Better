@@ -76,6 +76,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
         mapViewModel.getNetworks()
         mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer { res -> Log.d("RESPONSE_NETWORKS", res.toString()) })
+        mapViewModel.getResponseNetwork.observe(viewLifecycleOwner, Observer { res -> Log.d("RESPONSE_NETWORK", res.toString()) })
 
         return binding.root
     }
