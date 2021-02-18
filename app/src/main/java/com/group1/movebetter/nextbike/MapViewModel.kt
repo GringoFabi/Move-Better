@@ -1,5 +1,8 @@
 package com.group1.movebetter.nextbike
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,9 +16,15 @@ import com.mapbox.mapboxsdk.plugins.annotation.Symbol
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions
 import kotlinx.coroutines.launch
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
+import android.util.Log
+import androidx.fragment.app.FragmentActivity
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.group1.movebetter.model.CityBikesLocation
+import com.mapbox.android.core.permissions.PermissionsManager
+import kotlin.math.*
 
 class MapViewModel(private val repository: Repository) : ViewModel() {
     //ehemals MainViewModel:
@@ -96,6 +105,56 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
                 }
 
                 symbolManager.create(markers)
+            }
+        }
+    }
+
+    // nearest-network logic
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var permissionsManager: PermissionsManager? = null
+
+    lateinit var closestNetwork: CityBikesNetworks
+    lateinit var currentLocation: Location
+
+    fun getNearestNetwork(res: CityBikes) {
+        val earthRadius = 6371
+        val distances = ArrayList<Double>()
+        val distanceNetworkMap = HashMap<Double, CityBikesNetworks>()
+        for (network in res.networks) {
+            val networkLocation: CityBikesLocation = network.location
+            val distanceLatitude = degreeToRadial(abs(currentLocation.latitude) - abs(networkLocation.latitude))
+            val distanceLongitude = degreeToRadial(abs(currentLocation.longitude) - abs(networkLocation.longitude))
+
+            val a = sin(distanceLatitude/2) * sin(distanceLatitude/2) +
+                    cos(degreeToRadial(abs(networkLocation.latitude))) * cos(degreeToRadial(abs(currentLocation.latitude))) *
+                    sin(distanceLongitude/2) * sin(distanceLongitude/2)
+
+            val c = 2 * atan2(sqrt(a), sqrt(1-a));
+            val d = earthRadius * c; // Distance in km
+            distances.add(d)
+            distanceNetworkMap[d] = network
+        }
+        val minDistance: Double? = distances.minByOrNull { it }
+        closestNetwork = distanceNetworkMap[minDistance]!!
+        Log.d("Nearest Network", "${closestNetwork.id}")
+    }
+
+    private fun degreeToRadial(degree: Double): Double {
+        return degree * (Math.PI/180)
+    }
+
+    @SuppressLint("MissingPermission")
+    fun getCurrentLocation(activity: FragmentActivity, context: Context?, mapFragment: MapFragment) {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
+
+        if (!PermissionsManager.areLocationPermissionsGranted(context)) {
+            permissionsManager = PermissionsManager(mapFragment)
+            permissionsManager!!.requestLocationPermissions(activity)
+        }
+
+        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            if (location != null) {
+                currentLocation = location
             }
         }
     }

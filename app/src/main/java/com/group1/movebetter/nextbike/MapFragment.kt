@@ -10,11 +10,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil.inflate
 import androidx.lifecycle.ViewModelProvider
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
-import android.util.Log
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import com.group1.movebetter.R
 import com.group1.movebetter.databinding.FragmentMapBinding
@@ -71,6 +67,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
+        mapViewModel.getCurrentLocation(this.requireActivity(), context, this)
+
         mapViewModel.getNetworks()
 
         return binding.root
@@ -100,12 +98,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         //.withFilter(eq(get(mapController!!.PROPERTY_SELECTED), literal(true)))) /* add a filter to show only when selected feature property is true */
     }
 
-    private fun handleClickIcon(symbol: Symbol) {
-        val screenPoint = mapboxMap!!.projection.toScreenLocation(symbol.latLng)
-
-        //TODO working with Layers to make infoWindow
-    }
-
     private fun loadImages(style: Style) {
         style.addImage(mapViewModel.BIKE_ICON_ID, BitmapFactory.decodeResource(this.resources,
             R.raw.bike
@@ -116,7 +108,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         symbolManager = SymbolManager(mapView, this.mapboxMap!!, style)
 
         mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer {
-            res ->  mapViewModel.addNetworks(res, symbolManager)
+            res ->  mapViewModel.getNearestNetwork(res)
+            mapViewModel.addNetworks(res, symbolManager)
         })
 
         symbolManager.iconAllowOverlap = false
