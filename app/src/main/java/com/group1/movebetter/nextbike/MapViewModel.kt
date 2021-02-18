@@ -43,6 +43,14 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
         }
     }
 
+    fun getNetwork()
+    {
+        viewModelScope.launch {
+            val responseNetworks = repository.getNetworks()
+        }
+    }
+
+
     //ehemals MapController:
 
     val BIKE_ICON_ID = "BIKE"
@@ -76,15 +84,19 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
 
             val network = markerNetwork[symbol.latLng]
 
-            val markers = ArrayList<SymbolOptions>()
+            viewModelScope.launch {
+                val responseNetwork = repository.getNetwork(network!!.id)
 
-            // TODO Send request -> if successful then create markers like this and then add to map
-//            for (i in res) {
-//                markers.add(createSymbolOptions("", i))
-//            }
-//
-//            // TODO add to map
-//            symbolManager.create(markers)
+                val markers = ArrayList<SymbolOptions>()
+
+                val stations = responseNetwork.network.stations
+
+                for (station in stations) {
+                    markers.add(createSymbolOptions("", LatLng(station.latitude, station.longitude)))
+                }
+
+                symbolManager.create(markers)
+            }
         }
     }
 }
