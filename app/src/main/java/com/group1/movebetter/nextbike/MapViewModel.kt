@@ -18,7 +18,6 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions
 import kotlinx.coroutines.launch
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-import android.util.Log
 import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -72,6 +71,10 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
         val markers = ArrayList<SymbolOptions>()
 
         for (network in networks.networks) {
+            if (network.id == closestNetwork.id) {
+                getStation(closestNetwork, symbolManager!!)
+                continue
+            }
             val location = network.location
 
             val symbol = createSymbolOptions("", LatLng(location.latitude, location.longitude))
@@ -93,19 +96,23 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
 
             val network = markerNetwork[symbol.latLng]
 
-            viewModelScope.launch {
-                val responseNetwork = repository.getNetwork(network!!.id)
+            getStation(network, symbolManager)
+        }
+    }
 
-                val markers = ArrayList<SymbolOptions>()
+    private fun getStation(network: CityBikesNetworks?, symbolManager: SymbolManager) {
+        viewModelScope.launch {
+            val responseNetwork = repository.getNetwork(network!!.id)
 
-                val stations = responseNetwork.network.stations
+            val markers = ArrayList<SymbolOptions>()
 
-                for (station in stations) {
-                    markers.add(createSymbolOptions("", LatLng(station.latitude, station.longitude)))
-                }
+            val stations = responseNetwork.network.stations
 
-                symbolManager.create(markers)
+            for (station in stations) {
+                markers.add(createSymbolOptions("", LatLng(station.latitude, station.longitude)))
             }
+
+            symbolManager.create(markers)
         }
     }
 
@@ -117,6 +124,9 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
     lateinit var currentLocation: Location
 
     fun getNearestNetwork(res: CityBikes) {
+
+        // Haversine formular (see more here: https://en.wikipedia.org/wiki/Haversine_formula)
+
         val earthRadius = 6371
         val distances = ArrayList<Double>()
         val distanceNetworkMap = HashMap<Double, CityBikesNetworks>()
@@ -136,7 +146,6 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
         }
         val minDistance: Double? = distances.minByOrNull { it }
         closestNetwork = distanceNetworkMap[minDistance]!!
-        Log.d("Nearest Network", "${closestNetwork.id}")
     }
 
     private fun degreeToRadial(degree: Double): Double {
