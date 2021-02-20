@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        viewModel.getNetworksFiltered("name,id")
+        /*viewModel.getNetworksFiltered("name,id")
         viewModel.getResponseNetworkFiltered.observe(this, Observer {
                 res -> Log.d("ResponseFilNetworks", res.toString())
         })
@@ -33,6 +33,6 @@ class MainActivity : AppCompatActivity() {
         })
         viewModel.getResponseNetworks.observe(this, Observer {
                 res -> res.networks.forEachIndexed { i,it -> if(i>250 && i <350) Log.d(it.id.toString(), viewModel.getNetwork(it.id).toString())}
-        })
+        })*/
     }
 }

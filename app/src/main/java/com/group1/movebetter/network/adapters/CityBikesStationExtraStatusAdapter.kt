@@ -1,8 +1,6 @@
 package com.group1.movebetter.network.adapters
 
-import com.group1.movebetter.model.CityBikesStationExtraStatus
-import com.group1.movebetter.model.Company
-import com.group1.movebetter.model.StationName
+import com.group1.movebetter.model.StationExtraStatus
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
 import java.lang.Exception
@@ -10,7 +8,7 @@ import java.lang.Exception
 class CityBikesStationExtraStatusAdapter {
 
     @FromJson
-    fun fromJson(reader: JsonReader) : CityBikesStationExtraStatus {
+    fun fromJson(reader: JsonReader) : StationExtraStatus {
         val status = ArrayList<String>()
 
         if(reader.peek() == JsonReader.Token.BEGIN_OBJECT) {
@@ -35,7 +33,7 @@ class CityBikesStationExtraStatusAdapter {
 
         }
 
-        return CityBikesStationExtraStatus(status)
+        return StationExtraStatus(status)
     }
 
 }

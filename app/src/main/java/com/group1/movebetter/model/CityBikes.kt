@@ -1,7 +1,5 @@
 package com.group1.movebetter.model
 
-import com.squareup.moshi.Json
-
 
 data class CityBikes (
         val networks : List<CityBikesNetworks>
@@ -69,7 +67,7 @@ data class CityBikesStationExtra (
         val normal_bikes: Long,
         val online: Boolean,
         val slots: Long,
-        val status: CityBikesStationExtraStatus,
+        val status: StationExtraStatus,
         val uid: String
 )
 
@@ -77,6 +75,6 @@ data class StationEbikes (
         val amount: Long,
 )
 
-data class CityBikesStationExtraStatus (
+data class StationExtraStatus (
         val status: List<String>,
 )
