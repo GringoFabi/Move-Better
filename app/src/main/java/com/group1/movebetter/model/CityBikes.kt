@@ -1,9 +1,6 @@
 package com.group1.movebetter.model
 
-import com.group1.movebetter.network.adapters.CompanyAdapter
-import com.squareup.moshi.FromJson
-import com.squareup.moshi.JsonClass
-import com.squareup.moshi.ToJson
+import com.squareup.moshi.Json
 
 
 data class CityBikes (
@@ -17,7 +14,7 @@ data class CityBikesNetworks (
         val location: CityBikesLocation,
         val name: String,
         val id: String
-        )
+)
 
 
 data class CityBikesLocation (
@@ -32,7 +29,7 @@ data class Company (
         val company: List<String>
 )
 
-data class CityBikesNetworksList (
+data class CityBikesNetworkList (
         val network : CityBikesNetwork
 )
 
@@ -42,31 +39,44 @@ data class CityBikesNetwork (
         val location: CityBikesLocation,
         val id: String,
         val name: String,
-        val stations: List<CityBikesStations>
+        val stations: List<CityBikesStation>
 )
 
 
-data class CityBikesStations (
+data class CityBikesStation (
         val name: String,
         val timestamp: String,
         val longitude: Double,
-        val free_bikes: Long,
+        val free_bikes: Long?,
         val latitude: Double,
-        val empty_slots: Long,
+        val empty_slots: Long?,
         val id: String,
-        val extra: CityBikesStationsExtra
+        val extra: CityBikesStationExtra
 )
 
-data class CityBikesStationsExtra (
+data class StationName (
+        val name: List<String>
+)
+
+data class CityBikesStationExtra (
         val banking: Boolean,
+        val bike_uids: List<String>,
         val bikes_overflow: Long,
         val dueDate: Long,
-        val ebikes: Long,
+        val ebikes: StationEbikes,
         val ebikes_overflow: Long,
         val has_ebikes: Boolean,
         val normal_bikes: Long,
         val online: Boolean,
         val slots: Long,
-        val status: String,
-        val uid: Long
+        val status: CityBikesStationExtraStatus,
+        val uid: String
+)
+
+data class StationEbikes (
+        val amount: Long,
+)
+
+data class CityBikesStationExtraStatus (
+        val status: List<String>,
 )

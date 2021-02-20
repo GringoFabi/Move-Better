@@ -1,14 +1,9 @@
 package com.group1.movebetter.network
 
-import com.group1.movebetter.model.CityBikes
-import com.group1.movebetter.model.CityBikesNetwork
-import com.group1.movebetter.model.CityBikesNetworks
-import com.group1.movebetter.model.CityBikesNetworksList
-import kotlinx.coroutines.Deferred
-import retrofit2.Response
+import com.group1.movebetter.model.*
 import retrofit2.http.GET
 import retrofit2.http.Path
-import java.net.ResponseCache
+import retrofit2.http.Query
 
 interface CityBikesService {
 
@@ -18,6 +13,13 @@ interface CityBikesService {
     @GET("networks/{networkId}")
     suspend fun getNetwork(
         @Path("networkId") networkId: String)
-    : CityBikesNetworksList
+    : CityBikesNetworkList
 
+
+    @GET("networks?fields=")
+    suspend fun getNetworksFiltered(
+            @Query("id") id: String,
+            @Query("name") name: String,
+            @Query("href") href: String,
+    ): CityBikes
 }
