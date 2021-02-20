@@ -16,10 +16,8 @@ interface CityBikesService {
     : CityBikesNetworkList
 
 
-    @GET("networks?fields=")
+    @GET("networks")
     suspend fun getNetworksFiltered(
-            @Query("id") id: String,
-            @Query("name") name: String,
-            @Query("href") href: String,
+        @Query("fields") fields: String,
     ): CityBikes
 }

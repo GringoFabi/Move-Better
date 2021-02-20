@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.group1.movebetter.model.CityBikesNetworks
 import com.group1.movebetter.repository.Repository
 
 class MainActivity : AppCompatActivity() {
@@ -19,21 +18,19 @@ class MainActivity : AppCompatActivity() {
         val repository = Repository()
         val viewModelFactory = MainViewModelFactory(repository)
         viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
+
         viewModel.getNetworks()
-
         viewModel.getResponseNetworks.observe(this, Observer {
-                res -> Log.d("Response", res.toString())
+                res -> Log.d("Response Networks", res.toString())
         })
 
-
-
-        viewModel.getNetworksFiltered()
+        viewModel.getNetworksFiltered("name,id")
         viewModel.getResponseNetworkFiltered.observe(this, Observer {
-                res -> Log.d("Response", res.toString())
+                res -> Log.d("ResponseFilNetworks", res.toString())
         })
 
         viewModel.getResponseNetworks.observe(this, Observer {
-                res -> res.networks.forEachIndexed { i,it -> if(i<100) Log.d(it.id.toString(), viewModel.getNetwork(it.id).toString())}
+                res -> res.networks.forEachIndexed { i,it -> if(i<5) Log.d(it.id.toString(), viewModel.getNetwork(it.id).toString())}
         })
     }
 }

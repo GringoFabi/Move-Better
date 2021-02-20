@@ -10,9 +10,9 @@ class Repository {
         return RetrofitInstance.api.getNetworks()
     }
 
-    suspend fun getNetworksFiltered(): CityBikes
+    suspend fun getNetworksFiltered(fields: String): CityBikes
     {
-        return RetrofitInstance.api.getNetworksFiltered("id","name","href")
+        return RetrofitInstance.api.getNetworksFiltered(fields)
     }
 
     suspend fun getNetwork(networkId: String): CityBikesNetworkList

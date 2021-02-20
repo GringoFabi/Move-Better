@@ -22,10 +22,10 @@ class MainViewModel(private val repository: Repository) : ViewModel() {
         }
     }
 
-    fun getNetworksFiltered()
+    fun getNetworksFiltered(fields: String)
     {
         viewModelScope.launch {
-            val responseNetworksFiltered = repository.getNetworksFiltered()
+            val responseNetworksFiltered = repository.getNetworksFiltered(fields)
             getResponseNetworkFiltered.postValue(responseNetworksFiltered)
         }
     }
