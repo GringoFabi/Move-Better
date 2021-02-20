@@ -108,8 +108,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         symbolManager = SymbolManager(mapView, this.mapboxMap!!, style)
 
         mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer {
-            res ->  mapViewModel.getNearestNetwork(res)
-            mapViewModel.addNetworks(res, symbolManager)
+            mapViewModel.getNearestNetwork(it)
+            mapViewModel.addNetworks(it, symbolManager)
         })
 
         symbolManager.iconAllowOverlap = false
