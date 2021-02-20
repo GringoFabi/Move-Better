@@ -85,23 +85,25 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             //setUpInfoWindowLayer(it)
             enableLocationComponent(it)
         }
-
-        mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer {
-            res -> mapViewModel.addNetworks(res, symbolManager)
-        })
     }
 
     private fun setUpInfoWindowLayer(style: Style) {
         // TODO https://docs.mapbox.com/android/maps/examples/symbol-layer-info-window/
         // TODO this
         style.addLayer(SymbolLayer(CALLOUT_LAYER_ID, GEOJSON_SOURCE_ID)
-            .withProperties( /* show image with id title based on the value of the name feature property */
-                iconImage("{name}"),  /* set anchor of icon to bottom-left */
-                iconAnchor(ICON_ANCHOR_BOTTOM),  /* all info window and marker image to appear at the same time*/
-                iconAllowOverlap(true),  /* offset the info window to be above the marker */
-                iconOffset(arrayOf(-2f, -28f))
-            )) /* add a filter to show only when selected feature property is true */
-        //.withFilter(eq(get(mapController!!.PROPERTY_SELECTED), literal(true))))
+            .withProperties(
+                iconImage(mapViewModel.BIKE_ICON_ID), /* show image with id title based on the value of the name feature property */
+                iconAnchor(ICON_ANCHOR_BOTTOM), /* set anchor of icon to bottom-left */
+                iconAllowOverlap(true), /* all info window and marker image to appear at the same time */
+                iconOffset(arrayOf(-2f, -28f)) /* offset the info window to be above the marker */
+            ))
+        //.withFilter(eq(get(mapController!!.PROPERTY_SELECTED), literal(true)))) /* add a filter to show only when selected feature property is true */
+    }
+
+    private fun handleClickIcon(symbol: Symbol) {
+        val screenPoint = mapboxMap!!.projection.toScreenLocation(symbol.latLng)
+
+        //TODO working with Layers to make infoWindow
     }
 
     private fun loadImages(style: Style) {
@@ -113,7 +115,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     private fun configSymbolManager(style: Style) {
         symbolManager = SymbolManager(mapView, this.mapboxMap!!, style)
 
-        symbolManager.iconAllowOverlap = true
+        mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer {
+            res ->  mapViewModel.addNetworks(res, symbolManager)
+        })
+
+        symbolManager.iconAllowOverlap = false
 
         symbolManager.addClickListener(OnSymbolClickListener { symbol: Symbol ->
             Toast.makeText(
@@ -125,12 +131,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
             false
         })
-    }
-
-    private fun handleClickIcon(symbol: Symbol) {
-        val screenPoint = mapboxMap!!.projection.toScreenLocation(symbol.latLng)
-
-        //TODO working with Layers to make infoWindow
     }
 
     @SuppressLint("MissingPermission")
