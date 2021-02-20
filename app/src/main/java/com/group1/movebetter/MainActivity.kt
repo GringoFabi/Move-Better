@@ -19,18 +19,20 @@ class MainActivity : AppCompatActivity() {
         val viewModelFactory = MainViewModelFactory(repository)
         viewModel = ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
 
-        viewModel.getNetworks()
-        viewModel.getResponseNetworks.observe(this, Observer {
-                res -> Log.d("Response Networks", res.toString())
-        })
+
 
         viewModel.getNetworksFiltered("name,id")
         viewModel.getResponseNetworkFiltered.observe(this, Observer {
                 res -> Log.d("ResponseFilNetworks", res.toString())
         })
 
+
+        viewModel.getNetworks()
         viewModel.getResponseNetworks.observe(this, Observer {
-                res -> res.networks.forEachIndexed { i,it -> if(i<5) Log.d(it.id.toString(), viewModel.getNetwork(it.id).toString())}
+            res -> Log.d("Response Networks", res.toString())
+        })
+        viewModel.getResponseNetworks.observe(this, Observer {
+                res -> res.networks.forEachIndexed { i,it -> if(i>250 && i <350) Log.d(it.id.toString(), viewModel.getNetwork(it.id).toString())}
         })
     }
 }
