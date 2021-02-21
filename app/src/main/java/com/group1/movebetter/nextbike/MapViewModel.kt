@@ -3,6 +3,7 @@ package com.group1.movebetter.nextbike
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
+import android.location.LocationManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -121,7 +122,17 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
     private var permissionsManager: PermissionsManager? = null
 
     lateinit var closestNetwork: CityBikesNetworks
-    lateinit var currentLocation: Location
+    private var currentLocation: Location = initLocation()
+
+    private fun initLocation() : Location {
+
+        // Setting default location to Berlin
+
+        val location = Location(LocationManager.GPS_PROVIDER)
+        location.longitude = 13.404954
+        location.latitude = 52.520008
+        return location
+    }
 
     fun getNearestNetwork(res: CityBikes) {
 
