@@ -1,9 +1,7 @@
 package com.group1.movebetter.repository
 
 import com.group1.movebetter.model.CityBikes
-import com.group1.movebetter.model.CityBikesNetwork
-import com.group1.movebetter.model.CityBikesNetworks
-import com.group1.movebetter.model.CityBikesNetworksList
+import com.group1.movebetter.model.CityBikesNetworkList
 import com.group1.movebetter.network.RetrofitInstance
 
 class Repository {
@@ -12,13 +10,15 @@ class Repository {
         return RetrofitInstance.api.getNetworks()
     }
 
-    suspend fun getNetwork(networkId: String): CityBikesNetworksList
+    suspend fun getNetworksFiltered(fields: String): CityBikes
+    {
+        return RetrofitInstance.api.getNetworksFiltered(fields)
+    }
+
+    suspend fun getNetwork(networkId: String): CityBikesNetworkList
     {
         return RetrofitInstance.api.getNetwork(networkId)
     }
 
-    suspend fun getNetworkFiltered(networkId: String): CityBikesNetworksList
-    {
-        return RetrofitInstance.api.getNetwork(networkId)
-    }
+
 }
