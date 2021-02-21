@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.group1.movebetter.model.CityBikes
 import com.group1.movebetter.model.CityBikesNetworks
-import com.group1.movebetter.model.CityBikesNetworksList
+import com.group1.movebetter.model.CityBikesNetworkList
 import com.group1.movebetter.repository.Repository
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol
@@ -33,11 +33,11 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
     val getResponseNetworks: LiveData<CityBikes>
         get() = _getResponseNetworks
 
-    private val _getResponseNetwork: MutableLiveData<CityBikesNetworksList> = MutableLiveData()
-    val getResponseNetwork: LiveData<CityBikesNetworksList>
+    private val _getResponseNetwork: MutableLiveData<CityBikesNetworkList> = MutableLiveData()
+    val getResponseNetwork: LiveData<CityBikesNetworkList>
         get() = _getResponseNetwork
 
-    private val _getResponseNetworkFiltered: MutableLiveData<CityBikesNetworksList> = MutableLiveData()
+    private val _getResponseNetworkFiltered: MutableLiveData<CityBikesNetworkList> = MutableLiveData()
 
     fun getNetworks()
     {
