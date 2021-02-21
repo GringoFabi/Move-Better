@@ -10,10 +10,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil.inflate
 import androidx.lifecycle.ViewModelProvider
-import android.Manifest
-import android.content.pm.PackageManager
-import android.util.Log
-import androidx.core.app.ActivityCompat
+import android.annotation.SuppressLint
 import androidx.lifecycle.Observer
 import com.group1.movebetter.R
 import com.group1.movebetter.databinding.FragmentMapBinding
@@ -45,11 +42,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     private var mapboxMap: MapboxMap? = null
     private var permissionsManager: PermissionsManager? = null
 
-    private var symbolManager: SymbolManager? = null
+    private lateinit var symbolManager: SymbolManager
 
     private lateinit var mapViewModel: MapViewModel
 
-    public override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         context?.let { Mapbox.getInstance(it, getString(R.string.mapbox_access_token)) }
     }
@@ -67,44 +64,38 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
         binding.lifecycleOwner = this
 
-        binding.button.setOnClickListener {
-            mapViewModel.addNetworks(symbolManager);
-        }
-
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
+        mapViewModel.getCurrentLocation(this.requireActivity(), context, this)
+
         mapViewModel.getNetworks()
-        mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer { res -> Log.d("RESPONSE_NETWORKS", res.toString()) })
-        mapViewModel.getResponseNetwork.observe(viewLifecycleOwner, Observer { res -> Log.d("RESPONSE_NETWORK", res.toString()) })
 
         return binding.root
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
-
-        //TODO get List from DataModel of Stations and Networks
-
         this.mapboxMap = mapboxMap
 
         mapboxMap.setStyle(Style.MAPBOX_STREETS) {
             configSymbolManager(it)
             loadImages(it)
-            setUpInfoWindowLayer(it)
+            //setUpInfoWindowLayer(it)
             enableLocationComponent(it)
         }
     }
+
     private fun setUpInfoWindowLayer(style: Style) {
         // TODO https://docs.mapbox.com/android/maps/examples/symbol-layer-info-window/
         // TODO this
         style.addLayer(SymbolLayer(CALLOUT_LAYER_ID, GEOJSON_SOURCE_ID)
-            .withProperties( /* show image with id title based on the value of the name feature property */
-                iconImage("{name}"),  /* set anchor of icon to bottom-left */
-                iconAnchor(ICON_ANCHOR_BOTTOM),  /* all info window and marker image to appear at the same time*/
-                iconAllowOverlap(true),  /* offset the info window to be above the marker */
-                iconOffset(arrayOf(-2f, -28f))
-            )) /* add a filter to show only when selected feature property is true */
-        //.withFilter(eq(get(mapController!!.PROPERTY_SELECTED), literal(true))))
+            .withProperties(
+                iconImage(mapViewModel.BIKE_ICON_ID), /* show image with id title based on the value of the name feature property */
+                iconAnchor(ICON_ANCHOR_BOTTOM), /* set anchor of icon to bottom-left */
+                iconAllowOverlap(true), /* all info window and marker image to appear at the same time */
+                iconOffset(arrayOf(-2f, -28f)) /* offset the info window to be above the marker */
+            ))
+        //.withFilter(eq(get(mapController!!.PROPERTY_SELECTED), literal(true)))) /* add a filter to show only when selected feature property is true */
     }
 
     private fun loadImages(style: Style) {
@@ -114,11 +105,16 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     }
 
     private fun configSymbolManager(style: Style) {
-        symbolManager = SymbolManager(mapView!!, this.mapboxMap!!, style)
+        symbolManager = SymbolManager(mapView, this.mapboxMap!!, style)
 
-        symbolManager!!.iconAllowOverlap = true
+        mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer {
+            mapViewModel.getNearestNetwork(it)
+            mapViewModel.addNetworks(it, symbolManager)
+        })
 
-        symbolManager!!.addClickListener(OnSymbolClickListener { symbol: Symbol ->
+        symbolManager.iconAllowOverlap = false
+
+        symbolManager.addClickListener(OnSymbolClickListener { symbol: Symbol ->
             Toast.makeText(
                 context, String.format("Symbol clicked %s", symbol.textField),
                 Toast.LENGTH_SHORT
@@ -130,11 +126,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         })
     }
 
-    private fun handleClickIcon(symbol: Symbol) {
-        val screenPoint = mapboxMap!!.projection.toScreenLocation(symbol.latLng)
-
-        //TODO working with Layers to make infoWindow
-    }
+    @SuppressLint("MissingPermission")
     private fun enableLocationComponent(loadedMapStyle: Style) {
 // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(context)) {
@@ -155,17 +147,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 // Activate the LocationComponent with options
                 activateLocationComponent(locationComponentActivationOptions)
 
-                if (ActivityCompat.checkSelfPermission(context!!, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context!!, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(
-                        activity!!,
-                        arrayOf(
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION
-                        ),
-                        1000
-                    )
-                    return
-                }
 // Enable to make the LocationComponent visible
                 isLocationComponentEnabled = true
 
@@ -198,38 +179,38 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         }
     }
 
-    public override fun onResume() {
+    override fun onResume() {
         super.onResume()
-        mapView!!.onResume()
+        mapView.onResume()
     }
 
-    public override fun onPause() {
+    override fun onPause() {
         super.onPause()
-        mapView!!.onPause()
+        mapView.onPause()
     }
 
     override fun onStart() {
         super.onStart()
-        mapView!!.onStart()
+        mapView.onStart()
     }
 
     override fun onStop() {
         super.onStop()
-        mapView!!.onStop()
+        mapView.onStop()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        mapView!!.onSaveInstanceState(outState)
+        mapView.onSaveInstanceState(outState)
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        mapView!!.onLowMemory()
+        mapView.onLowMemory()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mapView!!.onDestroy()
+        mapView.onDestroy()
     }
 }
