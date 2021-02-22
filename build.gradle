@@ -39,9 +39,18 @@ allprojects {
                 // This should always be `mapbox` (not your username).
                 username = 'mapbox'
                 // Use the secret token you stored in gradle.properties as the password
-                password = project.properties['MAPBOX_DOWNLOADS_TOKEN'] ?: ""
+                password = getAccessToken() ?: ""
             }
         }
+    }
+}
+
+def getAccessToken() {
+    try {
+        def stringsFile = file("./app/src/main/res/values/developer-config.xml")
+        return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'mapbox_downloads_token' }.text()
+    }catch(e){
+        println(e)
     }
 }
 
