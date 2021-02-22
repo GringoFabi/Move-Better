@@ -63,6 +63,7 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
     //ehemals MapController:
 
     val BIKE_ICON_ID = "BIKE"
+    val NETWORK_ICON_ID = "NETWORK"
     val PROPERTY_SELECTED = "selected"
     val SCOOTER_ICON_ID = "SCOOTER"
 
@@ -78,7 +79,7 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
             }
             val location = network.location
 
-            val symbol = createSymbolOptions("", LatLng(location.latitude, location.longitude))
+            val symbol = createSymbolOptions("", LatLng(location.latitude, location.longitude), NETWORK_ICON_ID)
             markers.add(symbol)
 
             markerNetwork[LatLng(location.latitude, location.longitude)] = network
@@ -87,8 +88,8 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
         symbolManager!!.create(markers)
     }
 
-    private fun createSymbolOptions(key: String, value: LatLng): SymbolOptions {
-        return SymbolOptions().withLatLng(value).withIconImage(BIKE_ICON_ID).withIconSize(0.2f).withTextField(key)
+    private fun createSymbolOptions(key: String, value: LatLng, iconID: String): SymbolOptions {
+        return SymbolOptions().withLatLng(value).withIconImage(iconID).withIconSize(0.3f).withTextField(key)
     }
 
     fun addStations(symbolManager: SymbolManager?, symbol: Symbol) {
@@ -110,7 +111,7 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
             val stations = responseNetwork.network.stations
 
             for (station in stations) {
-                markers.add(createSymbolOptions("", LatLng(station.latitude, station.longitude)))
+                markers.add(createSymbolOptions("", LatLng(station.latitude, station.longitude), BIKE_ICON_ID))
             }
 
             symbolManager.create(markers)

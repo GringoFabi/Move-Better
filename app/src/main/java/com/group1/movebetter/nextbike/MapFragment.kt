@@ -99,9 +99,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     }
 
     private fun loadImages(style: Style) {
-        style.addImage(mapViewModel.BIKE_ICON_ID, BitmapFactory.decodeResource(this.resources,
-            R.raw.bike
-        ))
+        style.addImage(mapViewModel.BIKE_ICON_ID, BitmapFactory.decodeResource(this.resources, R.raw.bike))
+        style.addImage(mapViewModel.NETWORK_ICON_ID, BitmapFactory.decodeResource(this.resources, R.raw.network))
     }
 
     private fun configSymbolManager(style: Style) {
