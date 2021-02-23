@@ -24,6 +24,11 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.group1.movebetter.model.CityBikesLocation
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
+import com.mapbox.geojson.Point
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import java.util.function.Predicate
 import kotlin.math.*
 
 class MapViewModel(private val repository: Repository) : ViewModel() {
@@ -64,58 +69,55 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
 
     val BIKE_ICON_ID = "BIKE"
     val NETWORK_ICON_ID = "NETWORK"
-    val PROPERTY_SELECTED = "selected"
     val SCOOTER_ICON_ID = "SCOOTER"
 
-    private val markerNetwork: HashMap<LatLng, CityBikesNetworks> = HashMap()
+    val networkCoordinates: ArrayList<Feature> = ArrayList()
+    val stationCoordinates: ArrayList<Feature> = ArrayList()
 
-    fun addNetworks(networks: CityBikes, symbolManager: SymbolManager?) {
-        val markers = ArrayList<SymbolOptions>()
+    fun createFeatureList(cityBikes: CityBikes) : Feature? {
+        var closestNetworkFeature: Feature? = null
 
-        for (network in networks.networks) {
-            if (network.id == closestNetwork.id) {
-                getStation(closestNetwork, symbolManager!!)
-                continue
-            }
+        for (network in cityBikes.networks) {
             val location = network.location
+            val feature = Feature.fromGeometry(Point.fromLngLat(location.longitude, location.latitude))
+            feature.addStringProperty("id", network.id)
 
-            val symbol = createSymbolOptions("", LatLng(location.latitude, location.longitude), NETWORK_ICON_ID)
-            markers.add(symbol)
+            if (network.id == closestNetwork.id) {
+                closestNetworkFeature = feature
+            }
 
-            markerNetwork[LatLng(location.latitude, location.longitude)] = network
+            networkCoordinates.add(feature)
         }
 
-        symbolManager!!.create(markers)
+        return closestNetworkFeature
     }
 
-    private fun createSymbolOptions(key: String, value: LatLng, iconID: String): SymbolOptions {
-        return SymbolOptions().withLatLng(value).withIconImage(iconID).withIconSize(0.3f).withTextField(key)
-    }
-
-    fun addStations(symbolManager: SymbolManager?, symbol: Symbol) {
-        if (markerNetwork.containsKey(symbol.latLng)) {
-            symbolManager!!.delete(symbol)
-
-            val network = markerNetwork[symbol.latLng]
-
-            getStation(network, symbolManager)
-        }
-    }
-
-    private fun getStation(network: CityBikesNetworks?, symbolManager: SymbolManager) {
+    @SuppressLint("NewApi")
+    fun exchangeNetworkWithStations(networkSource: GeoJsonSource, stationSource: GeoJsonSource, network: Feature) {
         viewModelScope.launch {
-            val responseNetwork = repository.getNetwork(network!!.id)
+            val responseNetwork = repository.getNetwork(network.getStringProperty("id"))
 
-            val markers = ArrayList<SymbolOptions>()
+            val condition = Predicate<Feature> { x -> x.getStringProperty("id").equals(network.getStringProperty("id")) }
+
+            networkCoordinates.removeIf(condition)
 
             val stations = responseNetwork.network.stations
 
             for (station in stations) {
-                markers.add(createSymbolOptions("", LatLng(station.latitude, station.longitude), BIKE_ICON_ID))
+                val featureStation = Feature.fromGeometry(Point.fromLngLat(station.longitude, station.latitude))
+                featureStation.addNumberProperty("freeBikes", station.free_bikes)
+                featureStation.addNumberProperty("emptySlots", station.empty_slots)
+                featureStation.addStringProperty("timestamp", station.timestamp)
+                stationCoordinates.add(featureStation)
             }
 
-            symbolManager.create(markers)
+            refreshSources(networkSource, stationSource)
         }
+    }
+
+    fun refreshSources(networkSource: GeoJsonSource, stationSource: GeoJsonSource) {
+        networkSource.setGeoJson(FeatureCollection.fromFeatures(networkCoordinates))
+        stationSource.setGeoJson(FeatureCollection.fromFeatures(stationCoordinates))
     }
 
     // nearest-network logic

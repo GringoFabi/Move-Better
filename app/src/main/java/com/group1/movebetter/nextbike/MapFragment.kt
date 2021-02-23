@@ -1,23 +1,24 @@
 package com.group1.movebetter.nextbike
 
+import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil.inflate
-import androidx.lifecycle.ViewModelProvider
-import android.annotation.SuppressLint
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.group1.movebetter.R
 import com.group1.movebetter.databinding.FragmentMapBinding
 import com.group1.movebetter.repository.Repository
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
@@ -26,23 +27,22 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.layers.SymbolLayer
-import com.mapbox.mapboxsdk.plugins.annotation.OnSymbolClickListener
-import com.mapbox.mapboxsdk.plugins.annotation.Symbol
-import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
-import com.mapbox.mapboxsdk.style.layers.Property.ICON_ANCHOR_BOTTOM
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 
-class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
-    private val CALLOUT_LAYER_ID = "CALLOUT_LAYER_ID"
-    private val GEOJSON_SOURCE_ID = "GEOJSON_SOURCE_ID"
+class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxMap.OnMapClickListener {
+
+    private val BIKE_STATION_LAYER = "bike-station-layer"
+    private val BIKE_STATIONS = "bike-stations"
+    private val BIKE_NETWORK_LAYER = "bike-network-layer"
+    private val BIKE_NETWORK_SOURCE = "bike-network-source"
 
     private lateinit var mapView: MapView;
     private var mapboxMap: MapboxMap? = null
     private var permissionsManager: PermissionsManager? = null
-
-    private lateinit var symbolManager: SymbolManager
 
     private lateinit var mapViewModel: MapViewModel
 
@@ -74,55 +74,72 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         return binding.root
     }
 
+    override fun onMapClick(point: LatLng): Boolean {
+        val style = mapboxMap!!.style
+        if (style != null) {
+            val pixel = mapboxMap!!.projection.toScreenLocation(point)
+
+            val bikeNetworks = mapboxMap!!.queryRenderedFeatures(pixel, BIKE_NETWORK_LAYER)
+            val bikeStation = mapboxMap!!.queryRenderedFeatures(pixel, BIKE_STATION_LAYER)
+
+            val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORK_SOURCE)
+            val stationSource = style.getSourceAs<GeoJsonSource>(BIKE_STATIONS)
+
+            if (bikeNetworks.isNotEmpty()) {
+                mapViewModel.exchangeNetworkWithStations(networkSource!!, stationSource!!, bikeNetworks[0])
+            }
+
+            if (bikeStation.isEmpty()) {
+                return false
+            }
+
+            val output = "Free Bikes: ${bikeStation[0].getNumberProperty("freeBikes")}\nEmpty Slots: ${bikeStation[0].getNumberProperty("emptySlots")}\n" +
+                    "Timestamp: ${bikeStation[0].getStringProperty("timestamp")}"
+
+            Toast.makeText(context, output, Toast.LENGTH_LONG).show()
+        }
+        return true
+    }
+
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
 
-        mapboxMap.setStyle(Style.MAPBOX_STREETS) {
-            configSymbolManager(it)
+        mapboxMap.setStyle(Style.MAPBOX_STREETS, Style.OnStyleLoaded {
             loadImages(it)
-            //setUpInfoWindowLayer(it)
             enableLocationComponent(it)
-        }
+            setupLayers(it)
+            mapboxMap.addOnMapClickListener(this@MapFragment)
+        })
     }
 
-    private fun setUpInfoWindowLayer(style: Style) {
-        // TODO https://docs.mapbox.com/android/maps/examples/symbol-layer-info-window/
-        // TODO this
-        style.addLayer(SymbolLayer(CALLOUT_LAYER_ID, GEOJSON_SOURCE_ID)
-            .withProperties(
-                iconImage(mapViewModel.BIKE_ICON_ID), /* show image with id title based on the value of the name feature property */
-                iconAnchor(ICON_ANCHOR_BOTTOM), /* set anchor of icon to bottom-left */
-                iconAllowOverlap(true), /* all info window and marker image to appear at the same time */
-                iconOffset(arrayOf(-2f, -28f)) /* offset the info window to be above the marker */
-            ))
-        //.withFilter(eq(get(mapController!!.PROPERTY_SELECTED), literal(true)))) /* add a filter to show only when selected feature property is true */
+    private fun setupLayers(style: Style) {
+        style.addSource(GeoJsonSource(BIKE_NETWORK_SOURCE))
+
+        style.addLayer(SymbolLayer(BIKE_NETWORK_LAYER, BIKE_NETWORK_SOURCE)
+                .withProperties(PropertyFactory.iconImage(mapViewModel.NETWORK_ICON_ID),
+                        iconAllowOverlap(false),
+                        iconSize(0.3f)))
+
+        style.addSource(GeoJsonSource(BIKE_STATIONS))
+
+        style.addLayer(SymbolLayer(BIKE_STATION_LAYER, BIKE_STATIONS)
+                .withProperties(PropertyFactory.iconImage(mapViewModel.BIKE_ICON_ID),
+                            iconAllowOverlap(false),
+                            iconSize(0.3f)))
+
+        mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer {
+            mapViewModel.getNearestNetwork(it)
+            val feature = mapViewModel.createFeatureList(it)
+
+            if (feature != null) {
+                mapViewModel.exchangeNetworkWithStations(style.getSourceAs(BIKE_NETWORK_SOURCE)!!, style.getSourceAs(BIKE_STATIONS)!!, feature)
+            }
+        })
     }
 
     private fun loadImages(style: Style) {
         style.addImage(mapViewModel.BIKE_ICON_ID, BitmapFactory.decodeResource(this.resources, R.raw.bike))
         style.addImage(mapViewModel.NETWORK_ICON_ID, BitmapFactory.decodeResource(this.resources, R.raw.network))
-    }
-
-    private fun configSymbolManager(style: Style) {
-        symbolManager = SymbolManager(mapView, this.mapboxMap!!, style)
-
-        mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer {
-            mapViewModel.getNearestNetwork(it)
-            mapViewModel.addNetworks(it, symbolManager)
-        })
-
-        symbolManager.iconAllowOverlap = false
-
-        symbolManager.addClickListener(OnSymbolClickListener { symbol: Symbol ->
-            Toast.makeText(
-                context, String.format("Symbol clicked %s", symbol.textField),
-                Toast.LENGTH_SHORT
-            ).show()
-
-            mapViewModel.addStations(symbolManager, symbol)
-
-            false
-        })
     }
 
     @SuppressLint("MissingPermission")
