@@ -27,7 +27,7 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory
+import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
@@ -113,20 +113,23 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     }
 
     private fun setupLayers(style: Style) {
+        // Bike Network Layer
         style.addSource(GeoJsonSource(BIKE_NETWORK_SOURCE))
 
         style.addLayer(SymbolLayer(BIKE_NETWORK_LAYER, BIKE_NETWORK_SOURCE)
-                .withProperties(PropertyFactory.iconImage(mapViewModel.NETWORK_ICON_ID),
+                .withProperties(iconImage(mapViewModel.NETWORK_ICON_ID),
                         iconAllowOverlap(false),
                         iconSize(0.3f)))
 
+        // Bike Stations Layer
         style.addSource(GeoJsonSource(BIKE_STATIONS))
 
         style.addLayer(SymbolLayer(BIKE_STATION_LAYER, BIKE_STATIONS)
-                .withProperties(PropertyFactory.iconImage(mapViewModel.BIKE_ICON_ID),
+                .withProperties(iconImage(mapViewModel.BIKE_ICON_ID),
                             iconAllowOverlap(false),
                             iconSize(0.3f)))
 
+        // Add things to Layer
         mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer {
             mapViewModel.getNearestNetwork(it)
             val feature = mapViewModel.createFeatureList(it)
