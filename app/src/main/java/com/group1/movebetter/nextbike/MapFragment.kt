@@ -6,7 +6,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.TextView
 import android.widget.Toast
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil.inflate
 import androidx.fragment.app.Fragment
@@ -18,6 +21,7 @@ import com.group1.movebetter.databinding.FragmentMapBinding
 import com.group1.movebetter.repository.Repository
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.geojson.Feature
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
@@ -52,7 +56,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         context?.let { Mapbox.getInstance(it, getString(R.string.mapbox_access_token)) }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 
         val binding : FragmentMapBinding = inflate(inflater, R.layout.fragment_map, container, false)
         mapView = binding.mapView
@@ -78,13 +82,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     override fun onMapClick(point: LatLng): Boolean {
         val style = mapboxMap!!.style
         if (style != null) {
+            checkIfCardViewVisible()
+
             val pixel = mapboxMap!!.projection.toScreenLocation(point)
 
             val bikeNetworks = mapboxMap!!.queryRenderedFeatures(pixel, BIKE_NETWORK_LAYER)
             val bikeStation = mapboxMap!!.queryRenderedFeatures(pixel, BIKE_STATION_LAYER)
-
-            val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORK_SOURCE)
-            val stationSource = style.getSourceAs<GeoJsonSource>(BIKE_STATIONS)
 
             if (bikeNetworks.isNotEmpty()) {
                 mapViewModel.getNetwork(bikeNetworks[0]!!.getStringProperty("id"))
@@ -94,25 +97,47 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 return false
             }
 
-            val output = "Free Bikes: ${bikeStation[0].getNumberProperty("freeBikes")}\nEmpty Slots: ${bikeStation[0].getNumberProperty("emptySlots")}\n" +
-                    "Timestamp: ${bikeStation[0].getStringProperty("timestamp")}"
-
-            //Get bounds of cameraPosition: mapboxMap!!.getLatLngBoundsZoomFromCamera(mapboxMap!!.cameraPosition)
-
-            Toast.makeText(context, output, Toast.LENGTH_LONG).show()
+            adaptCardView(bikeStation[0])
         }
         return true
+    }
+
+    private fun adaptCardView(feature: Feature) {
+        val name = this.activity?.findViewById<TextView>(R.id.textView_title)
+        name!!.text = feature.getStringProperty("name")
+        val freeBikes = this.activity?.findViewById<TextView>(R.id.textView_freeBikes)
+        freeBikes!!.text = "Free Bikes = ${feature.getNumberProperty("freeBikes")}"
+        val emptySlots = this.activity?.findViewById<TextView>(R.id.textView_emptySlots)
+        emptySlots!!.text = "Empty Slots = ${feature.getNumberProperty("emptySlots")}"
+        val timestamp = this.activity?.findViewById<TextView>(R.id.textView_timestamp)
+        timestamp!!.text = feature.getStringProperty("timestamp")
+
+
+        val cardView = this.activity?.findViewById<CardView>(R.id.single_location_cardView)
+        cardView!!.visibility = View.VISIBLE
+    }
+
+    private fun checkIfCardViewVisible() {
+        var cardView = this.activity?.findViewById<CardView>(R.id.single_location_cardView)
+
+        /*if (cardView == null) {
+            val frameLayout = this.activity?.findViewById<FrameLayout>(R.id.frameLayout)
+            frameLayout!!.addView(this.activity!!.layoutInflater.inflate(R.layout.cardview_symbol_layer, null))
+            cardView = this.activity?.findViewById<CardView>(R.id.single_location_cardView)
+        }*/
+
+        cardView!!.visibility = View.GONE
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
 
-        mapboxMap.setStyle(Style.MAPBOX_STREETS, Style.OnStyleLoaded {
+        mapboxMap.setStyle(Style.MAPBOX_STREETS) {
             loadImages(it)
             enableLocationComponent(it)
             setupLayers(it)
             mapboxMap.addOnMapClickListener(this@MapFragment)
-        })
+        }
     }
 
     private fun setupLayers(style: Style) {
