@@ -109,7 +109,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
             if (bikeStation.isEmpty()) {
                 if (markerSelected) {
-                    deselectMarker(selectedMarkerLayer)
+                    deselectMarker(selectedMarkerLayer, style)
                 }
                 return false
             }
@@ -120,7 +120,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             source?.setGeoJson(FeatureCollection.fromFeature(bikeStation[0]))
 
             if (markerSelected) {
-                deselectMarker(selectedMarkerLayer)
+                deselectMarker(selectedMarkerLayer, style)
             }
             if (bikeStation.size > 0) {
                 selectMarker(selectedMarkerLayer)
@@ -144,7 +144,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         markerSelected = true
     }
 
-    private fun deselectMarker(iconLayer: SymbolLayer) {
+    private fun deselectMarker(iconLayer: SymbolLayer, style: Style) {
         markerAnimator!!.setObjectValues(1f, 0.3f)
         markerAnimator!!.duration = 300
         markerAnimator!!.addUpdateListener { animator ->
@@ -154,6 +154,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
         markerAnimator!!.start()
         markerSelected = false
+
+        // Reset selected-marker-source
+        val source = style.getSourceAs<GeoJsonSource>(SELECTED_MARKER)
+        source?.setGeoJson(FeatureCollection.fromFeatures(arrayOf()))
     }
 
     private fun adaptCardView(feature: Feature) {
