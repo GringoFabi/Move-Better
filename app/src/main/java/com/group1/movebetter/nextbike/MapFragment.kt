@@ -1,12 +1,12 @@
 package com.group1.movebetter.nextbike
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
@@ -22,6 +22,7 @@ import com.group1.movebetter.repository.Repository
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
@@ -44,9 +45,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     private val BIKE_STATIONS = "bike-stations"
     private val BIKE_NETWORK_LAYER = "bike-network-layer"
     private val BIKE_NETWORK_SOURCE = "bike-network-source"
+    private val SELECTED_MARKER = "selected-marker"
+    private val SELECTED_MARKER_LAYER = "selected-marker-layer"
+
+    private var markerAnimator: ValueAnimator? = null
+    private var markerSelected = false
 
     private lateinit var mapView: MapView;
-    private var mapboxMap: MapboxMap? = null
+    private lateinit var mapboxMap: MapboxMap
     private var permissionsManager: PermissionsManager? = null
 
     private lateinit var mapViewModel: MapViewModel
@@ -80,26 +86,74 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     }
 
     override fun onMapClick(point: LatLng): Boolean {
-        val style = mapboxMap!!.style
+        val style = mapboxMap.style
         if (style != null) {
             checkIfCardViewVisible()
 
-            val pixel = mapboxMap!!.projection.toScreenLocation(point)
+            val pixel = mapboxMap.projection.toScreenLocation(point)
 
-            val bikeNetworks = mapboxMap!!.queryRenderedFeatures(pixel, BIKE_NETWORK_LAYER)
-            val bikeStation = mapboxMap!!.queryRenderedFeatures(pixel, BIKE_STATION_LAYER)
+            val bikeNetworks = mapboxMap.queryRenderedFeatures(pixel, BIKE_NETWORK_LAYER)
+            val bikeStation = mapboxMap.queryRenderedFeatures(pixel, BIKE_STATION_LAYER)
+            val selectedFeature = mapboxMap.queryRenderedFeatures(pixel, SELECTED_MARKER_LAYER)
+
+            val selectedMarkerLayer = style.getLayer(SELECTED_MARKER_LAYER) as SymbolLayer
 
             if (bikeNetworks.isNotEmpty()) {
                 mapViewModel.getNetwork(bikeNetworks[0]!!.getStringProperty("id"))
             }
 
-            if (bikeStation.isEmpty()) {
+            if (selectedFeature.size > 0 && markerSelected) {
+                adaptCardView(selectedFeature[0])
                 return false
+            }
+
+            if (bikeStation.isEmpty()) {
+                if (markerSelected) {
+                    deselectMarker(selectedMarkerLayer)
+                }
+                return false
+            }
+
+            // TODO differentiate between layers of bikes, scooters and stops of NVV
+            // Add picture to Selected_Marker_layer dynamically
+            val source = style.getSourceAs<GeoJsonSource>(SELECTED_MARKER)
+            source?.setGeoJson(FeatureCollection.fromFeature(bikeStation[0]))
+
+            if (markerSelected) {
+                deselectMarker(selectedMarkerLayer)
+            }
+            if (bikeStation.size > 0) {
+                selectMarker(selectedMarkerLayer)
             }
 
             adaptCardView(bikeStation[0])
         }
         return true
+    }
+
+    private fun selectMarker(iconLayer: SymbolLayer) {
+        markerAnimator = ValueAnimator()
+        markerAnimator!!.setObjectValues(0.3f, 1f)
+        markerAnimator!!.duration = 300
+        markerAnimator!!.addUpdateListener { animator ->
+            iconLayer.setProperties(
+                    iconSize(animator.animatedValue as Float)
+            )
+        }
+        markerAnimator!!.start()
+        markerSelected = true
+    }
+
+    private fun deselectMarker(iconLayer: SymbolLayer) {
+        markerAnimator!!.setObjectValues(1f, 0.3f)
+        markerAnimator!!.duration = 300
+        markerAnimator!!.addUpdateListener { animator ->
+            iconLayer.setProperties(
+                    iconSize(animator.animatedValue as Float)
+            )
+        }
+        markerAnimator!!.start()
+        markerSelected = false
     }
 
     private fun adaptCardView(feature: Feature) {
@@ -118,7 +172,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     }
 
     private fun checkIfCardViewVisible() {
-        var cardView = this.activity?.findViewById<CardView>(R.id.single_location_cardView)
+        val cardView = this.activity?.findViewById<CardView>(R.id.single_location_cardView)
 
         /*if (cardView == null) {
             val frameLayout = this.activity?.findViewById<FrameLayout>(R.id.frameLayout)
@@ -158,6 +212,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                         iconAllowOverlap(false),
                         iconSize(0.3f)))
 
+        // Selected Icon Layer
+        style.addSource(GeoJsonSource(SELECTED_MARKER))
+
+        style.addLayer(SymbolLayer(SELECTED_MARKER_LAYER, SELECTED_MARKER)
+                .withProperties(iconImage(mapViewModel.BIKE_ICON_ID),
+                iconSize(0.3f)))
+
         // Add things to Layer
         mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer {
             val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORK_SOURCE)
@@ -193,7 +254,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 .build()
 
 // Get an instance of the LocationComponent and then adjust its settings
-            mapboxMap!!.locationComponent.apply {
+            mapboxMap.locationComponent.apply {
 
 // Activate the LocationComponent with options
                 activateLocationComponent(locationComponentActivationOptions)
@@ -223,7 +284,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     override fun onPermissionResult(granted: Boolean) {
         if (granted) {
-            enableLocationComponent(mapboxMap!!.style!!)
+            enableLocationComponent(mapboxMap.style!!)
         } else {
             Toast.makeText(context, "R.string.user_location_permission_not_granted", Toast.LENGTH_LONG).show()
             activity!!.finish()
