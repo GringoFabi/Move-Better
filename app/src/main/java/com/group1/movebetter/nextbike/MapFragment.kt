@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
+import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil.inflate
 import androidx.fragment.app.Fragment
@@ -152,12 +153,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                     iconSize(animator.animatedValue as Float)
             )
         }
+        markerAnimator!!.doOnEnd {
+            // Reset selected-marker-source
+            val source = style.getSourceAs<GeoJsonSource>(SELECTED_MARKER)
+            source?.setGeoJson(FeatureCollection.fromFeatures(arrayOf()))
+        }
         markerAnimator!!.start()
         markerSelected = false
-
-        // Reset selected-marker-source
-        val source = style.getSourceAs<GeoJsonSource>(SELECTED_MARKER)
-        source?.setGeoJson(FeatureCollection.fromFeatures(arrayOf()))
     }
 
     private fun adaptCardView(feature: Feature) {
