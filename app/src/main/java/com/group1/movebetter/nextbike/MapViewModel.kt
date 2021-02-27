@@ -11,10 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.group1.movebetter.model.CityBikes
-import com.group1.movebetter.model.CityBikesLocation
-import com.group1.movebetter.model.CityBikesNetworkList
-import com.group1.movebetter.model.CityBikesNetworks
+import com.group1.movebetter.model.*
 import com.group1.movebetter.repository.Repository
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Feature
@@ -47,6 +44,13 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
         }
     }
 
+    fun getNetwork(id: String) {
+        viewModelScope.launch {
+            val responseNetwork = repository.getNetwork(id)
+            _getResponseNetwork.value = responseNetwork
+        }
+    }
+
 
     //ehemals MapController:
 
@@ -55,54 +59,69 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
     val SCOOTER_ICON_ID = "SCOOTER"
 
     private val networkCoordinates: ArrayList<Feature> = ArrayList()
-    private val stationCoordinates: ArrayList<Feature> = ArrayList()
+    private var currentNetwork: CityBikesNetwork? = null
 
-    fun createFeatureList(cityBikes: CityBikes) : Feature? {
-        var closestNetworkFeature: Feature? = null
-
+    fun createFeatureList(networkSource: GeoJsonSource?, cityBikes: CityBikes) {
         for (network in cityBikes.networks) {
-            val location = network.location
-            val feature = Feature.fromGeometry(Point.fromLngLat(location.longitude, location.latitude))
-            feature.addStringProperty("id", network.id)
+            val feature = createFeature(network.id, network.location, true)
 
             if (network.id == closestNetwork.id) {
-                closestNetworkFeature = feature
+                feature.addBooleanProperty("show", false)
+                getNetwork(network.id)
             }
 
             networkCoordinates.add(feature)
         }
 
-        return closestNetworkFeature
+        refreshSource(networkSource!!, networkCoordinates)
+    }
+
+    private fun createFeature(id: String, location: CityBikesLocation, show: Boolean): Feature {
+        val feature = Feature.fromGeometry(Point.fromLngLat(location.longitude, location.latitude))
+        feature.addStringProperty("id", id)
+        feature.addBooleanProperty("show", show)
+
+        return feature
     }
 
     @SuppressLint("NewApi")
-    fun exchangeNetworkWithStations(networkSource: GeoJsonSource, stationSource: GeoJsonSource, network: Feature) {
-        viewModelScope.launch {
-            val responseNetwork = repository.getNetwork(network.getStringProperty("id"))
-
-            val condition = Predicate<Feature> { x -> x.getStringProperty("id").equals(network.getStringProperty("id")) }
-
-            networkCoordinates.removeIf(condition)
-
-            val stations = responseNetwork.network.stations
-
-            for (station in stations) {
-                val featureStation = Feature.fromGeometry(Point.fromLngLat(station.longitude, station.latitude))
-                featureStation.addStringProperty("name", station.name)
-                featureStation.addStringProperty("id", station.id)
-                featureStation.addNumberProperty("freeBikes", station.free_bikes)
-                featureStation.addNumberProperty("emptySlots", station.empty_slots)
-                featureStation.addStringProperty("timestamp", station.timestamp)
-                stationCoordinates.add(featureStation)
-            }
-
-            refreshSources(networkSource, stationSource)
+    fun exchangeNetworkWithStations(networkSource: GeoJsonSource?, stationSource: GeoJsonSource?, network: CityBikesNetwork) {
+        // Update currentNetwork
+        if (currentNetwork == null) {
+            currentNetwork = network
         }
+
+        val condition = Predicate<Feature> { x -> x.getStringProperty("id").equals(network.id) || x.getStringProperty("id").equals(currentNetwork!!.id) }
+
+        networkCoordinates.removeIf(condition)
+        networkCoordinates.add(createFeature(network.id, network.location, false))
+
+        if (currentNetwork!!.id != network.id) {
+            networkCoordinates.add(createFeature(currentNetwork!!.id, currentNetwork!!.location, true))
+            currentNetwork = network
+        }
+
+        refreshSource(networkSource!!, networkCoordinates)
+
+        // Add stations to map
+        val featureList = ArrayList<Feature>()
+
+        for (station in network.stations) {
+            val featureStation = Feature.fromGeometry(Point.fromLngLat(station.longitude, station.latitude))
+            featureStation.addStringProperty("name", station.name)
+            featureStation.addStringProperty("id", station.id)
+            featureStation.addNumberProperty("freeBikes", station.free_bikes)
+            featureStation.addNumberProperty("emptySlots", station.empty_slots)
+            featureStation.addStringProperty("timestamp", station.timestamp)
+
+            featureList.add(featureStation)
+        }
+
+        refreshSource(stationSource!!, featureList)
     }
 
-    private fun refreshSources(networkSource: GeoJsonSource, stationSource: GeoJsonSource) {
-        networkSource.setGeoJson(FeatureCollection.fromFeatures(networkCoordinates))
-        stationSource.setGeoJson(FeatureCollection.fromFeatures(stationCoordinates))
+    private fun refreshSource(source: GeoJsonSource, featureList: ArrayList<Feature>) {
+        source.setGeoJson(FeatureCollection.fromFeatures(featureList))
     }
 
     // nearest-network logic

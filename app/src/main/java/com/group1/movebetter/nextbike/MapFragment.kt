@@ -12,6 +12,7 @@ import androidx.databinding.DataBindingUtil.inflate
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.*
 import com.group1.movebetter.R
 import com.group1.movebetter.databinding.FragmentMapBinding
 import com.group1.movebetter.repository.Repository
@@ -86,7 +87,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             val stationSource = style.getSourceAs<GeoJsonSource>(BIKE_STATIONS)
 
             if (bikeNetworks.isNotEmpty()) {
-                mapViewModel.exchangeNetworkWithStations(networkSource!!, stationSource!!, bikeNetworks[0])
+                mapViewModel.getNetwork(bikeNetworks[0]!!.getStringProperty("id"))
             }
 
             if (bikeStation.isEmpty()) {
@@ -95,6 +96,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
             val output = "Free Bikes: ${bikeStation[0].getNumberProperty("freeBikes")}\nEmpty Slots: ${bikeStation[0].getNumberProperty("emptySlots")}\n" +
                     "Timestamp: ${bikeStation[0].getStringProperty("timestamp")}"
+
+            //Get bounds of cameraPosition: mapboxMap!!.getLatLngBoundsZoomFromCamera(mapboxMap!!.cameraPosition)
 
             Toast.makeText(context, output, Toast.LENGTH_LONG).show()
         }
@@ -119,24 +122,28 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         style.addLayer(SymbolLayer(BIKE_NETWORK_LAYER, BIKE_NETWORK_SOURCE)
                 .withProperties(iconImage(mapViewModel.NETWORK_ICON_ID),
                         iconAllowOverlap(false),
-                        iconSize(0.3f)))
+                        iconSize(0.3f))
+                .withFilter(eq((get("show")), literal(true))))
 
         // Bike Stations Layer
         style.addSource(GeoJsonSource(BIKE_STATIONS))
 
         style.addLayer(SymbolLayer(BIKE_STATION_LAYER, BIKE_STATIONS)
                 .withProperties(iconImage(mapViewModel.BIKE_ICON_ID),
-                            iconAllowOverlap(false),
-                            iconSize(0.3f)))
+                        iconAllowOverlap(false),
+                        iconSize(0.3f)))
 
         // Add things to Layer
         mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer {
+            val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORK_SOURCE)
             mapViewModel.getNearestNetwork(it)
-            val feature = mapViewModel.createFeatureList(it)
+            mapViewModel.createFeatureList(networkSource, it)
+        })
 
-            if (feature != null) {
-                mapViewModel.exchangeNetworkWithStations(style.getSourceAs(BIKE_NETWORK_SOURCE)!!, style.getSourceAs(BIKE_STATIONS)!!, feature)
-            }
+        mapViewModel.getResponseNetwork.observe(viewLifecycleOwner, Observer {
+            val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORK_SOURCE)
+            val stationSource = style.getSourceAs<GeoJsonSource>(BIKE_STATIONS)
+            mapViewModel.exchangeNetworkWithStations(networkSource, stationSource, it.network)
         })
     }
 
