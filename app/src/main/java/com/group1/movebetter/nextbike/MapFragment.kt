@@ -100,6 +100,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             val selectedMarkerLayer = style.getLayer(SELECTED_MARKER_LAYER) as SymbolLayer
 
             if (bikeNetworks.isNotEmpty()) {
+                resetSelectedMarkerLayer(style)
                 mapViewModel.getNetwork(bikeNetworks[0]!!.getStringProperty("id"))
             }
 
@@ -110,7 +111,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
             if (bikeStation.isEmpty()) {
                 if (markerSelected) {
-                    deselectMarker(selectedMarkerLayer, style)
+                    deselectMarker(selectedMarkerLayer, style, true)
                 }
                 return false
             }
@@ -121,7 +122,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             source?.setGeoJson(FeatureCollection.fromFeature(bikeStation[0]))
 
             if (markerSelected) {
-                deselectMarker(selectedMarkerLayer, style)
+                deselectMarker(selectedMarkerLayer, style, false)
             }
             if (bikeStation.size > 0) {
                 selectMarker(selectedMarkerLayer)
@@ -130,6 +131,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             adaptCardView(bikeStation[0])
         }
         return true
+    }
+
+    private fun resetSelectedMarkerLayer(style: Style) {
+        val source = style.getSourceAs<GeoJsonSource>(SELECTED_MARKER)
+        source?.setGeoJson(FeatureCollection.fromFeatures(arrayOf()))
     }
 
     private fun selectMarker(iconLayer: SymbolLayer) {
@@ -145,7 +151,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         markerSelected = true
     }
 
-    private fun deselectMarker(iconLayer: SymbolLayer, style: Style) {
+    private fun deselectMarker(iconLayer: SymbolLayer, style: Style, reset: Boolean) {
         markerAnimator!!.setObjectValues(1f, 0.3f)
         markerAnimator!!.duration = 300
         markerAnimator!!.addUpdateListener { animator ->
@@ -153,10 +159,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                     iconSize(animator.animatedValue as Float)
             )
         }
-        markerAnimator!!.doOnEnd {
-            // Reset selected-marker-source
-            val source = style.getSourceAs<GeoJsonSource>(SELECTED_MARKER)
-            source?.setGeoJson(FeatureCollection.fromFeatures(arrayOf()))
+        if (reset) {
+            markerAnimator!!.doOnEnd {
+                // Reset selected-marker-source
+                val source = style.getSourceAs<GeoJsonSource>(SELECTED_MARKER)
+                source?.setGeoJson(FeatureCollection.fromFeatures(arrayOf()))
+            }
         }
         markerAnimator!!.start()
         markerSelected = false
@@ -329,6 +337,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     override fun onDestroy() {
         super.onDestroy()
+        mapboxMap.removeOnMapClickListener(this)
+        markerAnimator?.cancel()
         mapView.onDestroy()
     }
 }
