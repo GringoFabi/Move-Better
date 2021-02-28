@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.group1.movebetter.R
 import com.group1.movebetter.model.*
 import com.group1.movebetter.repository.Repository
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -24,7 +25,6 @@ import kotlin.math.*
 
 
 class MapViewModel(private val repository: Repository) : ViewModel() {
-    //ehemals MainViewModel:
 
     private val _getResponseNetworks: MutableLiveData<CityBikes> = MutableLiveData()
     val getResponseNetworks: LiveData<CityBikes>
@@ -50,13 +50,6 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
             _getResponseNetwork.value = responseNetwork
         }
     }
-
-
-    //ehemals MapController:
-
-    val BIKE_ICON_ID = "BIKE"
-    val NETWORK_ICON_ID = "NETWORK"
-    val SCOOTER_ICON_ID = "SCOOTER"
 
     private val networkCoordinates: ArrayList<Feature> = ArrayList()
     private var currentNetwork: CityBikesNetwork? = null
@@ -92,8 +85,9 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
         }
 
         val condition = Predicate<Feature> { x -> x.getStringProperty("id").equals(network.id) || x.getStringProperty("id").equals(currentNetwork!!.id) }
-
         networkCoordinates.removeIf(condition)
+
+        // Update feature list of bike networks
         networkCoordinates.add(createFeature(network.id, network.location, false))
 
         if (currentNetwork!!.id != network.id) {

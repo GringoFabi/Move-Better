@@ -42,12 +42,16 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 
 class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxMap.OnMapClickListener {
 
-    private val BIKE_STATION_LAYER = "bike-station-layer"
-    private val BIKE_STATIONS = "bike-stations"
-    private val BIKE_NETWORK_LAYER = "bike-network-layer"
-    private val BIKE_NETWORK_SOURCE = "bike-network-source"
-    private val SELECTED_MARKER = "selected-marker"
-    private val SELECTED_MARKER_LAYER = "selected-marker-layer"
+    private val BIKE_STATION_LAYER = resources.getString(R.string.BIKE_STATION_LAYER)
+    private val BIKE_STATIONS = resources.getString(R.string.BIKE_STATIONS)
+    private val BIKE_NETWORK_LAYER = resources.getString(R.string.BIKE_NETWORK_LAYER)
+    private val BIKE_NETWORKS = resources.getString(R.string.BIKE_NETWORKS)
+    private val SELECTED_MARKER = resources.getString(R.string.SELECTED_MARKER)
+    private val SELECTED_MARKER_LAYER = resources.getString(R.string.SELECTED_MARKER_LAYER)
+
+    private val BIKE_ICON_ID = resources.getString(R.string.BIKE_ICON_ID)
+    private val NETWORK_ICON_ID = resources.getString(R.string.NETWORK_ICON_ID)
+    private val SCOOTER_ICON_ID = resources.getString(R.string.SCOOTER_ICON_ID)
 
     private var markerAnimator: ValueAnimator? = null
     private var markerSelected = false
@@ -89,6 +93,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     override fun onMapClick(point: LatLng): Boolean {
         val style = mapboxMap.style
         if (style != null) {
+            // when card view is shown and user clicks on map, make it invisible
             checkIfCardViewVisible()
 
             val pixel = mapboxMap.projection.toScreenLocation(point)
@@ -99,16 +104,19 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
             val selectedMarkerLayer = style.getLayer(SELECTED_MARKER_LAYER) as SymbolLayer
 
+            // when clicked on a bikeNetwork get the stations via REST
             if (bikeNetworks.isNotEmpty()) {
                 resetSelectedMarkerLayer(style)
                 mapViewModel.getNetwork(bikeNetworks[0]!!.getStringProperty("id"))
             }
 
+            // when clicked on icon which was already clicked on, show card view
             if (selectedFeature.size > 0 && markerSelected) {
                 adaptCardView(selectedFeature[0])
                 return false
             }
 
+            // when clicked on map and a marker is selected, deselect it
             if (bikeStation.isEmpty()) {
                 if (markerSelected) {
                     deselectMarker(selectedMarkerLayer, style, true)
@@ -117,18 +125,20 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             }
 
             // TODO differentiate between layers of bikes, scooters and stops of NVV
-            // Add picture to Selected_Marker_layer dynamically
+            // Add picture to Selected_Marker_layer dynamically with an property in clicked icon
+            // e.g. "provider" = bikeStation or bikeNetwork or scooter or train
             val source = style.getSourceAs<GeoJsonSource>(SELECTED_MARKER)
             source?.setGeoJson(FeatureCollection.fromFeature(bikeStation[0]))
 
+            // check if an icon is already selected
             if (markerSelected) {
                 deselectMarker(selectedMarkerLayer, style, false)
             }
+            // if clicked on a bike station, make it bigger and show information of that bike station
             if (bikeStation.size > 0) {
                 selectMarker(selectedMarkerLayer)
+                adaptCardView(bikeStation[0])
             }
-
-            adaptCardView(bikeStation[0])
         }
         return true
     }
@@ -151,7 +161,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         markerSelected = true
     }
 
-    private fun deselectMarker(iconLayer: SymbolLayer, style: Style, reset: Boolean) {
+    private fun deselectMarker(iconLayer: SymbolLayer, style: Style, clickedOnMap: Boolean) {
         markerAnimator!!.setObjectValues(1f, 0.3f)
         markerAnimator!!.duration = 300
         markerAnimator!!.addUpdateListener { animator ->
@@ -159,7 +169,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                     iconSize(animator.animatedValue as Float)
             )
         }
-        if (reset) {
+        if (clickedOnMap) {
             markerAnimator!!.doOnEnd {
                 // Reset selected-marker-source
                 val source = style.getSourceAs<GeoJsonSource>(SELECTED_MARKER)
@@ -210,10 +220,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     private fun setupLayers(style: Style) {
         // Bike Network Layer
-        style.addSource(GeoJsonSource(BIKE_NETWORK_SOURCE))
+        style.addSource(GeoJsonSource(BIKE_NETWORKS))
 
-        style.addLayer(SymbolLayer(BIKE_NETWORK_LAYER, BIKE_NETWORK_SOURCE)
-                .withProperties(iconImage(mapViewModel.NETWORK_ICON_ID),
+        style.addLayer(SymbolLayer(BIKE_NETWORK_LAYER, BIKE_NETWORKS)
+                .withProperties(iconImage(NETWORK_ICON_ID),
                         iconAllowOverlap(false),
                         iconSize(0.3f))
                 .withFilter(eq((get("show")), literal(true))))
@@ -222,7 +232,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         style.addSource(GeoJsonSource(BIKE_STATIONS))
 
         style.addLayer(SymbolLayer(BIKE_STATION_LAYER, BIKE_STATIONS)
-                .withProperties(iconImage(mapViewModel.BIKE_ICON_ID),
+                .withProperties(iconImage(BIKE_ICON_ID),
                         iconAllowOverlap(false),
                         iconSize(0.3f)))
 
@@ -230,26 +240,27 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         style.addSource(GeoJsonSource(SELECTED_MARKER))
 
         style.addLayer(SymbolLayer(SELECTED_MARKER_LAYER, SELECTED_MARKER)
-                .withProperties(iconImage(mapViewModel.BIKE_ICON_ID),
+                .withProperties(iconImage(BIKE_ICON_ID),
                 iconSize(0.3f)))
 
-        // Add things to Layer
+        // Add data to layers
         mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer {
-            val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORK_SOURCE)
+            val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORKS)
             mapViewModel.getNearestNetwork(it)
             mapViewModel.createFeatureList(networkSource, it)
         })
 
         mapViewModel.getResponseNetwork.observe(viewLifecycleOwner, Observer {
-            val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORK_SOURCE)
+            val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORKS)
             val stationSource = style.getSourceAs<GeoJsonSource>(BIKE_STATIONS)
             mapViewModel.exchangeNetworkWithStations(networkSource, stationSource, it.network)
         })
     }
 
     private fun loadImages(style: Style) {
-        style.addImage(mapViewModel.BIKE_ICON_ID, BitmapFactory.decodeResource(this.resources, R.raw.bike))
-        style.addImage(mapViewModel.NETWORK_ICON_ID, BitmapFactory.decodeResource(this.resources, R.raw.network))
+        style.addImage(BIKE_ICON_ID, BitmapFactory.decodeResource(this.resources, R.raw.bike))
+        style.addImage(NETWORK_ICON_ID, BitmapFactory.decodeResource(this.resources, R.raw.network))
+        style.addImage(SCOOTER_ICON_ID, BitmapFactory.decodeResource(this.resources, R.raw.scooter))
     }
 
     @SuppressLint("MissingPermission")
