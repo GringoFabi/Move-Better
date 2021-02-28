@@ -42,16 +42,16 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 
 class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxMap.OnMapClickListener {
 
-    private val BIKE_STATION_LAYER = resources.getString(R.string.BIKE_STATION_LAYER)
-    private val BIKE_STATIONS = resources.getString(R.string.BIKE_STATIONS)
-    private val BIKE_NETWORK_LAYER = resources.getString(R.string.BIKE_NETWORK_LAYER)
-    private val BIKE_NETWORKS = resources.getString(R.string.BIKE_NETWORKS)
-    private val SELECTED_MARKER = resources.getString(R.string.SELECTED_MARKER)
-    private val SELECTED_MARKER_LAYER = resources.getString(R.string.SELECTED_MARKER_LAYER)
+    private lateinit var BIKE_STATION_LAYER: String
+    private lateinit var BIKE_STATIONS: String
+    private lateinit var BIKE_NETWORK_LAYER: String
+    private lateinit var BIKE_NETWORKS: String
+    private lateinit var SELECTED_MARKER: String
+    private lateinit var SELECTED_MARKER_LAYER: String
 
-    private val BIKE_ICON_ID = resources.getString(R.string.BIKE_ICON_ID)
-    private val NETWORK_ICON_ID = resources.getString(R.string.NETWORK_ICON_ID)
-    private val SCOOTER_ICON_ID = resources.getString(R.string.SCOOTER_ICON_ID)
+    private lateinit var BIKE_ICON_ID: String
+    private lateinit var NETWORK_ICON_ID: String
+    private lateinit var SCOOTER_ICON_ID: String
 
     private var markerAnimator: ValueAnimator? = null
     private var markerSelected = false
@@ -80,6 +80,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         binding.lifecycleOwner = this
 
+        initIds()
+
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
@@ -88,6 +90,19 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapViewModel.getNetworks()
 
         return binding.root
+    }
+
+    private fun initIds() {
+        BIKE_STATION_LAYER = resources.getString(R.string.BIKE_STATION_LAYER)
+        BIKE_STATIONS = resources.getString(R.string.BIKE_STATIONS)
+        BIKE_NETWORK_LAYER = resources.getString(R.string.BIKE_NETWORK_LAYER)
+        BIKE_NETWORKS = resources.getString(R.string.BIKE_NETWORKS)
+        SELECTED_MARKER = resources.getString(R.string.SELECTED_MARKER)
+        SELECTED_MARKER_LAYER = resources.getString(R.string.SELECTED_MARKER_LAYER)
+
+        BIKE_ICON_ID = resources.getString(R.string.BIKE_ICON_ID)
+        NETWORK_ICON_ID = resources.getString(R.string.NETWORK_ICON_ID)
+        SCOOTER_ICON_ID = resources.getString(R.string.SCOOTER_ICON_ID)
     }
 
     override fun onMapClick(point: LatLng): Boolean {
