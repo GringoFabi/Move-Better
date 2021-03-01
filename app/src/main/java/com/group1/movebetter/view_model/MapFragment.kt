@@ -1,4 +1,4 @@
-package com.group1.movebetter.nextbike
+package com.group1.movebetter.view_model
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -85,9 +85,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        mapViewModel.getCurrentLocation(this.requireActivity(), context, this)
+        mapViewModel.mapController.getCurrentLocation(this.requireActivity(), context, this)
 
-        mapViewModel.getNetworks()
+        mapViewModel.cityBikeController.getNetworks()
 
         return binding.root
     }
@@ -122,7 +122,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             // when clicked on a bikeNetwork get the stations via REST
             if (bikeNetworks.isNotEmpty()) {
                 resetSelectedMarkerLayer(style)
-                mapViewModel.getNetwork(bikeNetworks[0]!!.getStringProperty("id"))
+                mapViewModel.cityBikeController.getNetwork(bikeNetworks[0]!!.getStringProperty("id"))
             }
 
             // when clicked on icon which was already clicked on, show card view
@@ -259,16 +259,16 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 iconSize(0.3f)))
 
         // Add data to layers
-        mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer {
+        mapViewModel.cityBikeController.getResponseNetworks.observe(viewLifecycleOwner, Observer {
             val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORKS)
-            mapViewModel.getNearestNetwork(it)
-            mapViewModel.createFeatureList(networkSource, it)
+            mapViewModel.mapController.getNearestNetwork(it)
+            mapViewModel.mapController.createFeatureList(networkSource, it, mapViewModel.cityBikeController)
         })
 
-        mapViewModel.getResponseNetwork.observe(viewLifecycleOwner, Observer {
+        mapViewModel.cityBikeController.getResponseNetwork.observe(viewLifecycleOwner, Observer {
             val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORKS)
             val stationSource = style.getSourceAs<GeoJsonSource>(BIKE_STATIONS)
-            mapViewModel.exchangeNetworkWithStations(networkSource, stationSource, it.network)
+            mapViewModel.mapController.exchangeNetworkWithStations(networkSource, stationSource, it.network)
         })
     }
 

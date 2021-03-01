@@ -1,17 +1,12 @@
-package com.group1.movebetter.nextbike
+package com.group1.movebetter.view_model.controller
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.location.LocationManager
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.group1.movebetter.R
 import com.group1.movebetter.model.*
 import com.group1.movebetter.repository.Repository
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -19,48 +14,27 @@ import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import kotlinx.coroutines.launch
 import java.util.function.Predicate
 import kotlin.math.*
+import com.group1.movebetter.model.CityBikes
+import com.group1.movebetter.model.CityBikesLocation
+import com.group1.movebetter.model.CityBikesNetworks
+import com.group1.movebetter.view_model.MapFragment
+import kotlinx.coroutines.CoroutineScope
 
 
-class MapViewModel(private val repository: Repository) : ViewModel() {
-
-    private val _getResponseNetworks: MutableLiveData<CityBikes> = MutableLiveData()
-    val getResponseNetworks: LiveData<CityBikes>
-        get() = _getResponseNetworks
-
-    private val _getResponseNetwork: MutableLiveData<CityBikesNetworkList> = MutableLiveData()
-    val getResponseNetwork: LiveData<CityBikesNetworkList>
-        get() = _getResponseNetwork
-
-    private val _getResponseNetworkFiltered: MutableLiveData<CityBikesNetworkList> = MutableLiveData()
-
-    fun getNetworks()
-    {
-        viewModelScope.launch {
-            val responseNetworks = repository.getNetworks()
-            _getResponseNetworks.value = responseNetworks
-        }
-    }
-
-    fun getNetwork(id: String) {
-        viewModelScope.launch {
-            val responseNetwork = repository.getNetwork(id)
-            _getResponseNetwork.value = responseNetwork
-        }
-    }
+class MapController(private val viewModelScope: CoroutineScope, private val repository: Repository) {
 
     private val networkCoordinates: ArrayList<Feature> = ArrayList()
     private var currentNetwork: CityBikesNetwork? = null
 
-    fun createFeatureList(networkSource: GeoJsonSource?, cityBikes: CityBikes) {
+    fun createFeatureList(networkSource: GeoJsonSource?, cityBikes: CityBikes, cityBikeController: CityBikeController) {
         for (network in cityBikes.networks) {
             val feature = createFeature(network.id, network.location, true)
 
             if (network.id == closestNetwork.id) {
                 feature.addBooleanProperty("show", false)
-                getNetwork(network.id)
+                cityBikeController.getNetwork(network.id)
             }
 
             networkCoordinates.add(feature)
