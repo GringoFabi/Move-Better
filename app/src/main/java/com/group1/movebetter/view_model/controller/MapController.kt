@@ -25,25 +25,25 @@ import kotlinx.coroutines.CoroutineScope
 
 class MapController(private val viewModelScope: CoroutineScope, private val repository: Repository) {
 
-    private val networkCoordinates: ArrayList<Feature> = ArrayList()
+    private val networkFeatures: ArrayList<Feature> = ArrayList()
     private var currentNetwork: CityBikesNetwork? = null
 
-    fun createFeatureList(networkSource: GeoJsonSource?, cityBikes: CityBikes, cityBikeController: CityBikeController) {
+    fun createBikeNetworkList(networkSource: GeoJsonSource?, cityBikes: CityBikes, cityBikeController: CityBikeController) {
         for (network in cityBikes.networks) {
-            val feature = createFeature(network.id, network.location, true)
+            val feature = createBikeFeature(network.id, network.location, true)
 
             if (network.id == closestNetwork.id) {
                 feature.addBooleanProperty("show", false)
                 cityBikeController.getNetwork(network.id)
             }
 
-            networkCoordinates.add(feature)
+            networkFeatures.add(feature)
         }
 
-        refreshSource(networkSource!!, networkCoordinates)
+        refreshSource(networkSource!!, networkFeatures)
     }
 
-    private fun createFeature(id: String, location: CityBikesLocation, show: Boolean): Feature {
+    private fun createBikeFeature(id: String, location: CityBikesLocation, show: Boolean): Feature {
         val feature = Feature.fromGeometry(Point.fromLngLat(location.longitude, location.latitude))
         feature.addStringProperty("id", id)
         feature.addBooleanProperty("show", show)
@@ -59,17 +59,17 @@ class MapController(private val viewModelScope: CoroutineScope, private val repo
         }
 
         val condition = Predicate<Feature> { x -> x.getStringProperty("id").equals(network.id) || x.getStringProperty("id").equals(currentNetwork!!.id) }
-        networkCoordinates.removeIf(condition)
+        networkFeatures.removeIf(condition)
 
         // Update feature list of bike networks
-        networkCoordinates.add(createFeature(network.id, network.location, false))
+        networkFeatures.add(createBikeFeature(network.id, network.location, false))
 
         if (currentNetwork!!.id != network.id) {
-            networkCoordinates.add(createFeature(currentNetwork!!.id, currentNetwork!!.location, true))
+            networkFeatures.add(createBikeFeature(currentNetwork!!.id, currentNetwork!!.location, true))
             currentNetwork = network
         }
 
-        refreshSource(networkSource!!, networkCoordinates)
+        refreshSource(networkSource!!, networkFeatures)
 
         // Add stations to map
         val featureList = ArrayList<Feature>()
