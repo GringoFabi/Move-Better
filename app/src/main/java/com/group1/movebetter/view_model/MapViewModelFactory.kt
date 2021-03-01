@@ -1,4 +1,4 @@
-package com.group1.movebetter.nextbike
+package com.group1.movebetter.view_model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

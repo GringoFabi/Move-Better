@@ -7,7 +7,7 @@
     <data>
         <variable
             name="mapViewModel"
-            type="com.group1.movebetter.nextbike.MapViewModel" />
+            type="com.group1.movebetter.view_model.MapViewModel" />
     </data>
 
     <com.mapbox.mapboxsdk.maps.MapView

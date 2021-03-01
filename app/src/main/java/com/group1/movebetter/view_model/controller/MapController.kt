@@ -1,66 +1,27 @@
-package com.group1.movebetter.nextbike
+package com.group1.movebetter.view_model.controller
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.location.LocationManager
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.fragment.app.FragmentActivity
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.group1.movebetter.model.CityBikes
+import com.group1.movebetter.model.CityBikesLocation
 import com.group1.movebetter.model.CityBikesNetworks
-import com.group1.movebetter.model.CityBikesNetworkList
 import com.group1.movebetter.repository.Repository
+import com.group1.movebetter.view_model.MapFragment
+import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.plugins.annotation.Symbol
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
-import androidx.fragment.app.FragmentActivity
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import com.group1.movebetter.model.CityBikesLocation
-import com.mapbox.android.core.permissions.PermissionsManager
 import kotlin.math.*
 
-class MapViewModel(private val repository: Repository) : ViewModel() {
-    //ehemals MainViewModel:
-
-    private val _getResponseNetworks: MutableLiveData<CityBikes> = MutableLiveData()
-    val getResponseNetworks: LiveData<CityBikes>
-        get() = _getResponseNetworks
-
-    private val _getResponseNetwork: MutableLiveData<CityBikesNetworkList> = MutableLiveData()
-    val getResponseNetwork: LiveData<CityBikesNetworkList>
-        get() = _getResponseNetwork
-
-    private val _getResponseNetworkFiltered: MutableLiveData<CityBikesNetworkList> = MutableLiveData()
-
-    fun getNetworks()
-    {
-        viewModelScope.launch {
-            val responseNetworks = repository.getNetworks()
-            _getResponseNetworks.value = responseNetworks
-
-            val responseNetwork = repository.getNetwork("velib")
-            _getResponseNetwork.value = responseNetwork
-            /*val responseNetworkFiltered = repository.getNetwork("")
-            getResponseNetworkFiltered.value = responseNetworkFiltered*/
-        }
-    }
-
-    fun getNetwork()
-    {
-        viewModelScope.launch {
-            val responseNetworks = repository.getNetworks()
-        }
-    }
-
-
-    //ehemals MapController:
+class MapController(private val viewModelScope: CoroutineScope, private val repository: Repository) {
 
     val BIKE_ICON_ID = "BIKE"
     val NETWORK_ICON_ID = "NETWORK"
@@ -74,7 +35,7 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
 
         for (network in networks.networks) {
             if (network.id == closestNetwork.id) {
-                getStation(closestNetwork, symbolManager!!)
+                getStation(closestNetwork, symbolManager!!, viewModelScope, repository)
                 continue
             }
             val location = network.location
@@ -98,11 +59,11 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
 
             val network = markerNetwork[symbol.latLng]
 
-            getStation(network, symbolManager)
+            getStation(network, symbolManager, viewModelScope, repository)
         }
     }
 
-    private fun getStation(network: CityBikesNetworks?, symbolManager: SymbolManager) {
+    private fun getStation(network: CityBikesNetworks?, symbolManager: SymbolManager,  viewModelScope: CoroutineScope, repository: Repository) {
         viewModelScope.launch {
             val responseNetwork = repository.getNetwork(network!!.id)
 

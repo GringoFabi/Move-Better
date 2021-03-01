@@ -1,4 +1,4 @@
-package com.group1.movebetter.nextbike
+package com.group1.movebetter.view_model
 
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -67,9 +67,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        mapViewModel.getCurrentLocation(this.requireActivity(), context, this)
+        mapViewModel.mapController.getCurrentLocation(this.requireActivity(), context, this)
 
-        mapViewModel.getNetworks()
+        mapViewModel.cityBikeController.getNetworks()
 
         return binding.root
     }
@@ -90,7 +90,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         // TODO this
         style.addLayer(SymbolLayer(CALLOUT_LAYER_ID, GEOJSON_SOURCE_ID)
             .withProperties(
-                iconImage(mapViewModel.BIKE_ICON_ID), /* show image with id title based on the value of the name feature property */
+                iconImage(mapViewModel.mapController.BIKE_ICON_ID), /* show image with id title based on the value of the name feature property */
                 iconAnchor(ICON_ANCHOR_BOTTOM), /* set anchor of icon to bottom-left */
                 iconAllowOverlap(true), /* all info window and marker image to appear at the same time */
                 iconOffset(arrayOf(-2f, -28f)) /* offset the info window to be above the marker */
@@ -99,16 +99,16 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     }
 
     private fun loadImages(style: Style) {
-        style.addImage(mapViewModel.BIKE_ICON_ID, BitmapFactory.decodeResource(this.resources, R.raw.bike))
-        style.addImage(mapViewModel.NETWORK_ICON_ID, BitmapFactory.decodeResource(this.resources, R.raw.network))
+        style.addImage(mapViewModel.mapController.BIKE_ICON_ID, BitmapFactory.decodeResource(this.resources, R.raw.bike))
+        style.addImage(mapViewModel.mapController.NETWORK_ICON_ID, BitmapFactory.decodeResource(this.resources, R.raw.network))
     }
 
     private fun configSymbolManager(style: Style) {
         symbolManager = SymbolManager(mapView, this.mapboxMap!!, style)
 
-        mapViewModel.getResponseNetworks.observe(viewLifecycleOwner, Observer {
-            mapViewModel.getNearestNetwork(it)
-            mapViewModel.addNetworks(it, symbolManager)
+        mapViewModel.cityBikeController.getResponseNetworks.observe(viewLifecycleOwner, Observer {
+            mapViewModel.mapController.getNearestNetwork(it)
+            mapViewModel.mapController.addNetworks(it, symbolManager)
         })
 
         symbolManager.iconAllowOverlap = false
@@ -119,7 +119,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 Toast.LENGTH_SHORT
             ).show()
 
-            mapViewModel.addStations(symbolManager, symbol)
+            mapViewModel.mapController.addStations(symbolManager, symbol)
 
             false
         })
