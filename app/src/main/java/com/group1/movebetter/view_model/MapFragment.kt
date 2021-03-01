@@ -2,7 +2,10 @@ package com.group1.movebetter.view_model
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -366,5 +369,61 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapboxMap.removeOnMapClickListener(this)
         markerAnimator?.cancel()
         mapView.onDestroy()
+    }
+
+    //Open other Apps or their link to play store
+
+    @SuppressLint("QueryPermissionsNeeded")
+    private fun onMapsNavigateTo(lat: Double, lng: Double){
+        val gmmIntentUri: Uri = Uri.parse("google.navigation:q=$lat,$lng&mode=w")
+        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+        mapIntent.setPackage("com.google.android.apps.maps")
+
+        if (mapIntent.resolveActivity(context!!.packageManager) != null) {
+            startActivity(mapIntent)
+        } else {
+            openPlayStoreFor("com.google.android.apps.maps")
+        }
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    private fun openBird(){
+        val intentL = context!!.packageManager.getLaunchIntentForPackage("co.bird.android")
+
+        if (intentL?.resolveActivity(context!!.packageManager) != null) {
+            startActivity(intentL)
+        } else {
+            openPlayStoreFor("co.bird.android")
+        }
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    private fun openNvv(){
+        val intentL = context!!.packageManager.getLaunchIntentForPackage("de.hafas.android.nvv")
+
+        if (intentL?.resolveActivity(context!!.packageManager) != null) {
+            startActivity(intentL)
+        } else {
+            openPlayStoreFor("de.hafas.android.nvv")
+        }
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    private fun openNextBike(){
+        val intentL = context!!.packageManager.getLaunchIntentForPackage("de.nextbike")
+
+        if (intentL?.resolveActivity(context!!.packageManager) != null) {
+            startActivity(intentL)
+        } else {
+            openPlayStoreFor("de.nextbike")
+        }
+    }
+
+    private fun openPlayStoreFor(packageName: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
+        } catch (e: ActivityNotFoundException) {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$packageName")))
+        }
     }
 }
