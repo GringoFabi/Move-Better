@@ -10,18 +10,84 @@
             type="com.group1.movebetter.view_model.MapViewModel" />
     </data>
 
-    <com.mapbox.mapboxsdk.maps.MapView
-        android:id="@+id/mapView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        mapbox:mapbox_cameraTargetLat="-32.557013"
-        mapbox:mapbox_cameraTargetLng="-56.149056"
-        mapbox:mapbox_cameraZoom="12">
+    <FrameLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
-    </com.mapbox.mapboxsdk.maps.MapView>
+        <com.mapbox.mapboxsdk.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            mapbox:mapbox_cameraTargetLat="52.520008"
+            mapbox:mapbox_cameraTargetLng="13.404954"
+            mapbox:mapbox_cameraZoom="12">
+        </com.mapbox.mapboxsdk.maps.MapView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="178dp"
+            android:id="@+id/single_location_cardView"
+            android:alpha="0.9"
+            android:layout_gravity="bottom"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/mapboxGreen"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/textView_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp"
+                    tools:text="Bike Station 1"/>
+
+                <TextView
+                    android:id="@+id/textView_freeBikes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    tools:text="Free Bikes:"/>
+
+                <TextView
+                    android:id="@+id/textView_emptySlots"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    tools:text="Empty Slots:"/>
+
+                <TextView
+                    android:id="@+id/textView_timestamp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    tools:text="Timestamp: "/>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+    </FrameLayout>
 
 </layout>

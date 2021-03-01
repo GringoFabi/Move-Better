@@ -1,5 +1,13 @@
 <resources>
     <string name="app_name">Move Better</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="BIKE_STATIONS">bike-stations</string>
+    <string name="BIKE_STATION_LAYER">bike-station-layer</string>
+    <string name="BIKE_NETWORK_LAYER">bike-network-layer</string>
+    <string name="BIKE_NETWORKS">bike-network-source</string>
+    <string name="SELECTED_MARKER">selected-marker</string>
+    <string name="SELECTED_MARKER_LAYER">selected-marker-layer</string>
+    <string name="BIKE_ICON_ID">bike</string>
+    <string name="NETWORK_ICON_ID">network</string>
+    <string name="SCOOTER_ICON_ID">scooter</string>
 </resources>
