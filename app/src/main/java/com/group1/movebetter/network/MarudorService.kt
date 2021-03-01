@@ -11,7 +11,7 @@ interface MarudorService {
     @GET(URL_MARUDOR_IRIS + "abfahrten/{evaId}")
     suspend fun getArrival(
         @Query("lookahead") lookahead: Long,
-        @Path("evaId") stationNumber: Long
+        @Path("evaId") evaId: Long
     ): Departures
 
 }

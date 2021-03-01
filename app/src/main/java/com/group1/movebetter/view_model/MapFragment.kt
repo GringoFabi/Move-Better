@@ -71,6 +71,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
         mapViewModel.cityBikeController.getNetworks()
         mapViewModel.stadaStationController.getStations()
+
         mapViewModel.marudorController.getArrival(8000105)
         return binding.root
     }
