@@ -4,16 +4,15 @@ package com.group1.movebetter.network
 import com.group1.movebetter.network.adapters.CityBikesStationExtraStatusAdapter
 import com.group1.movebetter.network.adapters.CompanyAdapter
 import com.group1.movebetter.network.adapters.StationEbikesAdapter
-import com.group1.movebetter.util.Constants.Companion.BASE_URL
+import com.group1.movebetter.util.Constants.Companion.URL_CITYBIKES
 import com.squareup.moshi.Moshi
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 object RetrofitInstance {
     private val retrofit by lazy {
         Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(URL_CITYBIKES)
                 .addConverterFactory(
                         MoshiConverterFactory.create(
                         Moshi.Builder().
@@ -26,7 +25,15 @@ object RetrofitInstance {
     }
 
 
-    val api: CityBikesService by lazy {
+    val apiCityBikes: CityBikesService by lazy {
         retrofit.create(CityBikesService::class.java)
+    }
+
+    val apiStadaStations: StadaService by lazy {
+        retrofit.create(StadaService::class.java)
+    }
+
+    val apiMarudor: MarudorService by lazy {
+        retrofit.create(MarudorService::class.java)
     }
 }
