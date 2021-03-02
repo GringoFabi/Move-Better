@@ -45,11 +45,19 @@ data class CityBikesStation (
         val name: String,
         val timestamp: String,
         val longitude: Double,
-        val free_bikes: Long?,
+        val free_bikes: FreeBikes,
         val latitude: Double,
-        val empty_slots: Long?,
+        val empty_slots: EmptySlots,
         val id: String,
         val extra: CityBikesStationExtra
+)
+
+data class FreeBikes(
+        val amount: Long,
+)
+
+data class EmptySlots(
+        val amount: Long,
 )
 
 data class StationName (
