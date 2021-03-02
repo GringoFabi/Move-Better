@@ -6,6 +6,13 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <queries>
+        <package android:name="co.bird.android" />
+        <package android:name="com.google.android.apps.maps" />
+        <package android:name="de.hafas.android.nvv" />
+        <package android:name="de.nextbike" />
+    </queries>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
