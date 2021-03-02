@@ -16,8 +16,6 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil.inflate
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import android.util.Log
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.*
 import com.group1.movebetter.R
 import com.group1.movebetter.databinding.FragmentMapBinding
@@ -40,6 +38,7 @@ import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import java.util.*
 
 
 class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxMap.OnMapClickListener {
@@ -63,7 +62,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     private var markerAnimator: ValueAnimator? = null
     private var markerSelected = false
 
-    private lateinit var mapView: MapView;
+    private lateinit var mapView: MapView
     private lateinit var mapboxMap: MapboxMap
     private var permissionsManager: PermissionsManager? = null
 
@@ -82,10 +81,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapView = binding.mapView
 
         // Get a reference to the ViewModel associated with this fragment.
-        val repository = Repository();
+        val repository = Repository()
         val viewModelFactory = MapViewModelFactory(repository)
         mapViewModel = ViewModelProvider(this, viewModelFactory).get(MapViewModel::class.java)
-        binding.mapViewModel = mapViewModel;
+        binding.mapViewModel = mapViewModel
 
         binding.lifecycleOwner = this
 
@@ -115,7 +114,10 @@ Log.d("Tokens", tokens.refresh)
 */
 
         mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
-        
+
+        // isMain = true
+        // evaID
+        // 150 lookahead
         mapViewModel.stadaStationController.getStations()
 
         return binding.root
@@ -142,9 +144,6 @@ Log.d("Tokens", tokens.refresh)
     override fun onMapClick(point: LatLng): Boolean {
         val style = mapboxMap.style
         if (style != null) {
-            // when card view is shown and user clicks on map, make it invisible
-            checkIfCardViewVisible()
-
             val pixel = mapboxMap.projection.toScreenLocation(point)
 
             val bikeNetworks = mapboxMap.queryRenderedFeatures(pixel, BIKE_NETWORK_LAYER)
@@ -163,29 +162,35 @@ Log.d("Tokens", tokens.refresh)
 
             // when clicked on icon which was already clicked on, show card view
             if (selectedFeature.size > 0 && markerSelected) {
-                adaptCardView(selectedFeature[0])
                 return false
             }
 
             // when clicked on map and a marker is selected, deselect it
-            if (bikeStation.isEmpty() && scooter.isEmpty()) {
+            if (bikeStation.isEmpty() && scooter.isEmpty() && tramStation.isEmpty()) {
+                // when card view is shown and user clicks on map, make it invisible
+                checkIfCardViewVisible()
                 if (markerSelected) {
                     deselectMarker(selectedMarkerLayer, style, true)
                 }
                 return false
             }
 
-            // TODO differentiate between layers of bikes, scooters and stops of NVV
-            // Add picture to Selected_Marker_layer dynamically with an property in clicked icon
-            // e.g. "provider" = bikeStation or bikeNetwork or scooter or train
             val source = style.getSourceAs<GeoJsonSource>(SELECTED_MARKER)
 
-            if (bikeStation.isNotEmpty()) {
-                source?.setGeoJson(FeatureCollection.fromFeature(bikeStation[0]))
-                selectedMarkerLayer.setProperties(iconImage(BIKE_ICON_ID))
-            } else if (scooter.isNotEmpty()) {
-                source?.setGeoJson(FeatureCollection.fromFeature(scooter[0]))
-                selectedMarkerLayer.setProperties(iconImage(SCOOTER_ICON_ID))
+            // differentiate what layer was clicked and adapt the icon image
+            when {
+                bikeStation.isNotEmpty() -> {
+                    source?.setGeoJson(FeatureCollection.fromFeature(bikeStation[0]))
+                    selectedMarkerLayer.setProperties(iconImage(BIKE_ICON_ID))
+                }
+                scooter.isNotEmpty() -> {
+                    source?.setGeoJson(FeatureCollection.fromFeature(scooter[0]))
+                    selectedMarkerLayer.setProperties(iconImage(SCOOTER_ICON_ID))
+                }
+                tramStation.isNotEmpty() -> {
+                    source?.setGeoJson(FeatureCollection.fromFeature(tramStation[0]))
+                    selectedMarkerLayer.setProperties(iconImage(TRAM_STATION_ICON_ID))
+                }
             }
 
 
@@ -201,7 +206,8 @@ Log.d("Tokens", tokens.refresh)
                     adaptCardView(bikeStation[0])
                 }
                 tramStation.size > 0 -> {
-                    // show departure board
+                    selectMarker(selectedMarkerLayer)
+                    adaptCardView(tramStation[0])
                 }
                 scooter.size > 0 -> {
                     selectMarker(selectedMarkerLayer)
@@ -251,30 +257,29 @@ Log.d("Tokens", tokens.refresh)
 
     private fun adaptCardView(feature: Feature) {
         val provider = feature.getStringProperty("provider")
-        if (provider == "bikes") {
-            val name = binding.textViewTitle
-            name.text = feature.getStringProperty("name")
-
-            val freeBikes = binding.textViewFreeBikes
-            freeBikes.text = "Free Bikes = ${feature.getNumberProperty("freeBikes")}"
-
-            val emptySlots = binding.textViewEmptySlots
-            emptySlots.text = "Empty Slots = ${feature.getNumberProperty("emptySlots")}"
-
-            val timestamp = binding.textViewTimestamp
-            timestamp.text = feature.getStringProperty("timestamp")
-        } else {
-            val name = binding.textViewTitle
-            name.text = feature.getStringProperty("vehicleClass")
-
-            val freeBikes = binding.textViewFreeBikes
-            freeBikes.text = "Estimated Range = ${feature.getNumberProperty("estimatedRange")}"
-
-            val emptySlots = binding.textViewEmptySlots
-            emptySlots.text = "Battery Level = ${feature.getNumberProperty("batteryLevel")}%"
-
-            val timestamp = binding.textViewTimestamp
-            timestamp.text = ""
+        val property0 = binding.property0
+        val property1 = binding.property1
+        val property2 = binding.property2
+        val property3 = binding.property3
+        when (provider) {
+            "bikes" -> {
+                property0.text = feature.getStringProperty("name")
+                property1.text = "Free Bikes = ${feature.getNumberProperty("freeBikes")}"
+                property2.text = "Empty Slots = ${feature.getNumberProperty("emptySlots")}"
+                property3.text = "Stand vom ${feature.getStringProperty("timestamp")}"
+            }
+            "birds" -> {
+                property0.text = feature.getStringProperty("vehicleClass")
+                property1.text = "Estimated Range = ${feature.getNumberProperty("estimatedRange")}"
+                property2.text = "Battery Level = ${feature.getNumberProperty("batteryLevel")}%"
+                property3.text = ""
+            }
+            else -> {
+                property0.text = feature.getStringProperty("name")
+                property1.text = "Address = ${feature.getNumberProperty("address")}"
+                property2.text = ""
+                property3.text = ""
+            }
         }
 
         val cardView = binding.singleLocationCardView
@@ -344,13 +349,13 @@ Log.d("Tokens", tokens.refresh)
     }
 
     private fun observers(style: Style) {
-        mapViewModel.cityBikeController.getResponseNetworks.observe(viewLifecycleOwner, Observer {
+        mapViewModel.cityBikeController.getResponseNetworks.observe(viewLifecycleOwner, {
             val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORKS)
             mapViewModel.mapController.getNearestNetwork(it)
             mapViewModel.mapController.createBikeNetworkList(networkSource, it, mapViewModel.cityBikeController)
         })
 
-        mapViewModel.cityBikeController.getResponseNetwork.observe(viewLifecycleOwner, Observer {
+        mapViewModel.cityBikeController.getResponseNetwork.observe(viewLifecycleOwner, {
             val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORKS)
             val stationSource = style.getSourceAs<GeoJsonSource>(BIKE_STATIONS)
             mapViewModel.mapController.exchangeNetworkWithStations(networkSource, stationSource, it.network)
@@ -360,6 +365,12 @@ Log.d("Tokens", tokens.refresh)
             val birdSource = style.getSourceAs<GeoJsonSource>(BIRD_SCOOTER)
             val birds = mapViewModel.birdController.createBirdList(it)
             mapViewModel.mapController.refreshSource(birdSource!!, birds)
+        })
+
+        mapViewModel.stadaStationController.getResponseStations.observe(this, {
+            val stationSource = style.getSourceAs<GeoJsonSource>(TRAM_STATION)
+            val stations = mapViewModel.stadaStationController.createStationList(it)
+            mapViewModel.mapController.refreshSource(stationSource!!, stations)
         })
     }
 
