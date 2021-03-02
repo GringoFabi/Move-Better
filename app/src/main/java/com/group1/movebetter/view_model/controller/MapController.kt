@@ -97,7 +97,7 @@ class MapController(private val viewModelScope: CoroutineScope, private val repo
     private var permissionsManager: PermissionsManager? = null
 
     lateinit var closestNetwork: CityBikesNetworks
-    private var currentLocation: Location = initLocation()
+    var currentLocation: Location = initLocation()
 
     private fun initLocation() : Location {
 
