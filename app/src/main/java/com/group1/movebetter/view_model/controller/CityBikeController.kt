@@ -26,6 +26,10 @@ class CityBikeController (private val viewModelScope: CoroutineScope, private va
         viewModelScope.launch {
             val responseNetworks = repository.getNetworks()
             _getResponseNetworks.value = responseNetworks
+
+		/*val responseNetworkFiltered = repository.getNetwork("")
+		getResponseNetworkFiltered.value = responseNetworkFiltered*/
+
         }
     }
 

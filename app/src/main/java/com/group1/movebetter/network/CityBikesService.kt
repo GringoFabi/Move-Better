@@ -15,7 +15,6 @@ interface CityBikesService {
         @Path("networkId") networkId: String)
     : CityBikesNetworkList
 
-
     @GET("networks")
     suspend fun getNetworksFiltered(
         @Query("fields") fields: String,

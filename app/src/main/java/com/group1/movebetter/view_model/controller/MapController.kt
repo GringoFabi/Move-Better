@@ -78,8 +78,8 @@ class MapController(private val viewModelScope: CoroutineScope, private val repo
             val featureStation = Feature.fromGeometry(Point.fromLngLat(station.longitude, station.latitude))
             featureStation.addStringProperty("name", station.name)
             featureStation.addStringProperty("id", station.id)
-            featureStation.addNumberProperty("freeBikes", station.free_bikes)
-            featureStation.addNumberProperty("emptySlots", station.empty_slots)
+            featureStation.addNumberProperty("freeBikes", station.free_bikes.amount)
+            featureStation.addNumberProperty("emptySlots", station.empty_slots.amount)
             featureStation.addStringProperty("timestamp", station.timestamp)
 
             featureList.add(featureStation)
@@ -97,7 +97,7 @@ class MapController(private val viewModelScope: CoroutineScope, private val repo
     private var permissionsManager: PermissionsManager? = null
 
     lateinit var closestNetwork: CityBikesNetworks
-    private var currentLocation: Location = initLocation()
+    var currentLocation: Location = initLocation()
 
     private fun initLocation() : Location {
 
