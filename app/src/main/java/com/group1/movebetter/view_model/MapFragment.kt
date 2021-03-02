@@ -2,15 +2,15 @@ package com.group1.movebetter.view_model
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.content.res.Resources
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
-import androidx.cardview.widget.CardView
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil.inflate
@@ -68,6 +68,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     private lateinit var mapViewModel: MapViewModel
 
+    private lateinit var binding : FragmentMapBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         context?.let { Mapbox.getInstance(it, getString(R.string.mapbox_access_token)) }
@@ -75,7 +77,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 
-        val binding : FragmentMapBinding = inflate(inflater, R.layout.fragment_map, container, false)
+        binding = inflate(inflater, R.layout.fragment_map, container, false)
         mapView = binding.mapView
 
         // Get a reference to the ViewModel associated with this fragment.
@@ -163,13 +165,17 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 deselectMarker(selectedMarkerLayer, style, false)
             }
             // if clicked on a bike station, make it bigger and show information of that bike station
-            if (bikeStation.size > 0) {
-                selectMarker(selectedMarkerLayer)
-                adaptCardView(bikeStation[0])
-            } else if (tramStation.size > 0) {
-                // show departure board
-            } else if (scooter.size > 0) {
-                // show scooter information
+            when {
+                bikeStation.size > 0 -> {
+                    selectMarker(selectedMarkerLayer)
+                    adaptCardView(bikeStation[0])
+                }
+                tramStation.size > 0 -> {
+                    // show departure board
+                }
+                scooter.size > 0 -> {
+                    // show scooter information
+                }
             }
         }
         return true
@@ -213,30 +219,26 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     }
 
     private fun adaptCardView(feature: Feature) {
-        val name = this.activity?.findViewById<TextView>(R.id.textView_title)
-        name!!.text = feature.getStringProperty("name")
-        val freeBikes = this.activity?.findViewById<TextView>(R.id.textView_freeBikes)
-        freeBikes!!.text = "Free Bikes = ${feature.getNumberProperty("freeBikes")}"
-        val emptySlots = this.activity?.findViewById<TextView>(R.id.textView_emptySlots)
-        emptySlots!!.text = "Empty Slots = ${feature.getNumberProperty("emptySlots")}"
-        val timestamp = this.activity?.findViewById<TextView>(R.id.textView_timestamp)
-        timestamp!!.text = feature.getStringProperty("timestamp")
+        val name = binding.textViewTitle
+        name.text = feature.getStringProperty("name")
 
+        val freeBikes = binding.textViewFreeBikes
+        freeBikes.text = "Free Bikes = ${feature.getNumberProperty("freeBikes")}"
 
-        val cardView = this.activity?.findViewById<CardView>(R.id.single_location_cardView)
-        cardView!!.visibility = View.VISIBLE
+        val emptySlots = binding.textViewEmptySlots
+        emptySlots.text = "Empty Slots = ${feature.getNumberProperty("emptySlots")}"
+
+        val timestamp = binding.textViewTimestamp
+        timestamp.text = feature.getStringProperty("timestamp")
+
+        val cardView = binding.singleLocationCardView
+        cardView.visibility = View.VISIBLE
     }
 
     private fun checkIfCardViewVisible() {
-        val cardView = this.activity?.findViewById<CardView>(R.id.single_location_cardView)
+        val cardView = binding.singleLocationCardView
 
-        /*if (cardView == null) {
-            val frameLayout = this.activity?.findViewById<FrameLayout>(R.id.frameLayout)
-            frameLayout!!.addView(this.activity!!.layoutInflater.inflate(R.layout.cardview_symbol_layer, null))
-            cardView = this.activity?.findViewById<CardView>(R.id.single_location_cardView)
-        }*/
-
-        cardView!!.visibility = View.GONE
+        cardView.visibility = View.GONE
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -404,5 +406,61 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapboxMap.removeOnMapClickListener(this)
         markerAnimator?.cancel()
         mapView.onDestroy()
+    }
+
+    //Open other Apps or their link to play store
+
+    @SuppressLint("QueryPermissionsNeeded")
+    private fun onMapsNavigateTo(lat: Double, lng: Double){
+        val gmmIntentUri: Uri = Uri.parse("google.navigation:q=$lat,$lng&mode=w")
+        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+        mapIntent.setPackage("com.google.android.apps.maps")
+
+        if (mapIntent.resolveActivity(context!!.packageManager) != null) {
+            startActivity(mapIntent)
+        } else {
+            openPlayStoreFor("com.google.android.apps.maps")
+        }
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    private fun openBird(){
+        val intentL = context!!.packageManager.getLaunchIntentForPackage("co.bird.android")
+
+        if (intentL?.resolveActivity(context!!.packageManager) != null) {
+            startActivity(intentL)
+        } else {
+            openPlayStoreFor("co.bird.android")
+        }
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    private fun openNvv(){
+        val intentL = context!!.packageManager.getLaunchIntentForPackage("de.hafas.android.nvv")
+
+        if (intentL?.resolveActivity(context!!.packageManager) != null) {
+            startActivity(intentL)
+        } else {
+            openPlayStoreFor("de.hafas.android.nvv")
+        }
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    private fun openNextBike(){
+        val intentL = context!!.packageManager.getLaunchIntentForPackage("de.nextbike")
+
+        if (intentL?.resolveActivity(context!!.packageManager) != null) {
+            startActivity(intentL)
+        } else {
+            openPlayStoreFor("de.nextbike")
+        }
+    }
+
+    private fun openPlayStoreFor(packageName: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
+        } catch (e: ActivityNotFoundException) {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$packageName")))
+        }
     }
 }
