@@ -295,13 +295,13 @@ Log.d("Tokens", tokens.refresh)
         repository.getResponseNetworks.observe(viewLifecycleOwner, Observer {
             val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORKS)
             mapViewModel.mapController.getNearestNetwork(it)
-            mapViewModel.mapController.createFeatureList(networkSource, it, mapViewModel.cityBikeController)
+            if (it.isNotEmpty()) { mapViewModel.mapController.createFeatureList(networkSource, it, mapViewModel.cityBikeController) }
         })
 
         repository.getResponseNetwork.observe(viewLifecycleOwner, Observer {
             val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORKS)
             val stationSource = style.getSourceAs<GeoJsonSource>(BIKE_STATIONS)
-            mapViewModel.mapController.exchangeNetworkWithStations(networkSource, stationSource, it.network)
+            if (it.isNotEmpty()) { mapViewModel.mapController.exchangeNetworkWithStations(networkSource, stationSource, it[0]) }
         })
     }
 

@@ -29,11 +29,21 @@ interface CityBikesNetworksDao {
     fun insertAll( citybikesnetworks: List<DatabaseCityBikesNetworks>)
 }
 
+@Dao
+interface CityBikesNetworkDao {
+    @Query("select * from databasecitybikesnetwork")
+    fun getCityBikesNetwork(): LiveData<List<DatabaseCityBikesNetwork>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll( citybikesnetwork: List<DatabaseCityBikesNetwork>)
+}
 
 
-@Database(entities = [DatabaseCityBikesNetworks::class], version = 1)
+
+@Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class], version = 2)
 abstract class MyDatabase: RoomDatabase() {
     abstract val cityBikesNetworksDao: CityBikesNetworksDao
+    abstract val cityBikesNetworkDao: CityBikesNetworkDao
 }
 
 private lateinit var INSTANCE: MyDatabase

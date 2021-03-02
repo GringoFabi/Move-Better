@@ -18,11 +18,10 @@ package com.group1.movebetter.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.group1.movebetter.model.CityBikes
-import com.group1.movebetter.model.CityBikesLocation
-import com.group1.movebetter.model.CityBikesNetworks
-import com.group1.movebetter.model.Company
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.group1.movebetter.model.*
+import java.lang.reflect.Type
 
 
 /**
@@ -41,11 +40,60 @@ data class DatabaseCityBikesNetworks constructor(
         val locationLatitude: Double,
         val locationCity: String,
         val locationLongitude: Double,
-        val locationCountry: String)
+        val locationCountry: String
+)
 
 
 fun List<DatabaseCityBikesNetworks>.asCityBikesNetworksList(): List<CityBikesNetworks> {
         return map {
-                CityBikesNetworks(Gson().fromJson(it.company, Company::class.java), it.href, CityBikesLocation(it.locationLatitude, it.locationCity, it.locationLongitude, it.locationCountry), it.name, it.id)
+                CityBikesNetworks(
+                        Gson().fromJson(it.company, Company::class.java),
+                        it.href,
+                        CityBikesLocation(
+                                it.locationLatitude,
+                                it.locationCity,
+                                it.locationLongitude,
+                                it.locationCountry
+                        ),
+                        it.name,
+                        it.id
+                )
+        }
+}
+
+
+
+@Entity(tableName = "databasecitybikesnetwork")
+data class DatabaseCityBikesNetwork constructor(
+        @PrimaryKey
+        val key: String,
+        val id: String,
+        val company: String,
+        val href: String,
+        val name: String,
+        val locationLatitude: Double,
+        val locationCity: String,
+        val locationLongitude: Double,
+        val locationCountry: String,
+        val stations: String
+)
+
+
+fun List<DatabaseCityBikesNetwork>.asCityBikesNetworkList(): List<CityBikesNetwork> {
+        return map {
+                val listType: Type = object : TypeToken<ArrayList<CityBikesStation>>() {}.type
+                CityBikesNetwork(
+                        Gson().fromJson(it.company, Company::class.java),
+                        it.href,
+                        CityBikesLocation(
+                                it.locationLatitude,
+                                it.locationCity,
+                                it.locationLongitude,
+                                it.locationCountry
+                        ),
+                        it.id,
+                        it.name,
+                        Gson().fromJson(it.stations, listType)
+                )
         }
 }

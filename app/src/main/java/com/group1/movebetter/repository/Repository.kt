@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.google.gson.Gson
 import com.group1.movebetter.database.MyDatabase
+import com.group1.movebetter.database.asCityBikesNetworkList
 import com.group1.movebetter.database.asCityBikesNetworksList
 import com.group1.movebetter.model.CityBikes
 import com.group1.movebetter.model.CityBikesNetworkList
@@ -21,9 +22,9 @@ class Repository(private val database: MyDatabase) {
         it.asCityBikesNetworksList()
     }
 
-    private val _getResponseNetwork: MutableLiveData<CityBikesNetworkList> = MutableLiveData()
-    val getResponseNetwork: LiveData<CityBikesNetworkList>
-        get() = _getResponseNetwork
+    val getResponseNetwork: LiveData<List<CityBikesNetwork>> = Transformations.map(database.cityBikesNetworkDao.getCityBikesNetwork()){
+        it.asCityBikesNetworkList()
+    }
 
     private val _getResponseArrival: MutableLiveData<Departures> = MutableLiveData()
     val getResponseArrival: LiveData<Departures>
@@ -62,7 +63,7 @@ class Repository(private val database: MyDatabase) {
     {
         withContext(Dispatchers.IO){
             val responseNetwork = RetrofitInstance.apiCityBikes.getNetwork(networkId)
-            _getResponseNetwork.postValue(responseNetwork)
+            database.cityBikesNetworkDao.insertAll(responseNetwork.network.asDatabaseCityBikesNetworkList())
         }
     }
 

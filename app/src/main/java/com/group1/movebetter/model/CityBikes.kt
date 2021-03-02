@@ -2,6 +2,7 @@ package com.group1.movebetter.model
 
 import com.group1.movebetter.database.DatabaseCityBikesNetworks
 import com.google.gson.Gson
+import com.group1.movebetter.database.DatabaseCityBikesNetwork
 
 
 data class CityBikes (
@@ -47,6 +48,10 @@ data class CityBikesNetwork (
         val name: String,
         val stations: List<CityBikesStation>
 )
+
+fun CityBikesNetwork.asDatabaseCityBikesNetworkList(): List<DatabaseCityBikesNetwork> {
+        return listOf(DatabaseCityBikesNetwork("1",this.id, Gson().toJson(this.company), this.href, this.name, this.location.latitude, this.location.city, this.location.longitude, this.location.country, Gson().toJson(this.stations)))
+}
 
 
 data class CityBikesStation (
