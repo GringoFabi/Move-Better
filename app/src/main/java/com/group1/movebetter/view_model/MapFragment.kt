@@ -68,6 +68,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     private lateinit var binding : FragmentMapBinding
 
+    private lateinit var repository : Repository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         context?.let { Mapbox.getInstance(it, getString(R.string.mapbox_access_token)) }
@@ -79,7 +81,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapView = binding.mapView
 
         // Get a reference to the ViewModel associated with this fragment.
-        val repository = Repository();
+        repository = Repository();
         val viewModelFactory = MapViewModelFactory(repository)
         mapViewModel = ViewModelProvider(this, viewModelFactory).get(MapViewModel::class.java)
         binding.mapViewModel = mapViewModel;
@@ -113,7 +115,7 @@ Log.d("Tokens", tokens.refresh)
 
         mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
 
-        mapViewModel.birdController.myBirds.observe(this, Observer { birds ->
+        repository.myBirds.observe(this, Observer { birds ->
             Log.d("Birds", birds.birds.size.toString())
         })
 
@@ -289,13 +291,13 @@ Log.d("Tokens", tokens.refresh)
                 iconSize(0.3f)))
 
         // Add data to layers
-        mapViewModel.cityBikeController.getResponseNetworks.observe(viewLifecycleOwner, Observer {
+        repository.getResponseNetworks.observe(viewLifecycleOwner, Observer {
             val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORKS)
             mapViewModel.mapController.getNearestNetwork(it)
             mapViewModel.mapController.createFeatureList(networkSource, it, mapViewModel.cityBikeController)
         })
 
-        mapViewModel.cityBikeController.getResponseNetwork.observe(viewLifecycleOwner, Observer {
+        repository.getResponseNetwork.observe(viewLifecycleOwner, Observer {
             val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORKS)
             val stationSource = style.getSourceAs<GeoJsonSource>(BIKE_STATIONS)
             mapViewModel.mapController.exchangeNetworkWithStations(networkSource, stationSource, it.network)

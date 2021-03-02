@@ -15,17 +15,6 @@ class BirdController (private val viewModelScope: CoroutineScope, private val re
     private val refresh: Token = Tokens.refresh
     private val access: Token = Tokens.access
 
-    private val _myResponse: MutableLiveData<EmailBody> = MutableLiveData()
-    val myResponse: LiveData<EmailBody>
-        get() = _myResponse
-
-    private val _myTokens: MutableLiveData<BirdTokens> = MutableLiveData()
-    val myTokens: LiveData<BirdTokens>
-        get() = _myTokens
-
-    private val _myBirds: MutableLiveData<Birds> = MutableLiveData()
-    val myBirds: LiveData<Birds>
-        get() = _myBirds
 
     // sends email to the auth api
     fun getAuthToken(email: String) {
@@ -39,40 +28,32 @@ class BirdController (private val viewModelScope: CoroutineScope, private val re
     fun postAuthToken(token: String) {
         val body = Token(token)
         viewModelScope.launch {
-            val response = repository.postMagicToken(body)
-            _myTokens.value = response
+            repository.postMagicToken(body)
         }
     }
 
     // sends the refresh-token to the auth api (overwrites the current tokens)
     fun refresh() {
         viewModelScope.launch {
-            val response = repository.refresh("Bearer ${refresh.token}")
-            _myTokens.value = response
+            repository.refresh("Bearer ${refresh.token}")
         }
     }
 
     // sends the access-token to the api (retrieves the scooter)
     fun getBirds(location: Location) {
+
+        // TODO: set rad to width of the screen
+        val position = Position(
+            location.latitude,
+            location.longitude,
+            location.altitude,
+            location.accuracy,
+            location.speed,
+        )
+        val radius = 1000
+        val loc: String = Gson().toJson(position)
         viewModelScope.launch {
-            // TODO: set rad to width of the screen
-            val position = Position(
-                    location.latitude,
-                    location.longitude,
-                    location.altitude,
-                    location.accuracy,
-                    location.speed,
-            )
-
-            val loc: String = Gson().toJson(position)
-            val radius = 1000
-
-            val response = repository.getBirds(
-                    location.latitude,
-                    location.longitude,
-                    radius, "Bearer ${access.token}", loc)
-
-            _myBirds.value = response
+            repository.getBirds(location.latitude, location.longitude, radius, "Bearer ${access.token}", loc)
         }
     }
 
