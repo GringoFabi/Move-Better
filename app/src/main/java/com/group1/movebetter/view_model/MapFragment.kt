@@ -65,6 +65,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     private lateinit var mapViewModel: MapViewModel
 
+    private lateinit var binding : FragmentMapBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         context?.let { Mapbox.getInstance(it, getString(R.string.mapbox_access_token)) }
@@ -72,7 +74,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 
-        val binding : FragmentMapBinding = inflate(inflater, R.layout.fragment_map, container, false)
+        binding = inflate(inflater, R.layout.fragment_map, container, false)
         mapView = binding.mapView
 
         // Get a reference to the ViewModel associated with this fragment.
@@ -199,22 +201,24 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     }
 
     private fun adaptCardView(feature: Feature) {
-        val name = this.activity?.findViewById<TextView>(R.id.textView_title)
-        name!!.text = feature.getStringProperty("name")
-        val freeBikes = this.activity?.findViewById<TextView>(R.id.textView_freeBikes)
-        freeBikes!!.text = "Free Bikes = ${feature.getNumberProperty("freeBikes")}"
-        val emptySlots = this.activity?.findViewById<TextView>(R.id.textView_emptySlots)
-        emptySlots!!.text = "Empty Slots = ${feature.getNumberProperty("emptySlots")}"
-        val timestamp = this.activity?.findViewById<TextView>(R.id.textView_timestamp)
-        timestamp!!.text = feature.getStringProperty("timestamp")
+        val name = binding.textViewTitle
+        name.text = feature.getStringProperty("name")
 
+        val freeBikes = binding.textViewFreeBikes
+        freeBikes.text = "Free Bikes = ${feature.getNumberProperty("freeBikes")}"
 
-        val cardView = this.activity?.findViewById<CardView>(R.id.single_location_cardView)
-        cardView!!.visibility = View.VISIBLE
+        val emptySlots = binding.textViewEmptySlots
+        emptySlots.text = "Empty Slots = ${feature.getNumberProperty("emptySlots")}"
+
+        val timestamp = binding.textViewTimestamp
+        timestamp.text = feature.getStringProperty("timestamp")
+
+        val cardView = binding.singleLocationCardView
+        cardView.visibility = View.VISIBLE
     }
 
     private fun checkIfCardViewVisible() {
-        val cardView = this.activity?.findViewById<CardView>(R.id.single_location_cardView)
+        val cardView = binding.singleLocationCardView
 
         /*if (cardView == null) {
             val frameLayout = this.activity?.findViewById<FrameLayout>(R.id.frameLayout)
@@ -222,7 +226,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             cardView = this.activity?.findViewById<CardView>(R.id.single_location_cardView)
         }*/
 
-        cardView!!.visibility = View.GONE
+        cardView.visibility = View.GONE
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
