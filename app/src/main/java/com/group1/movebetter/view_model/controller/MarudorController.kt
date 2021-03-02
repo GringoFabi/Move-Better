@@ -9,18 +9,10 @@ import kotlinx.coroutines.launch
 
 class MarudorController (private val viewModelScope: CoroutineScope, private val repository: Repository) {
 
-    private val _getResponseArrival: MutableLiveData<Departures> = MutableLiveData()
-    val getResponseArrival: LiveData<Departures>
-        get() = _getResponseArrival
-
     fun getArrival(evaId: Long, lookahead: Long = 0)
     {
         viewModelScope.launch {
-
-            val getResponseArrival = repository.getArrival(evaId,lookahead)
-            _getResponseArrival.value = getResponseArrival
-            /*val responseNetworkFiltered = repository.getNetwork("")
-            getResponseNetworkFiltered.value = responseNetworkFiltered*/
+            repository.getArrival(evaId,lookahead)
         }
     }
 }

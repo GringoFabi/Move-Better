@@ -13,18 +13,11 @@ import kotlinx.coroutines.launch
 
 class StadaStationController (private val viewModelScope: CoroutineScope, private val repository: Repository) {
 
-    private val _getResponseStations: MutableLiveData<StaDaStations> = MutableLiveData()
-    val getResponseStations: LiveData<StaDaStations>
-        get() = _getResponseStations
 
     fun getStations()
     {
         viewModelScope.launch {
-
-            val responseStations = repository.getStations()
-            _getResponseStations.value = responseStations
-            /*val responseNetworkFiltered = repository.getNetwork("")
-            getResponseNetworkFiltered.value = responseNetworkFiltered*/
+            repository.getStations()
         }
     }
 }
