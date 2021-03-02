@@ -81,6 +81,7 @@ class MapController(private val viewModelScope: CoroutineScope, private val repo
             featureStation.addNumberProperty("freeBikes", station.free_bikes.amount)
             featureStation.addNumberProperty("emptySlots", station.empty_slots.amount)
             featureStation.addStringProperty("timestamp", station.timestamp)
+            featureStation.addStringProperty("provider", "bikes")
 
             featureList.add(featureStation)
         }
@@ -88,7 +89,7 @@ class MapController(private val viewModelScope: CoroutineScope, private val repo
         refreshSource(stationSource!!, featureList)
     }
 
-    private fun refreshSource(source: GeoJsonSource, featureList: ArrayList<Feature>) {
+    fun refreshSource(source: GeoJsonSource, featureList: ArrayList<Feature>) {
         source.setGeoJson(FeatureCollection.fromFeatures(featureList))
     }
 

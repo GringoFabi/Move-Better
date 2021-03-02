@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.group1.movebetter.model.*
 import com.group1.movebetter.repository.Repository
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.Point
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -74,6 +76,28 @@ class BirdController (private val viewModelScope: CoroutineScope, private val re
 
             _myBirds.value = response
         }
+    }
+
+    // create feature list for birds
+    fun createBirdList(birds: Birds?): ArrayList<Feature> {
+        val birdsFeature = ArrayList<Feature>()
+
+        for (bird in birds!!.birds) {
+            val feature = createBirdFeature(bird.location, bird.battery_level, bird.estimated_range, bird.vehicle_class)
+
+            birdsFeature.add(feature)
+        }
+
+        return birdsFeature
+    }
+
+    private fun createBirdFeature(location: BirdLocation, batteryLevel: Int, estimatedRange: Int, vehicleClass: String): Feature {
+        val feature = Feature.fromGeometry(Point.fromLngLat(location.longitude, location.latitude))
+        feature.addStringProperty("vehicleClass", vehicleClass)
+        feature.addNumberProperty("batteryLevel", batteryLevel)
+        feature.addNumberProperty("estimatedRange", estimatedRange)
+        feature.addStringProperty("provider", "birds")
+        return feature
     }
 
 }

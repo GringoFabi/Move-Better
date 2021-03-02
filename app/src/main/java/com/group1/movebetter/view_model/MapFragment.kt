@@ -115,10 +115,8 @@ Log.d("Tokens", tokens.refresh)
 */
 
         mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
-
-        mapViewModel.birdController.myBirds.observe(this, Observer { birds ->
-            Log.d("Birds", birds.birds.size.toString())
-        })
+        
+        mapViewModel.stadaStationController.getStations()
 
         return binding.root
     }
@@ -170,7 +168,7 @@ Log.d("Tokens", tokens.refresh)
             }
 
             // when clicked on map and a marker is selected, deselect it
-            if (bikeStation.isEmpty()) {
+            if (bikeStation.isEmpty() && scooter.isEmpty()) {
                 if (markerSelected) {
                     deselectMarker(selectedMarkerLayer, style, true)
                 }
@@ -181,13 +179,22 @@ Log.d("Tokens", tokens.refresh)
             // Add picture to Selected_Marker_layer dynamically with an property in clicked icon
             // e.g. "provider" = bikeStation or bikeNetwork or scooter or train
             val source = style.getSourceAs<GeoJsonSource>(SELECTED_MARKER)
-            source?.setGeoJson(FeatureCollection.fromFeature(bikeStation[0]))
+
+            if (bikeStation.isNotEmpty()) {
+                source?.setGeoJson(FeatureCollection.fromFeature(bikeStation[0]))
+                selectedMarkerLayer.setProperties(iconImage(BIKE_ICON_ID))
+            } else if (scooter.isNotEmpty()) {
+                source?.setGeoJson(FeatureCollection.fromFeature(scooter[0]))
+                selectedMarkerLayer.setProperties(iconImage(SCOOTER_ICON_ID))
+            }
+
 
             // check if an icon is already selected
             if (markerSelected) {
                 deselectMarker(selectedMarkerLayer, style, false)
             }
-            // if clicked on a bike station, make it bigger and show information of that bike station
+            // if clicked on a bike station/ scooter/ tram station,
+            // make it bigger and show information
             when {
                 bikeStation.size > 0 -> {
                     selectMarker(selectedMarkerLayer)
@@ -197,7 +204,8 @@ Log.d("Tokens", tokens.refresh)
                     // show departure board
                 }
                 scooter.size > 0 -> {
-                    // show scooter information
+                    selectMarker(selectedMarkerLayer)
+                    adaptCardView(scooter[0])
                 }
             }
         }
@@ -242,17 +250,32 @@ Log.d("Tokens", tokens.refresh)
     }
 
     private fun adaptCardView(feature: Feature) {
-        val name = binding.textViewTitle
-        name.text = feature.getStringProperty("name")
+        val provider = feature.getStringProperty("provider")
+        if (provider == "bikes") {
+            val name = binding.textViewTitle
+            name.text = feature.getStringProperty("name")
 
-        val freeBikes = binding.textViewFreeBikes
-        freeBikes.text = "Free Bikes = ${feature.getNumberProperty("freeBikes")}"
+            val freeBikes = binding.textViewFreeBikes
+            freeBikes.text = "Free Bikes = ${feature.getNumberProperty("freeBikes")}"
 
-        val emptySlots = binding.textViewEmptySlots
-        emptySlots.text = "Empty Slots = ${feature.getNumberProperty("emptySlots")}"
+            val emptySlots = binding.textViewEmptySlots
+            emptySlots.text = "Empty Slots = ${feature.getNumberProperty("emptySlots")}"
 
-        val timestamp = binding.textViewTimestamp
-        timestamp.text = feature.getStringProperty("timestamp")
+            val timestamp = binding.textViewTimestamp
+            timestamp.text = feature.getStringProperty("timestamp")
+        } else {
+            val name = binding.textViewTitle
+            name.text = feature.getStringProperty("vehicleClass")
+
+            val freeBikes = binding.textViewFreeBikes
+            freeBikes.text = "Estimated Range = ${feature.getNumberProperty("estimatedRange")}"
+
+            val emptySlots = binding.textViewEmptySlots
+            emptySlots.text = "Battery Level = ${feature.getNumberProperty("batteryLevel")}%"
+
+            val timestamp = binding.textViewTimestamp
+            timestamp.text = ""
+        }
 
         val cardView = binding.singleLocationCardView
         cardView.visibility = View.VISIBLE
@@ -331,6 +354,12 @@ Log.d("Tokens", tokens.refresh)
             val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORKS)
             val stationSource = style.getSourceAs<GeoJsonSource>(BIKE_STATIONS)
             mapViewModel.mapController.exchangeNetworkWithStations(networkSource, stationSource, it.network)
+        })
+
+        mapViewModel.birdController.myBirds.observe(this, {
+            val birdSource = style.getSourceAs<GeoJsonSource>(BIRD_SCOOTER)
+            val birds = mapViewModel.birdController.createBirdList(it)
+            mapViewModel.mapController.refreshSource(birdSource!!, birds)
         })
     }
 
