@@ -10,7 +10,7 @@ data class StaDaStation (
     val number: Long,
     val name: String,
     val mailingAddress: MailingAddress,
-    val regionalBereich: RegionalBereich,
+    val regionalbereich: RegionalBereich,
     val evaNumbers: List<EvaNumbers>,
     val ril100Identifiers: List<Ril100Identifiers>
 )
@@ -21,7 +21,7 @@ data class Ril100Identifiers (
 
 data class EvaNumbers (
     val number: Long,
-    val geoCoordinates: GeoCoordinates,
+    val geographicCoordinates: GeoCoordinates,
 )
 
 data class RegionalBereich (
@@ -36,6 +36,5 @@ data class MailingAddress (
 )
 
 data class GeoCoordinates (
-    val latitude: Double,
-    val longitude: Double,
+    val coordinates: List<Double>,
 )
