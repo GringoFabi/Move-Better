@@ -7,76 +7,89 @@ import android.location.LocationManager
 import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.group1.movebetter.model.*
+import com.group1.movebetter.repository.Repository
+import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
+import com.mapbox.geojson.Point
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import java.util.function.Predicate
+import kotlin.math.*
 import com.group1.movebetter.model.CityBikes
 import com.group1.movebetter.model.CityBikesLocation
 import com.group1.movebetter.model.CityBikesNetworks
-import com.group1.movebetter.repository.Repository
 import com.group1.movebetter.view_model.MapFragment
-import com.mapbox.android.core.permissions.PermissionsManager
-import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.plugins.annotation.Symbol
-import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
-import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlin.math.*
+
 
 class MapController(private val viewModelScope: CoroutineScope, private val repository: Repository) {
 
-    val BIKE_ICON_ID = "BIKE"
-    val NETWORK_ICON_ID = "NETWORK"
-    val PROPERTY_SELECTED = "selected"
-    val SCOOTER_ICON_ID = "SCOOTER"
+    private val networkCoordinates: ArrayList<Feature> = ArrayList()
+    private var currentNetwork: CityBikesNetwork? = null
 
-    private val markerNetwork: HashMap<LatLng, CityBikesNetworks> = HashMap()
+    fun createFeatureList(networkSource: GeoJsonSource?, cityBikes: CityBikes, cityBikeController: CityBikeController) {
+        for (network in cityBikes.networks) {
+            val feature = createFeature(network.id, network.location, true)
 
-    fun addNetworks(networks: CityBikes, symbolManager: SymbolManager?) {
-        val markers = ArrayList<SymbolOptions>()
-
-        for (network in networks.networks) {
             if (network.id == closestNetwork.id) {
-                getStation(closestNetwork, symbolManager!!, viewModelScope, repository)
-                continue
-            }
-            val location = network.location
-
-            val symbol = createSymbolOptions("", LatLng(location.latitude, location.longitude), NETWORK_ICON_ID)
-            markers.add(symbol)
-
-            markerNetwork[LatLng(location.latitude, location.longitude)] = network
-        }
-
-        symbolManager!!.create(markers)
-    }
-
-    private fun createSymbolOptions(key: String, value: LatLng, iconID: String): SymbolOptions {
-        return SymbolOptions().withLatLng(value).withIconImage(iconID).withIconSize(0.3f).withTextField(key)
-    }
-
-    fun addStations(symbolManager: SymbolManager?, symbol: Symbol) {
-        if (markerNetwork.containsKey(symbol.latLng)) {
-            symbolManager!!.delete(symbol)
-
-            val network = markerNetwork[symbol.latLng]
-
-            getStation(network, symbolManager, viewModelScope, repository)
-        }
-    }
-
-    private fun getStation(network: CityBikesNetworks?, symbolManager: SymbolManager,  viewModelScope: CoroutineScope, repository: Repository) {
-        viewModelScope.launch {
-            val responseNetwork = repository.getNetwork(network!!.id)
-
-            val markers = ArrayList<SymbolOptions>()
-
-            val stations = responseNetwork.network.stations
-
-            for (station in stations) {
-                markers.add(createSymbolOptions("", LatLng(station.latitude, station.longitude), BIKE_ICON_ID))
+                feature.addBooleanProperty("show", false)
+                cityBikeController.getNetwork(network.id)
             }
 
-            symbolManager.create(markers)
+            networkCoordinates.add(feature)
         }
+
+        refreshSource(networkSource!!, networkCoordinates)
+    }
+
+    private fun createFeature(id: String, location: CityBikesLocation, show: Boolean): Feature {
+        val feature = Feature.fromGeometry(Point.fromLngLat(location.longitude, location.latitude))
+        feature.addStringProperty("id", id)
+        feature.addBooleanProperty("show", show)
+
+        return feature
+    }
+
+    @SuppressLint("NewApi")
+    fun exchangeNetworkWithStations(networkSource: GeoJsonSource?, stationSource: GeoJsonSource?, network: CityBikesNetwork) {
+        // Update currentNetwork
+        if (currentNetwork == null) {
+            currentNetwork = network
+        }
+
+        val condition = Predicate<Feature> { x -> x.getStringProperty("id").equals(network.id) || x.getStringProperty("id").equals(currentNetwork!!.id) }
+        networkCoordinates.removeIf(condition)
+
+        // Update feature list of bike networks
+        networkCoordinates.add(createFeature(network.id, network.location, false))
+
+        if (currentNetwork!!.id != network.id) {
+            networkCoordinates.add(createFeature(currentNetwork!!.id, currentNetwork!!.location, true))
+            currentNetwork = network
+        }
+
+        refreshSource(networkSource!!, networkCoordinates)
+
+        // Add stations to map
+        val featureList = ArrayList<Feature>()
+
+        for (station in network.stations) {
+            val featureStation = Feature.fromGeometry(Point.fromLngLat(station.longitude, station.latitude))
+            featureStation.addStringProperty("name", station.name)
+            featureStation.addStringProperty("id", station.id)
+            featureStation.addNumberProperty("freeBikes", station.free_bikes)
+            featureStation.addNumberProperty("emptySlots", station.empty_slots)
+            featureStation.addStringProperty("timestamp", station.timestamp)
+
+            featureList.add(featureStation)
+        }
+
+        refreshSource(stationSource!!, featureList)
+    }
+
+    private fun refreshSource(source: GeoJsonSource, featureList: ArrayList<Feature>) {
+        source.setGeoJson(FeatureCollection.fromFeatures(featureList))
     }
 
     // nearest-network logic
@@ -108,11 +121,11 @@ class MapController(private val viewModelScope: CoroutineScope, private val repo
             val distanceLatitude = degreeToRadial(abs(currentLocation.latitude) - abs(networkLocation.latitude))
             val distanceLongitude = degreeToRadial(abs(currentLocation.longitude) - abs(networkLocation.longitude))
 
-            val a = sin(distanceLatitude/2) * sin(distanceLatitude/2) +
+            val a = sin(distanceLatitude / 2) * sin(distanceLatitude / 2) +
                     cos(degreeToRadial(abs(networkLocation.latitude))) * cos(degreeToRadial(abs(currentLocation.latitude))) *
-                    sin(distanceLongitude/2) * sin(distanceLongitude/2)
+                    sin(distanceLongitude / 2) * sin(distanceLongitude / 2)
 
-            val c = 2 * atan2(sqrt(a), sqrt(1-a));
+            val c = 2 * atan2(sqrt(a), sqrt(1 - a));
             val d = earthRadius * c; // Distance in km
             distances.add(d)
             distanceNetworkMap[d] = network
