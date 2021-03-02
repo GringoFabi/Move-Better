@@ -46,7 +46,7 @@ class Repository {
     {
         withContext(Dispatchers.IO){
             val responseNetworks = RetrofitInstance.apiCityBikes.getNetworks()
-            _getResponseNetworks.value = responseNetworks
+            _getResponseNetworks.postValue(responseNetworks)
         }
     }
 
@@ -59,7 +59,7 @@ class Repository {
     {
         withContext(Dispatchers.IO){
             val responseNetwork = RetrofitInstance.apiCityBikes.getNetwork(networkId)
-            _getResponseNetwork.value = responseNetwork
+            _getResponseNetwork.postValue(responseNetwork)
         }
     }
 
@@ -67,7 +67,7 @@ class Repository {
     {
         withContext(Dispatchers.IO){
             val responseStations = RetrofitInstance.apiStadaStations.getStations()
-            _getResponseStations.value = responseStations
+            _getResponseStations.postValue(responseStations)
         }
     }
 
@@ -75,7 +75,7 @@ class Repository {
     {
         withContext(Dispatchers.IO){
             val getResponseArrival = RetrofitInstance.apiMarudor.getArrival(evaId, lookahead)
-            _getResponseArrival.value = getResponseArrival
+            _getResponseArrival.postValue(getResponseArrival)
         }
     }
     suspend fun getBirdToken(body: EmailBody) {
@@ -85,21 +85,21 @@ class Repository {
     suspend fun postMagicToken(body: Token) {
         withContext(Dispatchers.IO){
             val response = RetrofitInstance.birdAuthApi.postAuthToken(body)
-            _myTokens.value = response
+            _myTokens.postValue(response)
         }
     }
 
     suspend fun refresh(token: String) {
         withContext(Dispatchers.IO){
             val response = RetrofitInstance.birdAuthApi.refresh(token)
-            _myTokens.value = response
+            _myTokens.postValue(response)
         }
     }
 
     suspend fun getBirds(lat: Double, lng: Double, rad: Int, token: String, location: String) {
         withContext(Dispatchers.IO){
             val response = RetrofitInstance.birdApi.getNearbyBirds(lat, lng, rad, token, location)
-            _myBirds.value = response
+            _myBirds.postValue(response)
         }
     }
 }

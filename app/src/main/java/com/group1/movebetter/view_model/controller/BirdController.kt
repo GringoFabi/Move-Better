@@ -53,7 +53,7 @@ class BirdController (private val viewModelScope: CoroutineScope, private val re
         val radius = 1000
         val loc: String = Gson().toJson(position)
         viewModelScope.launch {
-            repository.getBirds(location.latitude, location.longitude, radius, "Bearer ${refresh.token}", loc)
+            repository.getBirds(location.latitude, location.longitude, radius, "Bearer ${access.token}", loc)
         }
     }
 
