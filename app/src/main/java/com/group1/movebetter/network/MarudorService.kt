@@ -10,8 +10,8 @@ interface MarudorService {
 
     @GET(URL_MARUDOR_IRIS + "abfahrten/{evaId}")
     suspend fun getArrival(
+        @Path("evaId") evaId: Long,
         @Query("lookahead") lookahead: Long,
-        @Path("evaId") evaId: Long
     ): Departures
 
 }
