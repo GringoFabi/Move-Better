@@ -1,7 +1,5 @@
 package com.group1.movebetter.view_model.controller
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.group1.movebetter.model.EvaNumbers
 import com.group1.movebetter.model.MailingAddress
 import com.group1.movebetter.model.StaDaStations
@@ -13,15 +11,11 @@ import kotlinx.coroutines.launch
 
 class StadaStationController (private val viewModelScope: CoroutineScope, private val repository: Repository) {
 
-    private val _getResponseStations: MutableLiveData<StaDaStations> = MutableLiveData()
-    val getResponseStations: LiveData<StaDaStations>
-        get() = _getResponseStations
 
     fun getStations()
     {
         viewModelScope.launch {
-            val responseStations = repository.getStations()
-            _getResponseStations.value = responseStations
+            repository.getStations()
         }
     }
 
