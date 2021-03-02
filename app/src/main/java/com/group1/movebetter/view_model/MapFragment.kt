@@ -17,8 +17,9 @@ import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil.inflate
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import android.util.Log
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.*
 import com.group1.movebetter.R
 import com.group1.movebetter.databinding.FragmentMapBinding
@@ -93,6 +94,28 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapViewModel.mapController.getCurrentLocation(this.requireActivity(), context, this)
 
         mapViewModel.cityBikeController.getNetworks()
+
+/*
+mapViewModel.birdController.getAuthToken("<your email>")
+
+mapViewModel.birdController.postAuthToken("<token form the verify mail>")
+mapViewModel.birdController.myTokens.observe(this, Observer { response ->
+Log.d("Tokens", response.access.access)
+Log.d("Tokens", response.refresh.refresh)
+})
+mapViewModel.birdController.refresh()
+
+mapViewModel.birdController.myTokens.observe(this, Observer { tokens ->
+Log.d("Tokens", tokens.access)
+Log.d("Tokens", tokens.refresh)
+})
+*/
+
+        mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
+
+        mapViewModel.birdController.myBirds.observe(this, Observer { birds ->
+            Log.d("Birds", birds.birds.size.toString())
+        })
 
         return binding.root
     }
