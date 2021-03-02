@@ -1,9 +1,7 @@
 package com.group1.movebetter.network
 
 
-import com.group1.movebetter.network.adapters.CityBikesStationExtraStatusAdapter
-import com.group1.movebetter.network.adapters.CompanyAdapter
-import com.group1.movebetter.network.adapters.StationEbikesAdapter
+import com.group1.movebetter.network.adapters.*
 import com.group1.movebetter.util.Constants.Companion.URL_CITYBIKES
 import com.squareup.moshi.Moshi
 import retrofit2.Retrofit
@@ -19,6 +17,8 @@ object RetrofitInstance {
                         add(CompanyAdapter()).
                         add(CityBikesStationExtraStatusAdapter()).
                         add(StationEbikesAdapter()).
+                        add(EmptySlotsAdapter()).
+                        add(FreeBikesAdapter()).
                         build())
                 ).
                 build()
