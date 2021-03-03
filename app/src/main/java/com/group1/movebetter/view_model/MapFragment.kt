@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,10 +17,12 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil.inflate
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.*
 import com.group1.movebetter.R
 import com.group1.movebetter.databinding.FragmentMapBinding
 import com.group1.movebetter.repository.Repository
+import com.group1.movebetter.util.Constants.Companion.INITIAL_DELAY
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Feature
@@ -38,6 +41,10 @@ import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.*
 
 
@@ -95,9 +102,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        mapViewModel.cityBikeController.getCurrentLocation(this.requireActivity(), context, this)
 
-        mapViewModel.cityBikeController.getNetworks()
 
 /*
 mapViewModel.birdController.getAuthToken("<your email>")
@@ -115,11 +120,26 @@ Log.d("Tokens", tokens.refresh)
 })
 */
 
-        mapViewModel.birdController.getBirds(mapViewModel.cityBikeController.currentLocation)
 
-        mapViewModel.stadaStationController.getStations()
 
+
+        //mapViewModel.stadaStationController.getStations()
+        refreshNetworkRequests()
         return binding.root
+    }
+
+    private var delayedRefreshRequestsJob: Job? = null
+
+    private fun refreshNetworkRequests()
+    {
+        mapViewModel.cityBikeController.getCurrentLocation(this.requireActivity(), context, this)
+        mapViewModel.cityBikeController.getNetworks()
+        mapViewModel.stadaStationController.getStations()
+        mapViewModel.birdController.getBirds(mapViewModel.cityBikeController.currentLocation)
+        delayedRefreshRequestsJob = lifecycleScope.launch {
+            delay(INITIAL_DELAY)
+            refreshNetworkRequests()
+        }
     }
 
     private fun initIds() {
