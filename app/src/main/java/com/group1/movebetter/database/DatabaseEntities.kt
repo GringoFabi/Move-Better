@@ -97,3 +97,27 @@ fun List<DatabaseCityBikesNetwork>.asCityBikesNetworkList(): List<CityBikesNetwo
                 )
         }
 }
+
+@Entity(tableName = "databasestadastation")
+data class DatabaseStaDaStation constructor(
+        @PrimaryKey
+        val number: Long,
+        val name: String,
+        val addressCity: String,
+        val addressZipcode: String,
+        val addressStreet: String,
+        val regionalBereichNumber: Long,
+        val regionalBereichName: String,
+        val evaNumbers: String,
+        val ril100Identifiers: String
+)
+
+fun List<DatabaseStaDaStation>.asStaDaStationList(): List<StaDaStation> {
+        return map {
+                val evaListType: Type = object : TypeToken<ArrayList<EvaNumbers>>() {}.type
+                val indListType: Type = object : TypeToken<ArrayList<Ril100Identifiers>>() {}.type
+                StaDaStation(
+                        it.number, it.name, MailingAddress(it.addressCity, it.addressZipcode, it.addressStreet), RegionalBereich(it.regionalBereichNumber,it.regionalBereichName), Gson().fromJson(it.evaNumbers, evaListType), Gson().fromJson(it.ril100Identifiers, indListType)
+                )
+        }
+}

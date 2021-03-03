@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import com.group1.movebetter.database.MyDatabase
 import com.group1.movebetter.database.asCityBikesNetworkList
 import com.group1.movebetter.database.asCityBikesNetworksList
+import com.group1.movebetter.database.asStaDaStationList
 import com.group1.movebetter.model.CityBikes
 import com.group1.movebetter.model.CityBikesNetworkList
 import com.group1.movebetter.model.Departures
@@ -30,9 +31,9 @@ class Repository(private val database: MyDatabase) {
     val getResponseArrival: LiveData<Departures>
         get() = _getResponseArrival
 
-    private val _getResponseStations: MutableLiveData<StaDaStations> = MutableLiveData()
-    val getResponseStations: LiveData<StaDaStations>
-        get() = _getResponseStations
+    val getResponseStations: LiveData<List<StaDaStation>> = Transformations.map(database.staDaStationDao.getStaDaStation()){
+        it.asStaDaStationList()
+    }
 
     private val _myResponse: MutableLiveData<EmailBody> = MutableLiveData()
     val myResponse: LiveData<EmailBody>
@@ -71,7 +72,7 @@ class Repository(private val database: MyDatabase) {
     {
         withContext(Dispatchers.IO){
             val responseStations = RetrofitInstance.apiStadaStations.getStations()
-            _getResponseStations.postValue(responseStations)
+            database.staDaStationDao.insertAll(responseStations.result.asDatabaseStaDaStationList())
         }
     }
 

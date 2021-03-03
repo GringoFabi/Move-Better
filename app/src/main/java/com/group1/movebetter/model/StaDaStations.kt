@@ -1,5 +1,8 @@
 package com.group1.movebetter.model
 
+import com.google.gson.Gson
+import com.group1.movebetter.database.DatabaseCityBikesNetworks
+import com.group1.movebetter.database.DatabaseStaDaStation
 
 
 data class StaDaStations (
@@ -14,6 +17,14 @@ data class StaDaStation (
     val evaNumbers: List<EvaNumbers>,
     val ril100Identifiers: List<Ril100Identifiers>
 )
+
+
+fun List<StaDaStation>.asDatabaseStaDaStationList(): List<DatabaseStaDaStation> {
+    return map {
+        DatabaseStaDaStation(it.number, it.name, it.mailingAddress.city, it.mailingAddress.zipcode, it.mailingAddress.street, it.regionalbereich.number, it.regionalbereich.name, Gson().toJson(it.evaNumbers), Gson().toJson(it.ril100Identifiers))
+    }
+}
+
 
 // List of Ril100 Identifiers (Short string for the name of the Station) and a Boolean isMain to check which Identifier is the latest.
 data class Ril100Identifiers (
