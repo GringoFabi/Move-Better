@@ -1,8 +1,5 @@
 package com.group1.movebetter.view_model.controller
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.group1.movebetter.model.Departures
 import com.group1.movebetter.repository.Repository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

@@ -50,40 +50,36 @@
                 android:padding="16dp">
 
                 <TextView
-                    android:id="@+id/textView_title"
+                    android:id="@+id/property0"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    tools:text="Bike Station 1"/>
+                    android:textSize="18sp"/>
 
                 <TextView
-                    android:id="@+id/textView_freeBikes"
+                    android:id="@+id/property1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:textColor="@android:color/white"
-                    android:textSize="16sp"
-                    tools:text="Free Bikes:"/>
+                    android:textSize="16sp"/>
 
                 <TextView
-                    android:id="@+id/textView_emptySlots"
+                    android:id="@+id/property2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:textColor="@android:color/white"
-                    android:textSize="16sp"
-                    tools:text="Empty Slots:"/>
+                    android:textSize="16sp"/>
 
                 <TextView
-                    android:id="@+id/textView_timestamp"
+                    android:id="@+id/property3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:textColor="@android:color/white"
-                    android:textSize="16sp"
-                    tools:text="Timestamp: "/>
+                    android:textSize="16sp"/>
 
             </LinearLayout>
 
