@@ -2,6 +2,7 @@ package com.group1.movebetter.view_model.controller
 
 import com.group1.movebetter.model.EvaNumbers
 import com.group1.movebetter.model.MailingAddress
+import com.group1.movebetter.model.StaDaStation
 import com.group1.movebetter.model.StaDaStations
 import com.group1.movebetter.repository.Repository
 import com.mapbox.geojson.Feature
@@ -19,10 +20,10 @@ class StadaStationController (private val viewModelScope: CoroutineScope, privat
         }
     }
 
-    fun createStationList(stations: StaDaStations?): ArrayList<Feature> {
+    fun createStationList(stations: List<StaDaStation>): ArrayList<Feature> {
         val stationFeatures = ArrayList<Feature>()
 
-        for (station in stations!!.result) {
+        for (station in stations) {
             val evaNumbers = station.evaNumbers
             for (evaNumber in evaNumbers) {
                 if (!evaNumber.isMain || evaNumber.geographicCoordinates == null) {

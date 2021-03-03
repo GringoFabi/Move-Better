@@ -1,5 +1,9 @@
 package com.group1.movebetter.model
 
+import com.group1.movebetter.database.DatabaseCityBikesNetworks
+import com.google.gson.Gson
+import com.group1.movebetter.database.DatabaseCityBikesNetwork
+
 
 data class CityBikes (
         val networks : List<CityBikesNetworks>
@@ -14,6 +18,11 @@ data class CityBikesNetworks (
         val id: String
 )
 
+fun List<CityBikesNetworks>.asDatabaseCityBikesNetworksList(): List<DatabaseCityBikesNetworks> {
+        return map {
+                DatabaseCityBikesNetworks(it.id, Gson().toJson(it.company), it.href, it.name, it.location.latitude, it.location.city, it.location.longitude, it.location.country)
+        }
+}
 
 data class CityBikesLocation (
         val latitude: Double,
@@ -39,6 +48,10 @@ data class CityBikesNetwork (
         val name: String,
         val stations: List<CityBikesStation>
 )
+
+fun CityBikesNetwork.asDatabaseCityBikesNetworkList(): List<DatabaseCityBikesNetwork> {
+        return listOf(DatabaseCityBikesNetwork("1",this.id, Gson().toJson(this.company), this.href, this.name, this.location.latitude, this.location.city, this.location.longitude, this.location.country, Gson().toJson(this.stations)))
+}
 
 
 data class CityBikesStation (
