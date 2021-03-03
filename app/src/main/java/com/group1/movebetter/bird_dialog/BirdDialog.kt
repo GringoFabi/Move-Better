@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatDialogFragment
+import androidx.constraintlayout.widget.ConstraintSet
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -20,11 +21,12 @@ import com.group1.movebetter.databinding.BirdDialogBinding
 import com.group1.movebetter.databinding.BirdDialogBinding.inflate
 import com.group1.movebetter.repository.Repository
 
-
 class BirdDialog : AppCompatDialogFragment() {
     var email: String = ""
     private val REQUEST_CODE_EMAIL = 1
+    private var tokenFlag: Boolean = false
 
+    private lateinit var alertDialog: AlertDialog
     private lateinit var binding: BirdDialogBinding
     private lateinit var googleButton: SignInButton
     private lateinit var birdDialogViewModel: BirdDialogViewModel
@@ -48,25 +50,76 @@ class BirdDialog : AppCompatDialogFragment() {
 
         builder.setView(binding.root)
             .setTitle("Nutzung von Bird")
-            .setNegativeButton(
-                "skip"
-            ) { _, _ -> }
-            .setPositiveButton(
-                "send"
-            ) { _, _ ->
+            .setNegativeButton("skip", null)
+            .setPositiveButton("send", null)
+
+        alertDialog = builder.show()
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            if (tokenFlag) {
                 if (binding.enterEmail.text.isNotEmpty()) {
-                    email = binding.enterEmail.text.toString()
+                    val magicToken = binding.enterEmail.text.toString()
+                    verify(magicToken)
+                    dismiss()
                 }
-                send()
+            } else {
+                if (!binding.enterEmail.text.matches(Regex("[a-zA-Z0-9._-]+@[a-z]+.[a-z]+"))) {
+                    binding.errorText.visibility = View.VISIBLE
+                } else {
+                    email = binding.enterEmail.text.toString()
+                    binding.enterEmail.setText("")
+                    send()
+                }
             }
+        }
 
+        return alertDialog
+    }
 
-        return builder.create()
+    private fun verify(magicToken: String?) {
+        if (magicToken != null) {
+            birdDialogViewModel.birdController.postAuthToken(magicToken)
+        }
+    }
+
+    private fun changeToMagicToken() {
+        binding.containerConstraint.removeAllViewsInLayout()
+
+        val textView = binding.textView
+        textView.text = "Deine Email-Adresse wurde zu Bird gesendet." +
+                "Du erhälst jetzt gleich eine Mail wo ein Token drin steht." +
+                "Kopier es und füge es hier ein."
+        binding.containerConstraint.addView(textView)
+
+        val input = binding.enterEmail
+        input.hint = "magic token"
+        binding.containerConstraint.addView(input)
+
+        val set = ConstraintSet()
+        set.clone(binding.containerConstraint)
+
+        val margin = 32
+        set.constrainHeight(textView.id, ConstraintSet.WRAP_CONTENT)
+        set.constrainWidth(textView.id, ConstraintSet.WRAP_CONTENT)
+
+        set.connect(textView.id, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, margin)
+        set.connect(textView.id, ConstraintSet.RIGHT,ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, margin)
+        set.connect(textView.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, margin)
+        set.connect(textView.id, ConstraintSet.BOTTOM, input.id, ConstraintSet.TOP, margin*2)
+
+        set.constrainHeight(input.id, ConstraintSet.WRAP_CONTENT)
+        set.constrainWidth(input.id, ConstraintSet.WRAP_CONTENT)
+
+        set.connect(input.id, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, margin)
+        set.connect(input.id, ConstraintSet.RIGHT,ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, margin)
+        set.connect(input.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, margin)
+
+        set.applyTo(binding.containerConstraint)
     }
 
     private fun send() {
-        Log.d("Email", email)
-        // TODO: send email to bird-auth-api
+        birdDialogViewModel.birdController.getAuthToken(email)
+        tokenFlag = true
+        changeToMagicToken()
     }
 
     private fun signInWithGoogle() {
