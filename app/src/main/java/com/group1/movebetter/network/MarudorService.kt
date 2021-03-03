@@ -21,4 +21,9 @@ interface MarudorService {
         @Query("lng") lng: Double,
         @Query("radius") radius: Long,
     ): NextStations
+
+    @GET(URL_MARUDOR_STATION + "search/{searchTerm}")
+    suspend fun getStationsByTerm(
+            @Path("searchTerm") searchTerm: String,
+    ): NextStations
 }

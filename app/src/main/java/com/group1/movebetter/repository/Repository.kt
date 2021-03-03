@@ -34,6 +34,11 @@ class Repository {
     val getResponseNextStations: LiveData<NextStations>
         get() = _getResponseNextStations
 
+    private val _getStationsByTerm: MutableLiveData<NextStations> = MutableLiveData()
+    val getStationsByTerm: LiveData<NextStations>
+        get() = _getStationsByTerm
+
+
     private val _myResponse: MutableLiveData<EmailBody> = MutableLiveData()
     val myResponse: LiveData<EmailBody>
         get() = _myResponse
@@ -88,6 +93,14 @@ class Repository {
         withContext(Dispatchers.IO){
             val getResponseNextStations = RetrofitInstance.apiMarudor.getNextStations(lat, lng, radius)
             _getResponseNextStations.postValue(getResponseNextStations)
+        }
+    }
+
+    suspend fun getStationsByTerm(searchTerm: String)
+    {
+        withContext(Dispatchers.IO){
+            val getStationsByTerm = RetrofitInstance.apiMarudor.getStationsByTerm(searchTerm)
+            _getStationsByTerm.postValue(getStationsByTerm)
         }
     }
 
