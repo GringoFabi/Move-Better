@@ -32,13 +32,9 @@ class Repository(private val database: MyDatabase) {
         it.asStaDaStationList()
     }
 
-    private val _myResponse: MutableLiveData<EmailBody> = MutableLiveData()
-    val myResponse: LiveData<EmailBody>
-        get() = _myResponse
-
-    private val _myTokens: MutableLiveData<BirdTokens> = MutableLiveData()
-    val myTokens: LiveData<BirdTokens>
-        get() = _myTokens
+    val myTokens: LiveData<List<BirdTokens>> = Transformations.map(database.databaseBirdTokensDao.getBirdTokens()){
+        it.asBirdTokensList()
+    }
 
     val myBirds: LiveData<List<Bird>> = Transformations.map(database.databaseBirdDao.getBird()){
         it.asBirdList()
@@ -88,14 +84,14 @@ class Repository(private val database: MyDatabase) {
     suspend fun postMagicToken(body: Token) {
         withContext(Dispatchers.IO){
             val response = RetrofitInstance.birdAuthApi.postAuthToken(body)
-            _myTokens.postValue(response)
+            database.databaseBirdTokensDao.insertAll(listOf(response).asDatabaseBirdTokensList())
         }
     }
 
     suspend fun refresh(token: String) {
         withContext(Dispatchers.IO){
             val response = RetrofitInstance.birdAuthApi.refresh(token)
-            _myTokens.postValue(response)
+            database.databaseBirdTokensDao.insertAll(listOf(response).asDatabaseBirdTokensList())
         }
     }
 
