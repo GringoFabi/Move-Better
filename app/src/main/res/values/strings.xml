@@ -1,13 +1,21 @@
 <resources>
     <string name="app_name">Move Better</string>
 
-    <string name="BIKE_STATIONS">bike-stations</string>
+<!--    Layers and Sources-->
     <string name="BIKE_STATION_LAYER">bike-station-layer</string>
+    <string name="BIKE_STATIONS">bike-stations</string>
     <string name="BIKE_NETWORK_LAYER">bike-network-layer</string>
     <string name="BIKE_NETWORKS">bike-network-source</string>
-    <string name="SELECTED_MARKER">selected-marker</string>
     <string name="SELECTED_MARKER_LAYER">selected-marker-layer</string>
+    <string name="SELECTED_MARKER">selected-marker</string>
+    <string name="BIRD_SCOOTER_LAYER">bird-scooter-layer</string>
+    <string name="BIRD_SCOOTER">bird-scooter</string>
+    <string name="TRAM_STATION">tram-station</string>
+    <string name="TRAM_STATION_LAYER">tram-station-layer</string>
+
+<!--    Icons-->
     <string name="BIKE_ICON_ID">bike</string>
     <string name="NETWORK_ICON_ID">network</string>
     <string name="SCOOTER_ICON_ID">scooter</string>
+    <string name="TRAM_STATION_ICON_ID">tram</string>
 </resources>

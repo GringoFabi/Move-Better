@@ -12,7 +12,7 @@ data class StaDaStations (
 data class StaDaStation (
     val number: Long,
     val name: String,
-    val mailingAddress: MailingAddress,
+    val mailingAddress: MailingAddress?,
     val regionalbereich: RegionalBereich,
     val evaNumbers: List<EvaNumbers>,
     val ril100Identifiers: List<Ril100Identifiers>
@@ -35,7 +35,7 @@ data class Ril100Identifiers (
 // List of Numbers and a Boolean isMain to check which number is the latest.
 data class EvaNumbers (
     val number: Long,
-    val geographicCoordinates: GeoCoordinates,
+    val geographicCoordinates: GeoCoordinates?,
     val isMain: Boolean
 )
 
