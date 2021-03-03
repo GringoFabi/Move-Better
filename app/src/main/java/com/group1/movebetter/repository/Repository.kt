@@ -2,7 +2,9 @@ package com.group1.movebetter.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.google.gson.Gson
+import com.group1.movebetter.database.*
 import com.group1.movebetter.model.CityBikes
 import com.group1.movebetter.model.CityBikesNetworkList
 import com.group1.movebetter.model.Departures
@@ -12,23 +14,23 @@ import com.group1.movebetter.network.RetrofitInstance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class Repository {
+class Repository(private val database: MyDatabase) {
 
-    private val _getResponseNetworks: MutableLiveData<CityBikes> = MutableLiveData()
-    val getResponseNetworks: LiveData<CityBikes>
-        get() = _getResponseNetworks
+    val getResponseNetworks: LiveData<List<CityBikesNetworks>> = Transformations.map(database.cityBikesNetworksDao.getCityBikesNetworks()){
+        it.asCityBikesNetworksList()
+    }
 
-    private val _getResponseNetwork: MutableLiveData<CityBikesNetworkList> = MutableLiveData()
-    val getResponseNetwork: LiveData<CityBikesNetworkList>
-        get() = _getResponseNetwork
+    val getResponseNetwork: LiveData<List<CityBikesNetwork>> = Transformations.map(database.cityBikesNetworkDao.getCityBikesNetwork()){
+        it.asCityBikesNetworkList()
+    }
 
-    private val _getResponseArrival: MutableLiveData<Departures> = MutableLiveData()
-    val getResponseArrival: LiveData<Departures>
-        get() = _getResponseArrival
+    val getResponseArrival: LiveData<List<Departure>> = Transformations.map(database.databaseDepartureDao.getDeparture()){
+        it.asDepartureList()
+    }
 
-    private val _getResponseStations: MutableLiveData<StaDaStations> = MutableLiveData()
-    val getResponseStations: LiveData<StaDaStations>
-        get() = _getResponseStations
+    val getResponseStations: LiveData<List<StaDaStation>> = Transformations.map(database.staDaStationDao.getStaDaStation()){
+        it.asStaDaStationList()
+    }
 
     private val _myResponse: MutableLiveData<EmailBody> = MutableLiveData()
     val myResponse: LiveData<EmailBody>
@@ -38,15 +40,15 @@ class Repository {
     val myTokens: LiveData<BirdTokens>
         get() = _myTokens
 
-    private val _myBirds: MutableLiveData<Birds> = MutableLiveData()
-    val myBirds: LiveData<Birds>
-        get() = _myBirds
+    val myBirds: LiveData<List<Bird>> = Transformations.map(database.databaseBirdDao.getBird()){
+        it.asBirdList()
+    }
 
     suspend fun getNetworks()
     {
         withContext(Dispatchers.IO){
-            val responseNetworks = RetrofitInstance.apiCityBikes.getNetworks()
-            _getResponseNetworks.postValue(responseNetworks)
+            val responseNetworks = RetrofitInstance.apiCityBikes.getNetworks().networks
+            database.cityBikesNetworksDao.insertAll(responseNetworks.asDatabaseCityBikesNetworksList())
         }
     }
 
@@ -59,7 +61,7 @@ class Repository {
     {
         withContext(Dispatchers.IO){
             val responseNetwork = RetrofitInstance.apiCityBikes.getNetwork(networkId)
-            _getResponseNetwork.postValue(responseNetwork)
+            database.cityBikesNetworkDao.insertAll(responseNetwork.network.asDatabaseCityBikesNetworkList())
         }
     }
 
@@ -67,7 +69,7 @@ class Repository {
     {
         withContext(Dispatchers.IO){
             val responseStations = RetrofitInstance.apiStadaStations.getStations()
-            _getResponseStations.postValue(responseStations)
+            database.staDaStationDao.insertAll(responseStations.result.asDatabaseStaDaStationList())
         }
     }
 
@@ -75,7 +77,8 @@ class Repository {
     {
         withContext(Dispatchers.IO){
             val getResponseArrival = RetrofitInstance.apiMarudor.getArrival(evaId, lookahead)
-            _getResponseArrival.postValue(getResponseArrival)
+            database.databaseDepartureDao.clearTable()
+            database.databaseDepartureDao.insertAll(getResponseArrival.departures.asDatabaseDepartureList())
         }
     }
     suspend fun getBirdToken(body: EmailBody) {
@@ -99,7 +102,7 @@ class Repository {
     suspend fun getBirds(lat: Double, lng: Double, rad: Int, token: String, location: String) {
         withContext(Dispatchers.IO){
             val response = RetrofitInstance.birdApi.getNearbyBirds(lat, lng, rad, token, location)
-            _myBirds.postValue(response)
+            database.databaseBirdDao.insertAll(response.birds.asDatabaseBirdList())
         }
     }
 }

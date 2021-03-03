@@ -1,5 +1,8 @@
 package com.group1.movebetter.model
 
+import com.google.gson.Gson
+import com.group1.movebetter.database.DatabaseDeparture
+
 
 data class Departures (
     val departures: List<Departure>,
@@ -13,6 +16,14 @@ data class Departure (
     val arrival: Arrival,
     val route: List<RouteStation>,
 )
+
+
+fun List<Departure>.asDatabaseDepartureList(): List<DatabaseDeparture> {
+    return map {
+        DatabaseDeparture(scheduledDestination = it.scheduledDestination, trainName =  it.train.name, cancelled =  it.cancelled, messages =  Gson().toJson(it.messages), arrivalTime =  it.arrival.time, arrivalPlatform =  it.arrival.platform, arrivalDelay =  it.arrival.delay, route =  Gson().toJson(it.route))
+    }
+}
+
 
 // Route of the Train. Important to show it on the board. ShowVia is the short list to display and the full list are all stations.
 data class RouteStation(
