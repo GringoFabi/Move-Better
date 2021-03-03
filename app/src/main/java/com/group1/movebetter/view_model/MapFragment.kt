@@ -374,8 +374,10 @@ Log.d("Tokens", tokens.refresh)
         // Observer for birds (scooters)
         repository.myBirds.observe(viewLifecycleOwner) {
             val birdSource = style.getSourceAs<GeoJsonSource>(BIRD_SCOOTER)
-            val birds = mapViewModel.birdController.createBirdList(it)
-            mapViewModel.mapController.refreshSource(birdSource!!, birds)
+            if (it.isNotEmpty()) {
+                val birds = mapViewModel.birdController.createBirdList(it)
+                mapViewModel.mapController.refreshSource(birdSource!!, birds)
+            }
         }
 
         // Observer for tram stations

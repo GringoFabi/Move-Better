@@ -4,10 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.google.gson.Gson
-import com.group1.movebetter.database.MyDatabase
-import com.group1.movebetter.database.asCityBikesNetworkList
-import com.group1.movebetter.database.asCityBikesNetworksList
-import com.group1.movebetter.database.asStaDaStationList
+import com.group1.movebetter.database.*
 import com.group1.movebetter.model.CityBikes
 import com.group1.movebetter.model.CityBikesNetworkList
 import com.group1.movebetter.model.Departures
@@ -27,9 +24,9 @@ class Repository(private val database: MyDatabase) {
         it.asCityBikesNetworkList()
     }
 
-    private val _getResponseArrival: MutableLiveData<Departures> = MutableLiveData()
-    val getResponseArrival: LiveData<Departures>
-        get() = _getResponseArrival
+    val getResponseArrival: LiveData<List<Departure>> = Transformations.map(database.databaseDepartureDao.getDeparture()){
+        it.asDepartureList()
+    }
 
     val getResponseStations: LiveData<List<StaDaStation>> = Transformations.map(database.staDaStationDao.getStaDaStation()){
         it.asStaDaStationList()
@@ -43,9 +40,9 @@ class Repository(private val database: MyDatabase) {
     val myTokens: LiveData<BirdTokens>
         get() = _myTokens
 
-    private val _myBirds: MutableLiveData<Birds> = MutableLiveData()
-    val myBirds: LiveData<Birds>
-        get() = _myBirds
+    val myBirds: LiveData<List<Bird>> = Transformations.map(database.databaseBirdDao.getBird()){
+        it.asBirdList()
+    }
 
     suspend fun getNetworks()
     {
@@ -80,7 +77,8 @@ class Repository(private val database: MyDatabase) {
     {
         withContext(Dispatchers.IO){
             val getResponseArrival = RetrofitInstance.apiMarudor.getArrival(evaId, lookahead)
-            _getResponseArrival.postValue(getResponseArrival)
+            database.databaseDepartureDao.clearTable()
+            database.databaseDepartureDao.insertAll(getResponseArrival.departures.asDatabaseDepartureList())
         }
     }
     suspend fun getBirdToken(body: EmailBody) {
@@ -104,7 +102,7 @@ class Repository(private val database: MyDatabase) {
     suspend fun getBirds(lat: Double, lng: Double, rad: Int, token: String, location: String) {
         withContext(Dispatchers.IO){
             val response = RetrofitInstance.birdApi.getNearbyBirds(lat, lng, rad, token, location)
-            _myBirds.postValue(response)
+            database.databaseBirdDao.insertAll(response.birds.asDatabaseBirdList())
         }
     }
 }

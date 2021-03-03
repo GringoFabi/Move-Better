@@ -121,3 +121,47 @@ fun List<DatabaseStaDaStation>.asStaDaStationList(): List<StaDaStation> {
                 )
         }
 }
+
+@Entity(tableName = "databasedeparture")
+data class DatabaseDeparture (
+        @PrimaryKey(autoGenerate = true)
+        val id: Long = 0L,
+        val scheduledDestination: String,
+        val trainName: String,
+        val cancelled: Boolean,
+        val messages: String,
+        val arrivalTime: String,
+        val arrivalPlatform: String,
+        val arrivalDelay: Long,
+        val route: String,
+)
+
+fun List<DatabaseDeparture>.asDepartureList(): List<Departure> {
+        return map {
+                val listType: Type = object : TypeToken<ArrayList<RouteStation>>() {}.type
+                Departure(it.scheduledDestination, Train(it.trainName), it.cancelled, Gson().fromJson(it.messages, Messages::class.java), Arrival(it.arrivalTime,it.arrivalPlatform,it.arrivalDelay),Gson().fromJson(it.route, listType))
+        }
+}
+
+@Entity(tableName = "databasebird")
+data class DatabaseBird (
+        @PrimaryKey
+        val id: String,
+        val locationLatitude: Double = 0.0,
+        val locationLongitude: Double = 0.0,
+        val code: String,
+        val model: String,
+        val vehicle_class: String,
+        val captive: Boolean,
+        val nest_id: String,
+        val partner_id: String,
+        val battery_level: Int,
+        val estimated_range: Int,
+        val area_key: String,
+)
+
+fun List<DatabaseBird>.asBirdList(): List<Bird> {
+        return map {
+                Bird(it.id, BirdLocation(it.locationLatitude,it.locationLongitude), it.code, it.model, it.vehicle_class,it.captive,it.nest_id,it.partner_id,it.battery_level,it.estimated_range,it.area_key)
+        }
+}

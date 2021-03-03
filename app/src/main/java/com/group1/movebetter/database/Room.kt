@@ -47,13 +47,36 @@ interface StaDaStationDao {
     fun insertAll( stadastation: List<DatabaseStaDaStation>)
 }
 
+@Dao
+interface DatabaseDepartureDao {
+    @Query("select * from databasedeparture")
+    fun getDeparture(): LiveData<List<DatabaseDeparture>>
+
+    @Query("delete from databasedeparture")
+    fun clearTable()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll( departures: List<DatabaseDeparture>)
+}
+
+@Dao
+interface DatabaseBirdDao {
+    @Query("select * from databasebird")
+    fun getBird(): LiveData<List<DatabaseBird>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll( birds: List<DatabaseBird>)
+}
 
 
-@Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class, DatabaseStaDaStation::class], version = 3)
+
+@Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class, DatabaseStaDaStation::class, DatabaseDeparture::class, DatabaseBird::class], version = 5)
 abstract class MyDatabase: RoomDatabase() {
     abstract val cityBikesNetworksDao: CityBikesNetworksDao
     abstract val cityBikesNetworkDao: CityBikesNetworkDao
     abstract val staDaStationDao: StaDaStationDao
+    abstract val databaseDepartureDao: DatabaseDepartureDao
+    abstract val databaseBirdDao: DatabaseBirdDao
 }
 
 private lateinit var INSTANCE: MyDatabase

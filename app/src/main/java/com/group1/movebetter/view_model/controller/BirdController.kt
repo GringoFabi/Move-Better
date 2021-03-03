@@ -58,10 +58,10 @@ class BirdController (private val viewModelScope: CoroutineScope, private val re
     }
 
     // create feature list for birds
-    fun createBirdList(birds: Birds?): ArrayList<Feature> {
+    fun createBirdList(birds: List<Bird>): ArrayList<Feature> {
         val birdsFeature = ArrayList<Feature>()
 
-        for (bird in birds!!.birds) {
+        for (bird in birds) {
             val feature = createBirdFeature(bird.location, bird.battery_level, bird.estimated_range, bird.vehicle_class)
 
             birdsFeature.add(feature)
