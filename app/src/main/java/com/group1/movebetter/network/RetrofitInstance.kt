@@ -29,6 +29,7 @@ object RetrofitInstance {
                         add(StationEbikesAdapter()).
                         add(EmptySlotsAdapter()).
                         add(FreeBikesAdapter()).
+                        add(NextStationsAdapter()).
                         build())
                 ).
                 build()

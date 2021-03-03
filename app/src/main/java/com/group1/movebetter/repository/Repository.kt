@@ -30,6 +30,10 @@ class Repository {
     val getResponseStations: LiveData<StaDaStations>
         get() = _getResponseStations
 
+    private val _getResponseNextStations: MutableLiveData<NextStations> = MutableLiveData()
+    val getResponseNextStations: LiveData<NextStations>
+        get() = _getResponseNextStations
+
     private val _myResponse: MutableLiveData<EmailBody> = MutableLiveData()
     val myResponse: LiveData<EmailBody>
         get() = _myResponse
@@ -78,6 +82,15 @@ class Repository {
             _getResponseArrival.postValue(getResponseArrival)
         }
     }
+
+    suspend fun getNextStations(lat: Double, lng: Double, radius: Long)
+    {
+        withContext(Dispatchers.IO){
+            val getResponseNextStations = RetrofitInstance.apiMarudor.getNextStations(lat, lng, radius)
+            _getResponseNextStations.postValue(getResponseNextStations)
+        }
+    }
+
     suspend fun getBirdToken(body: EmailBody) {
         return RetrofitInstance.birdAuthApi.getAuthToken(body)
     }
