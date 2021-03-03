@@ -1,8 +1,6 @@
 package com.group1.movebetter.model
 
-import com.google.gson.reflect.TypeToken
 import com.group1.movebetter.database.DatabaseBird
-import java.lang.reflect.Type
 
 data class Birds (
         val birds : List<Bird>,
