@@ -41,8 +41,8 @@ class CityBikeController (private val viewModelScope: CoroutineScope, private va
     private val networkFeatures: ArrayList<Feature> = ArrayList()
     private var currentNetwork: CityBikesNetwork? = null
 
-    fun createBikeNetworkList(cityBikes: CityBikes): ArrayList<Feature> {
-        for (network in cityBikes.networks) {
+    fun createBikeNetworkList(cityBikes: List<CityBikesNetworks>): ArrayList<Feature> {
+        for (network in cityBikes) {
             val feature = createBikeFeature(network.id, network.location, true)
 
             if (network.id == closestNetwork.id) {
@@ -129,14 +129,14 @@ class CityBikeController (private val viewModelScope: CoroutineScope, private va
         return location
     }
 
-    fun getNearestNetwork(res: CityBikes) {
+    fun getNearestNetwork(res: List<CityBikesNetworks>) {
 
         // Haversine formular (see more here: https://en.wikipedia.org/wiki/Haversine_formula)
 
         val earthRadius = 6371
         val distances = ArrayList<Double>()
         val distanceNetworkMap = HashMap<Double, CityBikesNetworks>()
-        for (network in res.networks) {
+        for (network in res) {
             val networkLocation: CityBikesLocation = network.location
             val distanceLatitude = degreeToRadial(abs(currentLocation.latitude) - abs(networkLocation.latitude))
             val distanceLongitude = degreeToRadial(abs(currentLocation.longitude) - abs(networkLocation.longitude))

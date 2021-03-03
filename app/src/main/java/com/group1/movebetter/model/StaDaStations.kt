@@ -21,7 +21,7 @@ data class StaDaStation (
 
 fun List<StaDaStation>.asDatabaseStaDaStationList(): List<DatabaseStaDaStation> {
     return map {
-        DatabaseStaDaStation(it.number, it.name, it.mailingAddress.city, it.mailingAddress.zipcode, it.mailingAddress.street, it.regionalbereich.number, it.regionalbereich.name, Gson().toJson(it.evaNumbers), Gson().toJson(it.ril100Identifiers))
+        DatabaseStaDaStation(it.number, it.name, it.mailingAddress?.city ?: "N/A", it.mailingAddress?.zipcode ?: "N/A", it.mailingAddress?.street ?: "N/A", it.regionalbereich.number, it.regionalbereich.name, Gson().toJson(it.evaNumbers), Gson().toJson(it.ril100Identifiers))
     }
 }
 
