@@ -20,6 +20,9 @@ import androidx.recyclerview.widget.*
 import com.group1.movebetter.R
 import com.group1.movebetter.databinding.FragmentMapBinding
 import com.group1.movebetter.repository.Repository
+import com.group1.movebetter.card_views.BikeAdapter
+import com.group1.movebetter.card_views.BirdAdapter
+import com.group1.movebetter.card_views.TramAdapter
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Feature
@@ -89,6 +92,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         binding.mapViewModel = mapViewModel
 
         binding.lifecycleOwner = this
+
+        val rv = binding.singleLocationRecyclerView
+        rv.setHasFixedSize(true)
+
+        val llm = LinearLayoutManager(context)
+        rv.layoutManager = llm
 
         initIds()
 
@@ -167,7 +176,7 @@ Log.d("Tokens", tokens.refresh)
             // when clicked on map and a marker is selected, deselect it
             if (bikeStation.isEmpty() && scooter.isEmpty() && tramStation.isEmpty()) {
                 // when card view is shown and user clicks on map, make it invisible
-                checkIfCardViewVisible()
+                checkRVVisible()
                 if (markerSelected) {
                     deselectMarker(selectedMarkerLayer, style, true)
                 }
@@ -192,29 +201,45 @@ Log.d("Tokens", tokens.refresh)
                 }
             }
 
-
             // check if an icon is already selected
             if (markerSelected) {
                 deselectMarker(selectedMarkerLayer, style, false)
             }
+
             // if clicked on a bike station/ scooter/ tram station,
             // make it bigger and show information
             when {
                 bikeStation.size > 0 -> {
                     selectMarker(selectedMarkerLayer)
-                    adaptCardView(bikeStation[0])
+                    setAdapter(bikeStation[0])
                 }
                 tramStation.size > 0 -> {
                     selectMarker(selectedMarkerLayer)
-                    adaptCardView(tramStation[0])
+                    setAdapter(tramStation[0])
                 }
                 scooter.size > 0 -> {
                     selectMarker(selectedMarkerLayer)
-                    adaptCardView(scooter[0])
+                    setAdapter(scooter[0])
                 }
             }
         }
         return true
+    }
+
+    private fun checkRVVisible() {
+        binding.singleLocationRecyclerView.visibility = View.GONE
+    }
+
+    private fun setAdapter(feature: Feature?) {
+        val provider = feature!!.getStringProperty("provider")
+        if (provider.equals("bikes")) {
+            binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature))
+        } else if (provider.equals("birds")) {
+            binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature))
+        } else {
+            mapViewModel.marudorController.getArrival((feature.getNumberProperty("evaId") as Double).toLong(), 150)
+        }
+        binding.singleLocationRecyclerView.visibility = View.VISIBLE
     }
 
     private fun resetSelectedMarkerLayer(style: Style) {
@@ -254,43 +279,6 @@ Log.d("Tokens", tokens.refresh)
         markerSelected = false
     }
 
-    private fun adaptCardView(feature: Feature) {
-        val provider = feature.getStringProperty("provider")
-        val property0 = binding.property0
-        val property1 = binding.property1
-        val property2 = binding.property2
-        val property3 = binding.property3
-        when (provider) {
-            "bikes" -> {
-                property0.text = feature.getStringProperty("name")
-                property1.text = "Free Bikes = ${feature.getNumberProperty("freeBikes")}"
-                property2.text = "Empty Slots = ${feature.getNumberProperty("emptySlots")}"
-                property3.text = "Stand vom ${feature.getStringProperty("timestamp")}"
-            }
-            "birds" -> {
-                property0.text = feature.getStringProperty("vehicleClass")
-                property1.text = "Estimated Range = ${feature.getNumberProperty("estimatedRange")}"
-                property2.text = "Battery Level = ${feature.getNumberProperty("batteryLevel")}%"
-                property3.text = ""
-            }
-            else -> {
-                property0.text = feature.getStringProperty("name")
-                property1.text = "Address = ${feature.getNumberProperty("address")}"
-                property2.text = ""
-                property3.text = ""
-            }
-        }
-
-        val cardView = binding.singleLocationCardView
-        cardView.visibility = View.VISIBLE
-    }
-
-    private fun checkIfCardViewVisible() {
-        val cardView = binding.singleLocationCardView
-
-        cardView.visibility = View.GONE
-    }
-
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
 
@@ -327,8 +315,7 @@ Log.d("Tokens", tokens.refresh)
         style.addSource(GeoJsonSource(SELECTED_MARKER))
 
         style.addLayer(SymbolLayer(SELECTED_MARKER_LAYER, SELECTED_MARKER)
-                .withProperties(iconImage(BIKE_ICON_ID),
-                iconSize(0.3f)))
+                .withProperties(iconSize(0.3f)))
 
         // Add data to layers
         observers(style)
@@ -378,6 +365,11 @@ Log.d("Tokens", tokens.refresh)
             val stationSource = style.getSourceAs<GeoJsonSource>(TRAM_STATION)
             val stations = mapViewModel.stadaStationController.createStationList(it)
             mapViewModel.mapController.refreshSource(stationSource!!, stations)
+        }
+
+
+        repository.getResponseArrival.observe(viewLifecycleOwner) {
+            binding.singleLocationRecyclerView.adapter = TramAdapter(it.departures)
         }
     }
 
