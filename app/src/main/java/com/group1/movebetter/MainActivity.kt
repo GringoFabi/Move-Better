@@ -18,12 +18,25 @@ package com.group1.movebetter
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.group1.movebetter.bird_dialog.BirdDialog
 
 class MainActivity : AppCompatActivity() {
+
+    // TODO: show dialog on condition (user wants to use bird)
+    val show: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        if (show) {
+            openDialog()
+        }
+    }
+
+    private fun openDialog() {
+        val birdDialog = BirdDialog()
+        birdDialog.show(supportFragmentManager, "bird dialog")
     }
 
 }

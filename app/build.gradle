@@ -88,4 +88,7 @@ dependencies {
 
     // Location
     implementation "com.google.android.gms:play-services-location:17.1.0"
+
+    // Google Authentication
+    implementation 'com.google.android.gms:play-services-auth:19.0.0'
 }
