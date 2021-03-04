@@ -13,14 +13,14 @@ data class Departure (
     val train: Train,
     val cancelled: Boolean,
     val messages: Messages,
-    val arrival: Arrival,
+    val arrival: Arrival?,
     val route: List<RouteStation>,
 )
 
 
 fun List<Departure>.asDatabaseDepartureList(): List<DatabaseDeparture> {
     return map {
-        DatabaseDeparture(scheduledDestination = it.scheduledDestination, trainName =  it.train.name, cancelled =  it.cancelled, messages =  Gson().toJson(it.messages), arrivalTime =  it.arrival.time, arrivalPlatform =  it.arrival.platform, arrivalDelay =  it.arrival.delay, route =  Gson().toJson(it.route))
+        DatabaseDeparture(scheduledDestination = it.scheduledDestination, trainName =  it.train.name, cancelled =  it.cancelled, messages =  Gson().toJson(it.messages), arrivalTime =  it.arrival?.time ?: "N/A", arrivalPlatform =  it.arrival?.platform ?: "N/A", arrivalDelay =  it.arrival?.delay ?: 0, route =  Gson().toJson(it.route))
     }
 }
 
