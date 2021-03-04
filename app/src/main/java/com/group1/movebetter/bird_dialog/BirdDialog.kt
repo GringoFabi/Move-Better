@@ -6,17 +6,23 @@ import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatDialogFragment
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.view.marginRight
+import androidx.core.view.setMargins
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
+import com.group1.movebetter.R
 import com.group1.movebetter.database.getDatabase
 import com.group1.movebetter.databinding.BirdDialogBinding
 import com.group1.movebetter.databinding.BirdDialogBinding.inflate
@@ -43,11 +49,11 @@ class BirdDialog : AppCompatDialogFragment() {
 
         binding.lifecycleOwner = this
 
-       googleButton = binding.googleButton
-        setGooglePlusButtonText(googleButton, "Weiter mit Google")
-        googleButton.setOnClickListener {
-            signInWithGoogle()
-        }
+//        googleButton = binding.googleButton
+//        setGooglePlusButtonText(googleButton, "Weiter mit Google")
+//        googleButton.setOnClickListener {
+//            signInWithGoogle()
+//        }
 
         builder.setView(binding.root)
             .setTitle("Nutzung von Bird")
@@ -87,8 +93,8 @@ class BirdDialog : AppCompatDialogFragment() {
 
         val textView = binding.textView
         textView.text = "Deine Email-Adresse wurde zu Bird gesendet." +
-                "Du erhälst jetzt gleich eine Mail wo ein Token drin steht." +
-                "Kopier es und füge es hier ein."
+                " Du erhälst jetzt gleich eine Mail wo ein Token drin steht." +
+                " Kopier es und füge es hier ein."
         binding.containerConstraint.addView(textView)
 
         val input = binding.enterEmail
@@ -100,7 +106,7 @@ class BirdDialog : AppCompatDialogFragment() {
 
         val margin = 32
         set.constrainHeight(textView.id, ConstraintSet.WRAP_CONTENT)
-        set.constrainWidth(textView.id, ConstraintSet.WRAP_CONTENT)
+        set.constrainWidth(textView.id, ConstraintSet.MATCH_CONSTRAINT)
 
         set.connect(textView.id, ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, margin)
         set.connect(textView.id, ConstraintSet.RIGHT,ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, margin)
@@ -125,6 +131,7 @@ class BirdDialog : AppCompatDialogFragment() {
 
     private fun signInWithGoogle() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.web_token))
             .requestEmail()
             .build()
 
