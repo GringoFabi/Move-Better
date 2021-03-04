@@ -18,4 +18,8 @@
     <string name="NETWORK_ICON_ID">network</string>
     <string name="SCOOTER_ICON_ID">scooter</string>
     <string name="TRAM_STATION_ICON_ID">tram</string>
+    <string name="go_to_nextbike">Go to NextBike</string>
+    <string name="go_to_birds_app">Go to Birds App</string>
+    <string name="go_to_station">Go to Station</string>
+    <string name="go_to_nvv_app">Go to NVV App</string>
 </resources>

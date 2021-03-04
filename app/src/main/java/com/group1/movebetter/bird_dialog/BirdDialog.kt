@@ -129,7 +129,7 @@ class BirdDialog : AppCompatDialogFragment() {
         changeToMagicToken()
     }
 
-    private fun signInWithGoogle() {
+    /*private fun signInWithGoogle() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.web_token))
             .requestEmail()
@@ -138,7 +138,7 @@ class BirdDialog : AppCompatDialogFragment() {
         val mGoogleSignInClient = GoogleSignIn.getClient(context!!, gso)
         val signInIntent = mGoogleSignInClient.signInIntent
         startActivityForResult(signInIntent, REQUEST_CODE_EMAIL)
-    }
+    }*/
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_CODE_EMAIL) {
