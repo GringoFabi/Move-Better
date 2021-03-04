@@ -58,13 +58,34 @@
 
             </FrameLayout>
 
-            <Button
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:id="@+id/btnBirds"
-                android:text="@string/go_to_birds_app"
-                />
+                android:gravity="center">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:id="@+id/btnGoToStation"
+                    android:text="@string/go_to_station"
+                    />
+
+                <Space
+                    android:layout_width="45sp"
+                    android:layout_height="wrap_content" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:id="@+id/btnBirds"
+                    android:text="@string/go_to_birds_app"
+                    />
+
+            </LinearLayout>
+
+
 
         </LinearLayout>
 

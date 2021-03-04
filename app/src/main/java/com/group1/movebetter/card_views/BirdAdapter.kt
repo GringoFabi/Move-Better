@@ -24,6 +24,7 @@ class BirdAdapter(private val data: ArrayList<Feature>, private val openBirdApp:
         var batteryLevelPB: ProgressBar
         var batteryLevel: TextView
         var button: Button
+        var gotoButton: Button
 
         init {
             cv = itemView.findViewById(R.id.birdCardView)
@@ -32,6 +33,7 @@ class BirdAdapter(private val data: ArrayList<Feature>, private val openBirdApp:
             batteryLevelPB = itemView.findViewById(R.id.batteryLevelPB)
             batteryLevel = itemView.findViewById(R.id.batteryLevel)
             button = itemView.findViewById(R.id.btnBirds)
+            gotoButton = itemView.findViewById(R.id.btnGoToStation)
         }
     }
 
@@ -48,6 +50,9 @@ class BirdAdapter(private val data: ArrayList<Feature>, private val openBirdApp:
         holder.batteryLevel.text = "Derzeitiger Akkustand = ${data[position].getNumberProperty("batteryLevel")} %"
         holder.button.setOnClickListener {
             openBirdApp.invoke()
+        }
+        holder.gotoButton.setOnClickListener {
+
         }
     }
 

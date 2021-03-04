@@ -30,6 +30,7 @@ class TramAdapter(private val data: List<Departure>, private val openNvvApp: () 
         var showVia: TextView
         var messages: TextView
         var button: Button
+        var gotoButton: Button
 
         init {
             cv = itemView.findViewById(R.id.tramCardView)
@@ -41,6 +42,7 @@ class TramAdapter(private val data: List<Departure>, private val openNvvApp: () 
             showVia = itemView.findViewById(R.id.showVia)
             messages = itemView.findViewById(R.id.messages)
             button = itemView.findViewById(R.id.btnNVV)
+            gotoButton = itemView.findViewById(R.id.btnGoToStation)
         }
     }
 
@@ -64,6 +66,10 @@ class TramAdapter(private val data: List<Departure>, private val openNvvApp: () 
 
         holder.button.setOnClickListener {
             openNvvApp.invoke()
+        }
+
+        holder.gotoButton.setOnClickListener {
+            
         }
     }
 

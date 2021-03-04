@@ -28,6 +28,7 @@ class BikeAdapter(private val data: ArrayList<Feature>, private val openNextBike
         var emptySlots: TextView
         var timestamp: TextView
         var button: Button
+        var gotoButton: Button
 
         init {
             cv = itemView.findViewById(R.id.bikeCardView)
@@ -36,6 +37,7 @@ class BikeAdapter(private val data: ArrayList<Feature>, private val openNextBike
             emptySlots = itemView.findViewById(R.id.emptySlots)
             timestamp = itemView.findViewById(R.id.timestamp)
             button = itemView.findViewById(R.id.btnNextBike)
+            gotoButton = itemView.findViewById(R.id.btnGoToStation)
         }
     }
 
@@ -55,6 +57,9 @@ class BikeAdapter(private val data: ArrayList<Feature>, private val openNextBike
         holder.timestamp.text = "Stand vom ${time.subSequence(0, 16)}"
         holder.button.setOnClickListener {
             openNextBikeApp.invoke()
+        }
+        holder.gotoButton.setOnClickListener {
+
         }
     }
 
