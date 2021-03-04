@@ -1,6 +1,7 @@
 package com.group1.movebetter.network
 
 
+import com.group1.movebetter.BuildConfig
 import com.group1.movebetter.network.adapters.*
 import com.group1.movebetter.util.Constants.Companion.URL_CITYBIKES
 import com.group1.movebetter.network.adapters.CityBikesStationExtraStatusAdapter
@@ -11,16 +12,20 @@ import com.group1.movebetter.network.bird.BirdInterceptor
 import com.group1.movebetter.network.bird.BirdService
 import com.group1.movebetter.util.Constants.Companion.BIRD_AUTH_URL
 import com.group1.movebetter.util.Constants.Companion.BIRD_URL
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
     private val retrofit by lazy {
         Retrofit.Builder()
                 .baseUrl(URL_CITYBIKES)
+                .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .addConverterFactory(
                         MoshiConverterFactory.create(
                         Moshi.Builder().
@@ -31,10 +36,25 @@ object RetrofitInstance {
                         add(FreeBikesAdapter()).
                         add(NextStationsAdapter()).
                         build())
-                ).
+                )
+                .client(initOkHttp()).
                 build()
     }
 
+    private fun initOkHttp(): OkHttpClient {
+        val client = OkHttpClient
+                .Builder()
+
+        client.connectTimeout(15, TimeUnit.SECONDS)
+        client.readTimeout(15, TimeUnit.SECONDS)
+
+        if (BuildConfig.DEBUG) {
+            val loggingInterceptor = HttpLoggingInterceptor()
+            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+            client.addInterceptor(loggingInterceptor)
+        }
+        return client.build()
+    }
 
     val apiCityBikes: CityBikesService by lazy {
         retrofit.create(CityBikesService::class.java)

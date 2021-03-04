@@ -7,7 +7,6 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +21,7 @@ import androidx.recyclerview.widget.*
 import com.group1.movebetter.R
 import com.group1.movebetter.databinding.FragmentMapBinding
 import com.group1.movebetter.repository.Repository
-import com.group1.movebetter.util.Constants.Companion.INITIAL_DELAY
+import com.group1.movebetter.util.Constants.Companion.DELAY_MILLIS
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Feature
@@ -44,7 +43,6 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.*
 
 
@@ -134,10 +132,10 @@ Log.d("Tokens", tokens.refresh)
     {
         mapViewModel.cityBikeController.getCurrentLocation(this.requireActivity(), context, this)
         mapViewModel.cityBikeController.getNetworks()
-        mapViewModel.stadaStationController.getStations()
-        mapViewModel.birdController.getBirds(mapViewModel.cityBikeController.currentLocation)
+        //mapViewModel.stadaStationController.getStations()
+        //mapViewModel.birdController.getBirds(mapViewModel.cityBikeController.currentLocation)
         delayedRefreshRequestsJob = lifecycleScope.launch {
-            delay(INITIAL_DELAY)
+            delay(DELAY_MILLIS)
             refreshNetworkRequests()
         }
     }

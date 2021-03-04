@@ -1,22 +1,28 @@
 package com.group1.movebetter.repository
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.gson.Gson
 import com.group1.movebetter.model.CityBikes
 import com.group1.movebetter.model.CityBikesNetworkList
 import com.group1.movebetter.model.Departures
 import com.group1.movebetter.model.StaDaStations
 import com.group1.movebetter.model.*
 import com.group1.movebetter.network.RetrofitInstance
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 
 class Repository {
 
     private val _getResponseNetworks: MutableLiveData<CityBikes> = MutableLiveData()
     val getResponseNetworks: LiveData<CityBikes>
         get() = _getResponseNetworks
+
+    private val _getResponseNetworksFiltered: MutableLiveData<CityBikes> = MutableLiveData()
+    val getResponseNetworksFiltered: LiveData<CityBikes>
+        get() = _getResponseNetworksFiltered
 
     private val _getResponseNetwork: MutableLiveData<CityBikesNetworkList> = MutableLiveData()
     val getResponseNetwork: LiveData<CityBikesNetworkList>
@@ -53,23 +59,62 @@ class Repository {
 
     suspend fun getNetworks()
     {
-        withContext(Dispatchers.IO){
-            val responseNetworks = RetrofitInstance.apiCityBikes.getNetworks()
-            _getResponseNetworks.postValue(responseNetworks)
+        //withContext(Dispatchers.IO){
+        //    val responseNetworks = RetrofitInstance.apiCityBikes.getNetworks()
+        //    _getResponseNetworks.postValue(responseNetworks)
+        //}
+        launch(RetrofitInstance.apiCityBikes.getNetworksAsync(), {}, { _getResponseNetworks.postValue(it) }, { Log.d("getNetworks", it.toString()) })
+    }
+
+    private suspend fun <T> launch(
+            request: Deferred<Response<T>>,
+            onLoading: suspend () -> Unit,
+            onSuccess: suspend ((body: T?) -> Unit),
+            onError: suspend ((error: Int?) -> Unit)
+    ) {
+        withContext(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                onLoading.invoke()
+            }
+            try {
+                val response = request.await()
+                if (response.isSuccessful) {
+                    withContext(Dispatchers.Main) {
+                        onSuccess.invoke(response.body())
+                    }
+                } else {
+                    val body = response.errorBody()
+                    if (body != null) {
+                        try {
+                            val parsedError = response.code()
+                            withContext(Dispatchers.Main) {
+                                onError.invoke(parsedError)
+                            }
+                        } catch (e: Exception) {
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            onError.invoke(null)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    onError.invoke(null)
+                }
+            }
         }
     }
 
-    suspend fun getNetworksFiltered(fields: String): CityBikes
+
+    suspend fun getNetworksFiltered(fields: String)
     {
-        return RetrofitInstance.apiCityBikes.getNetworksFiltered(fields)
+        launch(RetrofitInstance.apiCityBikes.getNetworksFilteredAsync(fields), {}, { _getResponseNetworksFiltered.postValue(it) }, { Log.d("getNetworksFiltered", it.toString()) })
     }
 
     suspend fun getNetwork(networkId: String)
     {
-        withContext(Dispatchers.IO){
-            val responseNetwork = RetrofitInstance.apiCityBikes.getNetwork(networkId)
-            _getResponseNetwork.postValue(responseNetwork)
-        }
+        launch(RetrofitInstance.apiCityBikes.getNetworkAsync(networkId), {}, { _getResponseNetwork.postValue(it) }, { Log.d("getNetwork", it.toString()) })
     }
 
     suspend fun getStations()
