@@ -347,8 +347,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         repository.getResponseNetworks.observe(viewLifecycleOwner) {
             val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORKS)
             if (it.isNotEmpty()) {
-                mapViewModel.cityBikeController.getNearestNetwork(it)
-                val networks = mapViewModel.cityBikeController.createBikeNetworkList(it)
+                val filterList = it.filter { network -> network.location != null && network.location.latitude != -1.0 }
+                mapViewModel.cityBikeController.getNearestNetwork(filterList)
+                val networks = mapViewModel.cityBikeController.createBikeNetworkList(filterList)
                 mapViewModel.mapController.refreshSource(networkSource!!, networks)
             }
         }

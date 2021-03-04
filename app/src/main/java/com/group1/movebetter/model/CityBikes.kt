@@ -13,14 +13,14 @@ data class CityBikes (
 data class CityBikesNetworks (
         val company: Company,
         val href: String,
-        val location: CityBikesLocation,
+        val location: CityBikesLocation?,
         val name: String,
         val id: String
 )
 
 fun List<CityBikesNetworks>.asDatabaseCityBikesNetworksList(): List<DatabaseCityBikesNetworks> {
         return map {
-                DatabaseCityBikesNetworks(it.id, Gson().toJson(it.company), it.href, it.name, it.location.latitude, it.location.city, it.location.longitude, it.location.country)
+                DatabaseCityBikesNetworks(it.id, Gson().toJson(it.company), it.href, it.name, it.location?.latitude ?: -1.0, it.location?.city ?: "N/A", it.location?.longitude ?: -1.0, it.location?.country ?: "N/A")
         }
 }
 
