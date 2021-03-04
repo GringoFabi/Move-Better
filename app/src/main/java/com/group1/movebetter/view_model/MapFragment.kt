@@ -80,6 +80,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        repository = Repository(getDatabase(context!!));
         context?.let { Mapbox.getInstance(it, getString(R.string.mapbox_access_token)) }
     }
 
@@ -89,7 +90,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapView = binding.mapView
 
         // Get a reference to the ViewModel associated with this fragment.
-        repository = Repository(getDatabase(context!!));
         val viewModelFactory = MapViewModelFactory(repository)
         mapViewModel = ViewModelProvider(this, viewModelFactory).get(MapViewModel::class.java)
         binding.mapViewModel = mapViewModel
@@ -381,6 +381,7 @@ Log.d("Tokens", tokens.refresh)
             val birdSource = style.getSourceAs<GeoJsonSource>(BIRD_SCOOTER)
             if (it.isNotEmpty()) {
                 val birds = mapViewModel.birdController.createBirdList(it)
+                mapViewModel.birdController.getNearestBird(it)
                 mapViewModel.mapController.refreshSource(birdSource!!, birds)
             }
         }
@@ -390,6 +391,7 @@ Log.d("Tokens", tokens.refresh)
             val stationSource = style.getSourceAs<GeoJsonSource>(TRAM_STATION)
             if (it.isNotEmpty()) {
                 val stations = mapViewModel.stadaStationController.createStationList(it)
+                mapViewModel.stadaStationController.getNearestStation(it)
                 mapViewModel.mapController.refreshSource(stationSource!!, stations)
             }
         }

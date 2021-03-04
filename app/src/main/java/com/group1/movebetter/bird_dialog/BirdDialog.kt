@@ -17,6 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
+import com.group1.movebetter.database.getDatabase
 import com.group1.movebetter.databinding.BirdDialogBinding
 import com.group1.movebetter.databinding.BirdDialogBinding.inflate
 import com.group1.movebetter.repository.Repository
@@ -37,7 +38,7 @@ class BirdDialog : AppCompatDialogFragment() {
         binding = inflate(LayoutInflater.from(context))
         val builder = AlertDialog.Builder(context)
 
-        repository = Repository()
+        repository = Repository(getDatabase(context!!))
         birdDialogViewModel = BirdDialogViewModel(repository)
 
         binding.lifecycleOwner = this
