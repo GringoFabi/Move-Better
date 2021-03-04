@@ -10,9 +10,9 @@ import com.group1.movebetter.view_model.controller.MarudorController
 import com.group1.movebetter.view_model.controller.StadaStationController
 
 class MapViewModel(repository: Repository) : ViewModel() {
-    val mapController: MapController = MapController(viewModelScope, repository)
-    val cityBikeController: CityBikeController = CityBikeController(viewModelScope, repository)
-    val stadaStationController: StadaStationController = StadaStationController(viewModelScope, repository)
+    val mapController: MapController = MapController()
+    val cityBikeController: CityBikeController = CityBikeController(viewModelScope, repository, mapController)
+    val stadaStationController: StadaStationController = StadaStationController(viewModelScope, repository, mapController)
     val marudorController: MarudorController = MarudorController(viewModelScope, repository)
-    val birdController: BirdController = BirdController(viewModelScope, repository)
+    val birdController: BirdController = BirdController(viewModelScope, repository, mapController)
 }

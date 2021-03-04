@@ -9,12 +9,13 @@ import com.mapbox.geojson.Point
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-class BirdController (private val viewModelScope: CoroutineScope, private val repository: Repository) {
+class BirdController(private val viewModelScope: CoroutineScope, private val repository: Repository, private val mapController: MapController) {
 
     // TODO: retrieve the tokens from a database
     private val refresh: Token = Tokens.refresh
     private val access: Token = Tokens.access
 
+    lateinit var nearestBird: Bird
 
     // sends email to the auth api
     fun getAuthToken(email: String) {
@@ -79,4 +80,16 @@ class BirdController (private val viewModelScope: CoroutineScope, private val re
         return feature
     }
 
+    fun getNearestBird(birds: List<Bird>) {
+        val distances = ArrayList<Double>()
+        val distanceNetworkMap = HashMap<Double, Bird>()
+        for (bird in birds) {
+            val location = mapController.getLocation(bird.location.latitude, bird.location.longitude)
+            val d = mapController.haversineFormular(location)
+            distances.add(d)
+            distanceNetworkMap[d] = bird
+        }
+        val minDistance: Double? = distances.minByOrNull { it }
+        nearestBird = distanceNetworkMap[minDistance]!!
+    }
 }
