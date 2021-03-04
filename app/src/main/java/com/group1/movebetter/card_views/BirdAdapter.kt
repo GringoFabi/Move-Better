@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.group1.movebetter.R
 import com.mapbox.geojson.Feature
 
-class BirdAdapter(private val data: ArrayList<Feature>) : RecyclerView.Adapter<BirdAdapter.BirdViewHolder?>() {
+class BirdAdapter(private val data: ArrayList<Feature>, private val openBirdApp: () -> Unit) : RecyclerView.Adapter<BirdAdapter.BirdViewHolder?>() {
 
     lateinit var context: Context
 
@@ -45,9 +45,9 @@ class BirdAdapter(private val data: ArrayList<Feature>) : RecyclerView.Adapter<B
         holder.title.text = data[position].getStringProperty("vehicleClass")
         holder.estimatedRange.text = "Estimated Range = ${data[position].getNumberProperty("estimatedRange")}"
         holder.batteryLevelPB.progress = (data[position].getNumberProperty("batteryLevel") as Double).toInt()
-        holder.batteryLevel.text = "Derzeitiger Akkustand: ${data[position].getNumberProperty("batteryLevel")} %"
+        holder.batteryLevel.text = "Derzeitiger Akkustand = ${data[position].getNumberProperty("batteryLevel")} %"
         holder.button.setOnClickListener {
-            Toast.makeText(context, "Go to Birds App", Toast.LENGTH_SHORT).show()
+            openBirdApp.invoke()
         }
     }
 

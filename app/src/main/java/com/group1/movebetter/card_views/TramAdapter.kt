@@ -1,20 +1,22 @@
 package com.group1.movebetter.card_views
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.group1.movebetter.R
 import com.group1.movebetter.model.Departure
+import com.group1.movebetter.model.Messages
+import com.group1.movebetter.model.RouteStation
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 
-class TramAdapter(private val data: List<Departure>) : RecyclerView.Adapter<TramAdapter.TramViewHolder?>() {
+class TramAdapter(private val data: List<Departure>, private val openNvvApp: () -> Unit) : RecyclerView.Adapter<TramAdapter.TramViewHolder?>() {
 
     lateinit var context: Context
 
@@ -49,33 +51,89 @@ class TramAdapter(private val data: List<Departure>) : RecyclerView.Adapter<Tram
     }
 
     override fun onBindViewHolder(holder: TramViewHolder, position: Int) {
-        holder.delay.text = data[position].arrival.delay.toString()
+        setDelay(holder, data[position])
         holder.tram.text = data[position].train.name
-        holder.platform.text = data[position].arrival.platform.toString()
+        holder.platform.text = data[position].arrival!!.platform
         holder.destination.text = data[position].scheduledDestination
 
-        if (data[position].arrival.time != null) {
-            val dateFormat: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-            val time = dateFormat.parse(data[position].arrival?.time).toString()
-            holder.destinationTime.text = time.subSequence(0, time.length-12)
-        } else {
-            holder.destinationTime.text = "N/A"
-        }
+        setDestinationTime(holder, data[position])
 
-        holder.showVia.setOnClickListener {
-            var text = ""
+        setShowVia(holder, data[position].route)
 
-            for (routeStation in data[position].route) {
-                if (routeStation.showVia) {
-                    text += routeStation.name + " - "
-                }
-            }
-            holder.showVia.text = text
-        }
+        setMessages(holder, data[position].messages)
 
         holder.button.setOnClickListener {
-            Toast.makeText(context, "Go to NVV App", Toast.LENGTH_SHORT).show()
+            openNvvApp.invoke()
         }
+    }
+
+    private fun setMessages(holder: TramViewHolder, messages: Messages) {
+        var text = ""
+
+        if (!messages.delays.isNullOrEmpty()) {
+            for (message in messages.delays) {
+                if (message.superseded) {
+                    continue
+                }
+                if (text == "") {
+                    text = message.text
+                }
+                text += "+++" + message.text
+            }
+        }
+
+        if (!messages.qos.isNullOrEmpty()) {
+            for (message in messages.qos) {
+                if (message.superseded) {
+                    continue
+                }
+                if (text == "") {
+                    text = message.text
+                }
+                text += "+++" + message.text
+            }
+        }
+
+        holder.messages.text = text
+    }
+
+    @SuppressLint("NewApi")
+    private fun setDelay(holder: TramViewHolder, departure: Departure) {
+        val delay = departure.arrival!!.delay
+
+        if (delay <= 0) {
+            holder.delay.setTextColor(context.getColor(R.color.green))
+            holder.destinationTime.setTextColor(context.getColor(R.color.green))
+        } else {
+            holder.delay.setTextColor(context.getColor(R.color.red))
+            holder.destinationTime.setTextColor(context.getColor(R.color.red))
+        }
+
+        holder.delay.text = "+${delay}"
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private fun setDestinationTime(holder: TramViewHolder, departure: Departure) {
+        val dateFormat: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+        val time = dateFormat.parse(departure.arrival!!.time).toString()
+        holder.destinationTime.text = time.subSequence(0, 16)
+    }
+
+    private fun setShowVia(holder: TramViewHolder, route: List<RouteStation>) {
+        var text = ""
+
+        for (routeStation in route) {
+            if (routeStation.showVia && text == "") {
+                text = routeStation.name
+            } else if (routeStation.showVia) {
+                text += " - " + routeStation.name
+            }
+        }
+
+        if (text == "") {
+            text = holder.destination.text as String
+        }
+        holder.showVia.text = text
     }
 
     override fun getItemCount(): Int {

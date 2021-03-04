@@ -1,5 +1,6 @@
 package com.group1.movebetter.card_views
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -7,15 +8,16 @@ import android.view.ViewGroup
 import android.widget.Button
 
 import android.widget.TextView
-import android.widget.Toast
 import androidx.cardview.widget.CardView
 
 import androidx.recyclerview.widget.RecyclerView
 import com.group1.movebetter.R
 import com.mapbox.geojson.Feature
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 
 
-class BikeAdapter(private val data: ArrayList<Feature>) : RecyclerView.Adapter<BikeAdapter.BikeViewHolder?>() {
+class BikeAdapter(private val data: ArrayList<Feature>, private val openNextBikeApp: () -> Unit) : RecyclerView.Adapter<BikeAdapter.BikeViewHolder?>() {
 
     lateinit var context: Context
 
@@ -43,13 +45,16 @@ class BikeAdapter(private val data: ArrayList<Feature>) : RecyclerView.Adapter<B
         return BikeViewHolder(v)
     }
 
+    @SuppressLint("SimpleDateFormat")
     override fun onBindViewHolder(holder: BikeViewHolder, position: Int) {
         holder.title.text = data[position].getStringProperty("name")
         holder.freeBikes.text = "Free Bikes ${data[position].getNumberProperty("freeBikes")}"
         holder.emptySlots.text = "Empty Slots ${data[position].getNumberProperty("emptySlots")}"
-        holder.timestamp.text = "Stand vom ${data[position].getStringProperty("timestamp")}"
+        val dateFormat: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+        val time = dateFormat.parse(data[position].getStringProperty("timestamp")).toString()
+        holder.timestamp.text = "Stand vom ${time.subSequence(0, 16)}"
         holder.button.setOnClickListener {
-            Toast.makeText(context, "Go to Next Bike App", Toast.LENGTH_SHORT).show()
+            openNextBikeApp.invoke()
         }
     }
 
