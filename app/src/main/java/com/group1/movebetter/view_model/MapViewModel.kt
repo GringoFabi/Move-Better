@@ -15,8 +15,4 @@ class MapViewModel(repository: Repository) : ViewModel() {
     val stadaStationController: StadaStationController = StadaStationController(viewModelScope, repository)
     val marudorController: MarudorController = MarudorController(viewModelScope, repository)
     val birdController: BirdController = BirdController(viewModelScope, repository)
-
-//    fun getCityBikeNetwork() {
-//        cityBikeController.getNetwork()
-//    }
 }

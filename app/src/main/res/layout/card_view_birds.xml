@@ -10,13 +10,7 @@
         android:id="@+id/birdCardView"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_gravity="bottom"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp">
+        android:layout_gravity="bottom">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -60,7 +54,6 @@
                     android:id="@+id/batteryLevel"
                     android:gravity="center"
                     android:textSize="20sp"
-                    android:textColor="@android:color/white"
                     android:layout_gravity="center"/>
 
             </FrameLayout>

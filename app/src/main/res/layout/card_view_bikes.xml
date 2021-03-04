@@ -10,13 +10,7 @@
         android:id="@+id/bikeCardView"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_gravity="bottom"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp">
+        android:layout_gravity="bottom">
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -7,13 +7,9 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/tramCardView"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:layout_gravity="bottom"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp">
 
@@ -21,9 +17,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/white"
-            android:gravity="center_horizontal"
+            android:gravity="center"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -42,7 +38,7 @@
                         android:id="@+id/destinationTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textColor="@color/black"
                         android:text="Ankunft"/>
 
@@ -51,7 +47,7 @@
                         android:id="@+id/delay"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textColor="@color/black"
                         android:text="Delay"/>
 
@@ -66,8 +62,9 @@
                     android:id="@+id/tram"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textColor="@color/black"
+                    android:textStyle="bold"
                     android:text="ZugNummer"/>
 
                 <Space
@@ -78,7 +75,7 @@
                     android:id="@+id/platform"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:textColor="@color/black"
                     android:text="Platform"
                     />
@@ -89,7 +86,7 @@
                 android:id="@+id/destination"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:textColor="@color/black"
                 android:text="Destination"/>
 
@@ -97,7 +94,8 @@
                 android:id="@+id/showVia"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
+                android:textSize="14sp"
+                android:gravity="center"
                 android:textColor="@color/black"
                 android:text="Show via"/>
 
@@ -105,8 +103,9 @@
                 android:id="@+id/messages"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textColor="@color/red"
+                android:gravity="center"
                 android:text="Important Messages"/>
 
             <Button

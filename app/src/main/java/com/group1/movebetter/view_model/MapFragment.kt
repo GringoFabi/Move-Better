@@ -109,22 +109,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         mapViewModel.cityBikeController.getNetworks()
 
-/*
-mapViewModel.birdController.getAuthToken("<your email>")
-
-mapViewModel.birdController.postAuthToken("<token form the verify mail>")
-mapViewModel.birdController.myTokens.observe(this, Observer { response ->
-Log.d("Tokens", response.access.access)
-Log.d("Tokens", response.refresh.refresh)
-})
-mapViewModel.birdController.refresh()
-
-mapViewModel.birdController.myTokens.observe(this, Observer { tokens ->
-Log.d("Tokens", tokens.access)
-Log.d("Tokens", tokens.refresh)
-})
-*/
-
         mapViewModel.birdController.getBirds(mapViewModel.cityBikeController.currentLocation)
 
         mapViewModel.stadaStationController.getStations()
@@ -234,9 +218,9 @@ Log.d("Tokens", tokens.refresh)
     private fun setAdapter(feature: Feature?) {
         val provider = feature!!.getStringProperty("provider")
         if (provider.equals("bikes")) {
-            binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature))
+            binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature), this::openNextBike)
         } else if (provider.equals("birds")) {
-            binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature))
+            binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird)
         } else {
             mapViewModel.marudorController.getArrival((feature.getNumberProperty("evaId") as Double).toLong(), 150)
         }
@@ -376,9 +360,9 @@ Log.d("Tokens", tokens.refresh)
             }
         }
 
-
+        // Observer for Departure Board
         repository.getResponseArrival.observe(viewLifecycleOwner) {
-            binding.singleLocationRecyclerView.adapter = TramAdapter(it.departures)
+            binding.singleLocationRecyclerView.adapter = TramAdapter(it.filter { departure -> departure.arrival != null && departure.arrival.time != "N/A" }, this::openNvv)
         }
     }
 
@@ -479,7 +463,7 @@ Log.d("Tokens", tokens.refresh)
         mapView.onDestroy()
     }
 
-    //Open other Apps or their link to play store
+    // Open other Apps or their link to play store
 
     @SuppressLint("QueryPermissionsNeeded")
     private fun onMapsNavigateTo(lat: Double, lng: Double){
