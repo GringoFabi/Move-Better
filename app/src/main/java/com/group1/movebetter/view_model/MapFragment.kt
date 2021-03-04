@@ -48,7 +48,6 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
@@ -116,12 +115,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        mapViewModel.mapController.getCurrentLocation(this.requireActivity(), context, this)
+        val currentLocationTask = mapViewModel.mapController.getCurrentLocation(this.requireActivity(), context, this)
 
+        currentLocationTask.addOnCompleteListener { location ->
+            mapViewModel.stadaStationController.getStations()
+            mapViewModel.cityBikeController.getNetworks()
+            mapViewModel.birdController.getBirds(location.result)
+        }
 
-        mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
-
-        mapViewModel.stadaStationController.getStations()
         refreshNetworkRequests()
         return binding.root
     }
@@ -130,11 +131,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     private fun refreshNetworkRequests()
     {
-        mapViewModel.mapController.getCurrentLocation(this.requireActivity(), context, this)
-        mapViewModel.cityBikeController.getNetworks()
-        mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
         delayedRefreshRequestsJob = lifecycleScope.launch {
             delay(DELAY_MILLIS)
+            mapViewModel.mapController.getCurrentLocation(activity!!, context, this@MapFragment)
+            mapViewModel.cityBikeController.getNetworks()
+            mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
             refreshNetworkRequests()
         }
     }
@@ -175,6 +176,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 resetSelectedMarkerLayer(style)
                 mapViewModel.cityBikeController.getNetwork(bikeNetworks[0]!!.getStringProperty("id"))
             }
+
 
             // when clicked on icon which was already clicked on, show card view
             if (selectedFeature.size > 0 && markerSelected) {
