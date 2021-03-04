@@ -118,11 +118,7 @@ Log.d("Tokens", tokens.access)
 Log.d("Tokens", tokens.refresh)
 })
 */
-
-
-
-
-        //mapViewModel.stadaStationController.getStations()
+        mapViewModel.stadaStationController.getStations()
         refreshNetworkRequests()
         return binding.root
     }
@@ -133,8 +129,7 @@ Log.d("Tokens", tokens.refresh)
     {
         mapViewModel.cityBikeController.getCurrentLocation(this.requireActivity(), context, this)
         mapViewModel.cityBikeController.getNetworks()
-        //mapViewModel.stadaStationController.getStations()
-        //mapViewModel.birdController.getBirds(mapViewModel.cityBikeController.currentLocation)
+        mapViewModel.birdController.getBirds(mapViewModel.cityBikeController.currentLocation)
         delayedRefreshRequestsJob = lifecycleScope.launch {
             delay(DELAY_MILLIS)
             refreshNetworkRequests()

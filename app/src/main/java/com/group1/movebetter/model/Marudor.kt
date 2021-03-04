@@ -62,8 +62,6 @@ data class NextStation(
         val title: String,
         val id: String,
         val location: Location,
-        val ds100: String,
-        val stada: String
 )
 
 data class Location(

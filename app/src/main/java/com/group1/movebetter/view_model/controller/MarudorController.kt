@@ -13,10 +13,10 @@ class MarudorController (private val viewModelScope: CoroutineScope, private val
         }
     }
 
-    fun getNextStations(lat: Double, lng: Double, radius: Long = 3000)
+    fun getNextStations(lat: Double, lng: Double, maxDist: Long = 3000)
     {
         viewModelScope.launch {
-            repository.getNextStations(lat, lng, radius)
+            repository.getNextStations(lat, lng, maxDist)
         }
     }
 
