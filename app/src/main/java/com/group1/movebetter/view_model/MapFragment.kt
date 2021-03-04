@@ -101,7 +101,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        mapViewModel.cityBikeController.getCurrentLocation(this.requireActivity(), context, this)
+        mapViewModel.mapController.getCurrentLocation(this.requireActivity(), context, this)
 
         mapViewModel.cityBikeController.getNetworks()
 
@@ -121,7 +121,7 @@ Log.d("Tokens", tokens.refresh)
 })
 */
 
-        mapViewModel.birdController.getBirds(mapViewModel.cityBikeController.currentLocation)
+        mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
 
         mapViewModel.stadaStationController.getStations()
 
