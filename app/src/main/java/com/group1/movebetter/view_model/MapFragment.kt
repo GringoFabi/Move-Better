@@ -21,6 +21,7 @@ import com.group1.movebetter.R
 import com.group1.movebetter.database.getDatabase
 import com.group1.movebetter.databinding.FragmentMapBinding
 import com.group1.movebetter.repository.Repository
+import com.group1.movebetter.view_model.controller.MenuController
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Feature
@@ -36,6 +37,8 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
+import com.mapbox.mapboxsdk.style.layers.Property.NONE
+import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
@@ -73,8 +76,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     private lateinit var repository : Repository
 
+    private val menuController = MenuController.getInstance()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        repository = Repository(getDatabase(context!!));
         context?.let { Mapbox.getInstance(it, getString(R.string.mapbox_access_token)) }
     }
 
@@ -84,7 +90,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapView = binding.mapView
 
         // Get a reference to the ViewModel associated with this fragment.
-        repository = Repository(getDatabase(context!!));
         val viewModelFactory = MapViewModelFactory(repository)
         mapViewModel = ViewModelProvider(this, viewModelFactory).get(MapViewModel::class.java)
         binding.mapViewModel = mapViewModel
@@ -96,7 +101,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        mapViewModel.cityBikeController.getCurrentLocation(this.requireActivity(), context, this)
+        mapViewModel.mapController.getCurrentLocation(this.requireActivity(), context, this)
 
         mapViewModel.cityBikeController.getNetworks()
 
@@ -116,7 +121,7 @@ Log.d("Tokens", tokens.refresh)
 })
 */
 
-        mapViewModel.birdController.getBirds(mapViewModel.cityBikeController.currentLocation)
+        mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
 
         mapViewModel.stadaStationController.getStations()
 
@@ -376,6 +381,7 @@ Log.d("Tokens", tokens.refresh)
             val birdSource = style.getSourceAs<GeoJsonSource>(BIRD_SCOOTER)
             if (it.isNotEmpty()) {
                 val birds = mapViewModel.birdController.createBirdList(it)
+                mapViewModel.birdController.getNearestBird(it)
                 mapViewModel.mapController.refreshSource(birdSource!!, birds)
             }
         }
@@ -385,7 +391,38 @@ Log.d("Tokens", tokens.refresh)
             val stationSource = style.getSourceAs<GeoJsonSource>(TRAM_STATION)
             if (it.isNotEmpty()) {
                 val stations = mapViewModel.stadaStationController.createStationList(it)
+                mapViewModel.stadaStationController.getNearestStation(it)
                 mapViewModel.mapController.refreshSource(stationSource!!, stations)
+            }
+        }
+
+        menuController!!.cityBikeItem.observe(viewLifecycleOwner) {
+            val networkLayer = style.getLayer(BIKE_NETWORK_LAYER) as SymbolLayer
+            val stationLayer = style.getLayer(BIKE_STATION_LAYER) as SymbolLayer
+            if (it) {
+                networkLayer.setProperties(visibility(VISIBLE))
+                stationLayer.setProperties(visibility(VISIBLE))
+            } else {
+                networkLayer.setProperties(visibility(NONE))
+                stationLayer.setProperties(visibility(NONE))
+            }
+        }
+
+        menuController!!.marudorItem.observe(viewLifecycleOwner) {
+            val tramLayer = style.getLayer(TRAM_STATION_LAYER) as SymbolLayer
+            if (it) {
+                tramLayer.setProperties(visibility(VISIBLE))
+            } else {
+                tramLayer.setProperties(visibility(NONE))
+            }
+        }
+
+        menuController!!.birdItem.observe(viewLifecycleOwner) {
+            val birdLayer = style.getLayer(BIRD_SCOOTER_LAYER) as SymbolLayer
+            if (it) {
+                birdLayer.setProperties(visibility(VISIBLE))
+            } else {
+                birdLayer.setProperties(visibility(NONE))
             }
         }
     }
