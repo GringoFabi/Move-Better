@@ -146,7 +146,6 @@ class Repository(private val database: MyDatabase) {
         launch(RetrofitInstance.apiMarudor.getNextStationsAsync(lat, lng, radius),
             {},
             {
-                it
                 _getResponseNextStations.postValue(it) },
             { Log.d("getNetworksFiltered", it.toString()) })
     }
