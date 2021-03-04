@@ -12,8 +12,8 @@ import kotlinx.coroutines.launch
 class BirdController (private val viewModelScope: CoroutineScope, private val repository: Repository) {
 
     // TODO: retrieve the tokens from a database
-    private val refresh: Token = Tokens.refresh
-    private val access: Token = Tokens.access
+    //private val refresh: Token = Tokens.refresh
+    //private val access: Token = Tokens.access
 
 
     // sends email to the auth api
@@ -35,7 +35,7 @@ class BirdController (private val viewModelScope: CoroutineScope, private val re
     // sends the refresh-token to the auth api (overwrites the current tokens)
     fun refresh() {
         viewModelScope.launch {
-            repository.refresh("Bearer ${refresh.token}")
+            repository.refresh("Bearer ${repository.myTokens.value!![0].refresh}")
         }
     }
 
@@ -53,7 +53,7 @@ class BirdController (private val viewModelScope: CoroutineScope, private val re
         val radius = 1000
         val loc: String = Gson().toJson(position)
         viewModelScope.launch {
-            repository.getBirds(location.latitude, location.longitude, radius, "Bearer ${access.token}", loc)
+            repository.getBirds(location.latitude, location.longitude, radius, "Bearer ${repository.myTokens.value!![0].access}", loc)
         }
     }
 

@@ -18,11 +18,16 @@ package com.group1.movebetter
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.group1.movebetter.database.getDatabase
+import com.group1.movebetter.model.DevUuid
+import com.group1.movebetter.model.asDatabaseDevUuid
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val db = getDatabase(this)
+        db.databaseDevUuidDao.insertAll(listOf(DevUuid("uuid").asDatabaseDevUuid()))
         setContentView(R.layout.activity_main)
     }
 

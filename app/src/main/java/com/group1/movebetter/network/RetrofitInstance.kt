@@ -1,6 +1,7 @@
 package com.group1.movebetter.network
 
 
+import androidx.lifecycle.LiveData
 import com.group1.movebetter.network.adapters.*
 import com.group1.movebetter.util.Constants.Companion.URL_CITYBIKES
 import com.group1.movebetter.network.adapters.CityBikesStationExtraStatusAdapter
@@ -17,7 +18,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 
-object RetrofitInstance {
+class RetrofitInstance(uuid: String) {
     private val retrofit by lazy {
         Retrofit.Builder()
                 .baseUrl(URL_CITYBIKES)
@@ -49,7 +50,7 @@ object RetrofitInstance {
 
     // modified interceptor class for adding the standard headers to all bird-requests
     private val client = OkHttpClient.Builder().apply {
-        addInterceptor(BirdInterceptor())
+        addInterceptor(BirdInterceptor(uuid))
     }.build()
 
     // auth api

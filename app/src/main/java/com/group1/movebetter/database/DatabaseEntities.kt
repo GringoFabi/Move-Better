@@ -179,3 +179,14 @@ fun List<DatabaseBirdTokens>.asBirdTokensList(): List<BirdTokens> {
                 BirdTokens(it.access,it.refresh)
         }
 }
+
+@Entity(tableName = "databasedevuuid")
+data class DatabaseDevUuid (
+        @PrimaryKey
+        val key: String,
+        val uuid : String,
+)
+
+fun DatabaseDevUuid.asDevUuid(): DevUuid {
+        return DevUuid(this.uuid)
+}

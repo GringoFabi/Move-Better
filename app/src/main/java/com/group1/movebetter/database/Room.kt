@@ -77,9 +77,18 @@ interface DatabaseBirdTokensDao {
     fun insertAll( birdtokens: List<DatabaseBirdTokens>)
 }
 
+@Dao
+interface DatabaseDevUuidDao {
+    @Query("select * from databasedevuuid where `key` = :id")
+    fun getDevUuid(id: String): LiveData<DatabaseDevUuid>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertAll( uuids: List<DatabaseDevUuid>)
+}
 
 
-@Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class, DatabaseStaDaStation::class, DatabaseDeparture::class, DatabaseBird::class, DatabaseBirdTokens::class], version = 6)
+
+@Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class, DatabaseStaDaStation::class, DatabaseDeparture::class, DatabaseBird::class, DatabaseBirdTokens::class, DatabaseDevUuid::class], version = 7)
 abstract class MyDatabase: RoomDatabase() {
     abstract val cityBikesNetworksDao: CityBikesNetworksDao
     abstract val cityBikesNetworkDao: CityBikesNetworkDao
@@ -87,6 +96,7 @@ abstract class MyDatabase: RoomDatabase() {
     abstract val databaseDepartureDao: DatabaseDepartureDao
     abstract val databaseBirdDao: DatabaseBirdDao
     abstract val databaseBirdTokensDao: DatabaseBirdTokensDao
+    abstract val databaseDevUuidDao: DatabaseDevUuidDao
 }
 
 private lateinit var INSTANCE: MyDatabase

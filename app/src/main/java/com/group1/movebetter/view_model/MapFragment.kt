@@ -84,7 +84,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapView = binding.mapView
 
         // Get a reference to the ViewModel associated with this fragment.
-        repository = Repository(getDatabase(context!!));
+        val db = getDatabase(context!!)
+        repository = Repository(db, db.databaseDevUuidDao.getDevUuid("1").value!!.uuid);
         val viewModelFactory = MapViewModelFactory(repository)
         mapViewModel = ViewModelProvider(this, viewModelFactory).get(MapViewModel::class.java)
         binding.mapViewModel = mapViewModel
