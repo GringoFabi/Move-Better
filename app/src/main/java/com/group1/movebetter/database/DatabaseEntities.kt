@@ -165,3 +165,17 @@ fun List<DatabaseBird>.asBirdList(): List<Bird> {
                 Bird(it.id, BirdLocation(it.locationLatitude,it.locationLongitude), it.code, it.model, it.vehicle_class,it.captive,it.nest_id,it.partner_id,it.battery_level,it.estimated_range,it.area_key)
         }
 }
+
+@Entity(tableName = "databasebirdtokens")
+data class DatabaseBirdTokens (
+        @PrimaryKey
+        val key: String,
+        val access: String,
+        val refresh: String,
+)
+
+fun List<DatabaseBirdTokens>.asBirdTokensList(): List<BirdTokens> {
+        return map {
+                BirdTokens(it.access,it.refresh)
+        }
+}

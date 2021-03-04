@@ -12,4 +12,21 @@ class MarudorController (private val viewModelScope: CoroutineScope, private val
             repository.getArrival(evaId,lookahead)
         }
     }
+
+    fun getNextStations(lat: Double, lng: Double, maxDist: Long = 3000)
+    {
+        viewModelScope.launch {
+            repository.getNextStations(lat, lng, maxDist)
+        }
+    }
+
+    fun getStationsByTerm(searchTerm: String)
+    {
+        viewModelScope.launch {
+            repository.getStationsByTerm(searchTerm)
+        }
+    }
+
+
+
 }

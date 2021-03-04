@@ -1,6 +1,8 @@
 package com.group1.movebetter.network
 
 import com.group1.movebetter.model.*
+import kotlinx.coroutines.Deferred
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -8,15 +10,15 @@ import retrofit2.http.Query
 interface CityBikesService {
 
     @GET("networks/")
-    suspend fun getNetworks(): CityBikes
+    fun getNetworksAsync(): Deferred<Response<CityBikes>>
 
     @GET("networks/{networkId}")
-    suspend fun getNetwork(
+    fun getNetworkAsync(
         @Path("networkId") networkId: String)
-    : CityBikesNetworkList
+    : Deferred<Response<CityBikesNetworkList>>
 
     @GET("networks")
-    suspend fun getNetworksFiltered(
+    fun getNetworksFilteredAsync(
         @Query("fields") fields: String,
-    ): CityBikes
+    ): Deferred<Response<CityBikes>>
 }

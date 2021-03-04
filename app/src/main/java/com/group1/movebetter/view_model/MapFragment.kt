@@ -16,11 +16,13 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil.inflate
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.*
 import com.group1.movebetter.R
 import com.group1.movebetter.database.getDatabase
 import com.group1.movebetter.databinding.FragmentMapBinding
 import com.group1.movebetter.repository.Repository
+import com.group1.movebetter.util.Constants.Companion.DELAY_MILLIS
 import com.group1.movebetter.card_views.BikeAdapter
 import com.group1.movebetter.card_views.BirdAdapter
 import com.group1.movebetter.card_views.TramAdapter
@@ -45,6 +47,10 @@ import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.*
 
 
@@ -112,13 +118,25 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         mapViewModel.mapController.getCurrentLocation(this.requireActivity(), context, this)
 
-        mapViewModel.cityBikeController.getNetworks()
 
         mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
 
         mapViewModel.stadaStationController.getStations()
-
+        refreshNetworkRequests()
         return binding.root
+    }
+
+    private var delayedRefreshRequestsJob: Job? = null
+
+    private fun refreshNetworkRequests()
+    {
+        mapViewModel.mapController.getCurrentLocation(this.requireActivity(), context, this)
+        mapViewModel.cityBikeController.getNetworks()
+        mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
+        delayedRefreshRequestsJob = lifecycleScope.launch {
+            delay(DELAY_MILLIS)
+            refreshNetworkRequests()
+        }
     }
 
     private fun initIds() {

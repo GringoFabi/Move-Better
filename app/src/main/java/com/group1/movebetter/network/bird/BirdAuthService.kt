@@ -4,6 +4,8 @@ import com.group1.movebetter.model.BirdTokens
 import com.group1.movebetter.model.Birds
 import com.group1.movebetter.model.EmailBody
 import com.group1.movebetter.model.Token
+import kotlinx.coroutines.Deferred
+import retrofit2.Response
 import retrofit2.http.*
 
 interface BirdAuthService {
@@ -15,14 +17,14 @@ interface BirdAuthService {
     )
 
     @POST("magic-link/use")
-    suspend fun postAuthToken(
+    suspend fun postAuthTokenAsync(
             @Body token: Token
-    ) : BirdTokens
+    ) : Deferred<Response<BirdTokens>>
 
     @POST("refresh/token")
-    suspend fun refresh(
+    suspend fun refreshAsync(
             @Header("Authorization") token: String
-    ) : BirdTokens
+    ) : Deferred<Response<BirdTokens>>
 
 }
 

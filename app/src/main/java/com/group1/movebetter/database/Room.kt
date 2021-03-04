@@ -68,15 +68,25 @@ interface DatabaseBirdDao {
     fun insertAll( birds: List<DatabaseBird>)
 }
 
+@Dao
+interface DatabaseBirdTokensDao {
+    @Query("select * from databasebirdtokens")
+    fun getBirdTokens(): LiveData<List<DatabaseBirdTokens>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll( birdtokens: List<DatabaseBirdTokens>)
+}
 
 
-@Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class, DatabaseStaDaStation::class, DatabaseDeparture::class, DatabaseBird::class], version = 5)
+
+@Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class, DatabaseStaDaStation::class, DatabaseDeparture::class, DatabaseBird::class, DatabaseBirdTokens::class], version = 6)
 abstract class MyDatabase: RoomDatabase() {
     abstract val cityBikesNetworksDao: CityBikesNetworksDao
     abstract val cityBikesNetworkDao: CityBikesNetworkDao
     abstract val staDaStationDao: StaDaStationDao
     abstract val databaseDepartureDao: DatabaseDepartureDao
     abstract val databaseBirdDao: DatabaseBirdDao
+    abstract val databaseBirdTokensDao: DatabaseBirdTokensDao
 }
 
 private lateinit var INSTANCE: MyDatabase
