@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.*
 import com.group1.movebetter.R
+import com.group1.movebetter.database.getDatabase
 import com.group1.movebetter.databinding.FragmentMapBinding
 import com.group1.movebetter.repository.Repository
 import com.group1.movebetter.util.Constants.Companion.DELAY_MILLIS
@@ -88,7 +89,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapView = binding.mapView
 
         // Get a reference to the ViewModel associated with this fragment.
-        repository = Repository()
+        repository = Repository(getDatabase(context!!));
         val viewModelFactory = MapViewModelFactory(repository)
         mapViewModel = ViewModelProvider(this, viewModelFactory).get(MapViewModel::class.java)
         binding.mapViewModel = mapViewModel
@@ -369,33 +370,41 @@ Log.d("Tokens", tokens.refresh)
         // Observer for bike networks
         repository.getResponseNetworks.observe(viewLifecycleOwner) {
             val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORKS)
-            mapViewModel.cityBikeController.getNearestNetwork(it)
-            val networks = mapViewModel.cityBikeController.createBikeNetworkList(it)
-            mapViewModel.mapController.refreshSource(networkSource!!, networks)
+            if (it.isNotEmpty()) {
+                mapViewModel.cityBikeController.getNearestNetwork(it)
+                val networks = mapViewModel.cityBikeController.createBikeNetworkList(it)
+                mapViewModel.mapController.refreshSource(networkSource!!, networks)
+            }
         }
 
         // Observer for bike stations
         repository.getResponseNetwork.observe(viewLifecycleOwner) {
             val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORKS)
             val stationSource = style.getSourceAs<GeoJsonSource>(BIKE_STATIONS)
-            val networks = mapViewModel.cityBikeController.updateCurrentNetwork(it.network)
-            val stations = mapViewModel.cityBikeController.exchangeNetworkWithStations(it.network)
-            mapViewModel.mapController.refreshSource(networkSource!!, networks)
-            mapViewModel.mapController.refreshSource(stationSource!!, stations)
+            if (it.isNotEmpty()) {
+                val networks = mapViewModel.cityBikeController.updateCurrentNetwork(it[0])
+                val stations = mapViewModel.cityBikeController.exchangeNetworkWithStations(it[0])
+                mapViewModel.mapController.refreshSource(networkSource!!, networks)
+                mapViewModel.mapController.refreshSource(stationSource!!, stations)
+            }
         }
 
         // Observer for birds (scooters)
         repository.myBirds.observe(viewLifecycleOwner) {
             val birdSource = style.getSourceAs<GeoJsonSource>(BIRD_SCOOTER)
-            val birds = mapViewModel.birdController.createBirdList(it)
-            mapViewModel.mapController.refreshSource(birdSource!!, birds)
+            if (it.isNotEmpty()) {
+                val birds = mapViewModel.birdController.createBirdList(it)
+                mapViewModel.mapController.refreshSource(birdSource!!, birds)
+            }
         }
 
         // Observer for tram stations
         repository.getResponseStations.observe(viewLifecycleOwner) {
             val stationSource = style.getSourceAs<GeoJsonSource>(TRAM_STATION)
-            val stations = mapViewModel.stadaStationController.createStationList(it)
-            mapViewModel.mapController.refreshSource(stationSource!!, stations)
+            if (it.isNotEmpty()) {
+                val stations = mapViewModel.stadaStationController.createStationList(it)
+                mapViewModel.mapController.refreshSource(stationSource!!, stations)
+            }
         }
     }
 
