@@ -49,8 +49,10 @@ class Repository(private val database: MyDatabase) {
         get() = _myResponse
 
     private val _myTokens: MutableLiveData<BirdTokens> = MutableLiveData()
-    val myTokens: LiveData<BirdTokens>
-        get() = _myTokens
+
+    val myTokens: LiveData<List<BirdTokens>> = Transformations.map(database.databaseBirdTokensDao.getBirdTokens()){
+        it.asBirdTokensList()
+    }
 
     val myBirds: LiveData<List<Bird>> = Transformations.map(database.databaseBirdDao.getBird()){
         it.asBirdList()
@@ -162,17 +164,19 @@ class Repository(private val database: MyDatabase) {
     }
 
     suspend fun postMagicToken(body: Token) {
-        launch(RetrofitInstance.birdAuthApi.postAuthTokenAsync(body),
-            {},
-            { _myTokens.postValue(it) },
-            { Log.d("getNetworksFiltered", it.toString()) })
+        launch(RetrofitInstance.birdAuthApi.postAuthTokenAsync(body), {}, {
+            if (it != null) {
+                database.databaseBirdTokensDao.insertAll(listOf(it).asDatabaseBirdTokensList())
+            }
+        }, { Log.d("postMagicToken", it.toString()) })
     }
 
     suspend fun refresh(token: String) {
-        launch(RetrofitInstance.birdAuthApi.refreshAsync(token),
-            {},
-            { _myTokens.postValue(it) },
-            { Log.d("getNetworksFiltered", it.toString()) })
+        launch(RetrofitInstance.birdAuthApi.refreshAsync(token), {}, {
+            if (it != null) {
+                database.databaseBirdTokensDao.insertAll(listOf(it).asDatabaseBirdTokensList())
+            }
+        }, { Log.d("postMagicToken", it.toString()) })
     }
 
     suspend fun getBirds(lat: Double, lng: Double, rad: Int, token: String, location: String) {

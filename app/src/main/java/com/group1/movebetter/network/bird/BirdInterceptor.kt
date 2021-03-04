@@ -1,5 +1,7 @@
 package com.group1.movebetter.network.bird
 
+import com.group1.movebetter.database.MyDatabase
+import com.group1.movebetter.database.getDatabase
 import okhttp3.Interceptor
 import okhttp3.Response
 
