@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil.bind
 import androidx.databinding.DataBindingUtil.inflate
 import androidx.fragment.app.Fragment
@@ -111,6 +112,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         val rv = binding.singleLocationRecyclerView
         rv.setHasFixedSize(true)
+        rv.visibility = View.GONE
 
         val llm = LinearLayoutManager(context)
         rv.layoutManager = llm
@@ -275,9 +277,16 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     private fun checkRVVisible() {
         binding.singleLocationRecyclerView.visibility = View.GONE
+        binding.nearestBike.visibility = View.VISIBLE
+        binding.nearestScooter.visibility = View.VISIBLE
+        binding.nearestTrain.visibility = View.VISIBLE
     }
 
     private fun setAdapter(feature: Feature?) {
+        binding.nearestBike.visibility = View.GONE
+        binding.nearestScooter.visibility = View.GONE
+        binding.nearestTrain.visibility = View.GONE
+
         val provider = feature!!.getStringProperty("provider")
         if (provider.equals("bikes")) {
             binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature), this::openNextBike, this::onMapsNavigateTo)
@@ -402,7 +411,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             if (it.isNotEmpty()) {
                 val networks = mapViewModel.cityBikeController.updateCurrentNetwork(it[0])
                 val stations = mapViewModel.cityBikeController.exchangeNetworkWithStations(it[0])
-                binding.nearestBike.visibility = View.VISIBLE
+
+                if (!binding.singleLocationRecyclerView.isVisible) {
+                    binding.nearestBike.visibility = View.VISIBLE
+                }
+
                 mapViewModel.mapController.refreshSource(networkSource!!, networks)
                 mapViewModel.mapController.refreshSource(stationSource!!, stations)
             }
@@ -414,7 +427,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             if (it.isNotEmpty()) {
                 val birds = mapViewModel.birdController.createBirdList(it)
                 mapViewModel.birdController.getNearestBird(it)
-                binding.nearestScooter.visibility = View.VISIBLE
+
+                if (!binding.singleLocationRecyclerView.isVisible) {
+                    binding.nearestScooter.visibility = View.VISIBLE
+                }
+
                 mapViewModel.mapController.refreshSource(birdSource!!, birds)
             }
         }
@@ -425,7 +442,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             if (it.isNotEmpty()) {
                 val stations = mapViewModel.stadaStationController.createStationList(it)
                 mapViewModel.stadaStationController.getNearestStation(it)
-                binding.nearestTrain.visibility = View.VISIBLE
+
+                if (!binding.singleLocationRecyclerView.isVisible) {
+                    binding.nearestTrain.visibility = View.VISIBLE
+                }
+
                 mapViewModel.mapController.refreshSource(stationSource!!, stations)
             }
         }

@@ -46,7 +46,6 @@
                     android:layout_height="30dp"
                     android:textAlignment="center"
                     android:id="@+id/batteryLevelPB"
-                    android:indeterminate="true"
                     android:gravity="center_horizontal" />
                 <TextView
                     android:layout_width="wrap_content"

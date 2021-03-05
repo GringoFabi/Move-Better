@@ -21,8 +21,8 @@
             android:layout_marginStart="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="590dp"
-            app:backgroundTint="#000000"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            app:backgroundTint="#000000" />
 
         <Button
             android:id="@+id/nearest_bike"
@@ -31,8 +31,8 @@
             android:layout_marginStart="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="490dp"
-            app:backgroundTint="#000000"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            app:backgroundTint="#000000" />
 
         <Button
             android:id="@+id/nearest_train"
@@ -41,9 +41,8 @@
             android:layout_marginStart="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="540dp"
-            app:backgroundTint="#000000"
-            app:iconTint="#FFFFFF"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            app:backgroundTint="#000000" />
 
 
         <com.mapbox.mapboxsdk.maps.MapView
