@@ -7,6 +7,7 @@ import android.location.LocationManager
 import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.Task
 import com.group1.movebetter.view_model.MapFragment
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Feature
@@ -51,7 +52,7 @@ class MapController() {
     }
 
     @SuppressLint("MissingPermission")
-    fun getCurrentLocation(activity: FragmentActivity, context: Context?, mapFragment: MapFragment) {
+    fun getCurrentLocation(activity: FragmentActivity, context: Context?, mapFragment: MapFragment): Task<Location> {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
 
         if (!PermissionsManager.areLocationPermissionsGranted(context)) {
@@ -59,7 +60,7 @@ class MapController() {
             permissionsManager!!.requestLocationPermissions(activity)
         }
 
-        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+        return fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
             if (location != null) {
                 currentLocation = location
             }
