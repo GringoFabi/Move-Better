@@ -88,4 +88,11 @@ dependencies {
 
     // Location
     implementation "com.google.android.gms:play-services-location:17.1.0"
+
+    // Google Authentication
+    implementation 'com.google.android.gms:play-services-auth:19.0.0'
+
+    // Permission
+    def activity_version = "1.2.0"
+    implementation "androidx.activity:activity-ktx:$activity_version"
 }

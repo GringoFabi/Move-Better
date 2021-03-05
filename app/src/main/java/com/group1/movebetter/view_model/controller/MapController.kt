@@ -7,25 +7,73 @@ import android.location.LocationManager
 import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.group1.movebetter.model.*
-import com.group1.movebetter.repository.Repository
+import com.google.android.gms.tasks.Task
+import com.group1.movebetter.view_model.MapFragment
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
-import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import java.util.function.Predicate
 import kotlin.math.*
-import com.group1.movebetter.model.CityBikes
-import com.group1.movebetter.model.CityBikesLocation
-import com.group1.movebetter.model.CityBikesNetworks
-import com.group1.movebetter.view_model.MapFragment
-import kotlinx.coroutines.CoroutineScope
 
 
-class MapController(private val viewModelScope: CoroutineScope, private val repository: Repository) {
+class MapController() {
 
     fun refreshSource(source: GeoJsonSource, featureList: ArrayList<Feature>) {
         source.setGeoJson(FeatureCollection.fromFeatures(featureList))
+    }
+
+    fun haversineFormular(destination: Location): Double {
+
+        // Haversine formular (see more here: https://en.wikipedia.org/wiki/Haversine_formula)
+
+        val start = currentLocation
+        val earthRadius = 6371
+        val distanceLatitude = degreeToRadial(start.latitude - destination.latitude)
+        val distanceLongitude = degreeToRadial(start.longitude - destination.longitude)
+
+        val a = sin(distanceLatitude / 2) * sin(distanceLatitude / 2) +
+                cos(degreeToRadial(destination.latitude)) * cos(degreeToRadial(start.latitude)) *
+                sin(distanceLongitude / 2) * sin(distanceLongitude / 2)
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a));
+        val d = earthRadius * c; // Distance in km
+
+        return d
+    }
+
+    private fun degreeToRadial(degree: Double): Double {
+        return degree * (Math.PI/180)
+    }
+
+    fun getLocation(lat: Double, lng: Double) : Location {
+        val location = Location("default")
+        location.latitude = lat
+        location.longitude = lng
+        return location
+    }
+
+    @SuppressLint("MissingPermission")
+    fun getCurrentLocation(activity: FragmentActivity): Task<Location> {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
+
+        return fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            if (location != null) {
+                currentLocation = location
+            }
+        }
+    }
+
+    // nearest-network logic
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    var currentLocation: Location = initLocation()
+
+    private fun initLocation() : Location {
+
+        // Setting default location to Berlin
+
+        val location = Location(LocationManager.GPS_PROVIDER)
+        location.longitude = 13.404954
+        location.latitude = 52.520008
+        return location
     }
 }

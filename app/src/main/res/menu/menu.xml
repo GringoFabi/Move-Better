@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:id="@+id/vehicles">
+        <item
+            android:id="@+id/cityBikes"
+            android:checkable="true"
+            android:checked="true"
+            android:title="City Bikes"></item>
+
+        <item
+            android:id="@+id/marudor"
+            android:checkable="true"
+            android:checked="false"
+            android:title="NVV"></item>
+
+        <item
+            android:id="@+id/bird"
+            android:checkable="true"
+            android:checked="false"
+            android:title="Bird Scooter"></item>
+    </group>
+
+    <item
+        android:id="@+id/refresh"
+        android:title="Refresh"></item>
+</menu>
