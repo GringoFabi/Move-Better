@@ -27,6 +27,9 @@ import com.group1.movebetter.database.getDatabase
 import com.group1.movebetter.databinding.BirdDialogBinding
 import com.group1.movebetter.databinding.BirdDialogBinding.inflate
 import com.group1.movebetter.repository.Repository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class BirdDialog : AppCompatDialogFragment() {
     var email: String = ""
@@ -45,7 +48,13 @@ class BirdDialog : AppCompatDialogFragment() {
         val builder = AlertDialog.Builder(context)
 
         val db = getDatabase(context!!)
-        repository = Repository(db, db.databaseDevUuidDao.getDevUuid("1").value!!.uuid)
+        var uuid = ""
+        runBlocking {
+            launch(Dispatchers.IO) {
+                uuid = db.databaseDevUuidDao.getDevUuid("1").uuid
+            }.join()
+        }
+        repository = Repository(db, uuid)
         birdDialogViewModel = BirdDialogViewModel(repository)
 
         binding.lifecycleOwner = this

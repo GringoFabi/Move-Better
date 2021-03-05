@@ -27,6 +27,8 @@ import com.group1.movebetter.util.Constants.Companion.DELAY_MILLIS
 import com.group1.movebetter.card_views.BikeAdapter
 import com.group1.movebetter.card_views.BirdAdapter
 import com.group1.movebetter.card_views.TramAdapter
+import com.group1.movebetter.model.DevUuid
+import com.group1.movebetter.model.asDatabaseDevUuid
 import com.group1.movebetter.view_model.controller.MenuController
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -48,9 +50,7 @@ import com.mapbox.mapboxsdk.style.layers.Property.VISIBLE
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 
 
@@ -89,6 +89,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        runBlocking {
+            launch(Dispatchers.IO) {
+                getDatabase(context!!).databaseDevUuidDao.insertAll(listOf(DevUuid(UUID.randomUUID().toString()).asDatabaseDevUuid()))
+                delay(5000)
+            }.join()
+        }
         context?.let { Mapbox.getInstance(it, getString(R.string.mapbox_access_token)) }
     }
 
@@ -99,7 +105,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         // Get a reference to the ViewModel associated with this fragment.
         val db = getDatabase(context!!)
-        repository = Repository(db, db.databaseDevUuidDao.getDevUuid("1").value!!.uuid);
+        var uuid = ""
+        runBlocking {
+            launch(Dispatchers.IO) {
+                uuid = db.databaseDevUuidDao.getDevUuid("1").uuid
+            }.join()
+        }
+        repository = Repository(db, uuid);
         val viewModelFactory = MapViewModelFactory(repository)
         mapViewModel = ViewModelProvider(this, viewModelFactory).get(MapViewModel::class.java)
         binding.mapViewModel = mapViewModel

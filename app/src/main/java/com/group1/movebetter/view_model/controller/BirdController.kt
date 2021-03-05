@@ -7,7 +7,9 @@ import com.group1.movebetter.repository.Repository
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.Point
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class BirdController(private val viewModelScope: CoroutineScope, private val repository: Repository, private val mapController: MapController) {
 
@@ -36,7 +38,14 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
     // sends the refresh-token to the auth api (overwrites the current tokens)
     fun refresh() {
         viewModelScope.launch {
-            repository.refresh("Bearer ${repository.myTokens.value!![0].refresh}")
+
+            var refresh = ""
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    refresh = repository.database.databaseBirdTokensDao.getBirdToken("1").refresh
+                }
+            }
+            repository.refresh("Bearer ${refresh}")
         }
     }
 
@@ -54,7 +63,13 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
         val radius = 1000
         val loc: String = Gson().toJson(position)
         viewModelScope.launch {
-            repository.getBirds(location.latitude, location.longitude, radius, "Bearer ${repository.myTokens.value!![0].access}", loc)
+            var access = ""
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    access = repository.database.databaseBirdTokensDao.getBirdToken("1").access
+                }
+            }
+            repository.getBirds(location.latitude, location.longitude, radius, "Bearer ${access}", loc)
         }
     }
 

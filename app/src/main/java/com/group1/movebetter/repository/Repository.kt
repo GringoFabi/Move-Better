@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 
-class Repository(private val database: MyDatabase, uuid:String) {
+class Repository(val database: MyDatabase, uuid:String) {
 
     val instance: RetrofitInstance = RetrofitInstance(uuid)
 
@@ -51,10 +51,6 @@ class Repository(private val database: MyDatabase, uuid:String) {
         get() = _myResponse
 
     private val _myTokens: MutableLiveData<BirdTokens> = MutableLiveData()
-
-    val myTokens: LiveData<List<BirdTokens>> = Transformations.map(database.databaseBirdTokensDao.getBirdTokens()){
-        it.asBirdTokensList()
-    }
 
     val myBirds: LiveData<List<Bird>> = Transformations.map(database.databaseBirdDao.getBird()){
         it.asBirdList()

@@ -70,8 +70,8 @@ interface DatabaseBirdDao {
 
 @Dao
 interface DatabaseBirdTokensDao {
-    @Query("select * from databasebirdtokens")
-    fun getBirdTokens(): LiveData<List<DatabaseBirdTokens>>
+    @Query("select * from databasebirdtokens where `key` = :id")
+    fun getBirdToken(id: String): DatabaseBirdTokens
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll( birdtokens: List<DatabaseBirdTokens>)
@@ -80,7 +80,7 @@ interface DatabaseBirdTokensDao {
 @Dao
 interface DatabaseDevUuidDao {
     @Query("select * from databasedevuuid where `key` = :id")
-    fun getDevUuid(id: String): LiveData<DatabaseDevUuid>
+    fun getDevUuid(id: String): DatabaseDevUuid
 
     @Query("select * from databasedevuuid")
     fun getAllDevUuid(): LiveData<List<DatabaseDevUuid>>

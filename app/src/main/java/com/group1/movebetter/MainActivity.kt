@@ -46,13 +46,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val db = getDatabase(this)
+        /*val db = getDatabase(this)
         runBlocking {
             val job = launch(Dispatchers.IO) {
                 db.databaseDevUuidDao.insertAll(listOf(DevUuid(UUID.randomUUID().toString()).asDatabaseDevUuid()))
                 delay(3000)
             }
-        }
+            job.join()
+        }*/
 
         if (ContextCompat.checkSelfPermission(this,
                         Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
