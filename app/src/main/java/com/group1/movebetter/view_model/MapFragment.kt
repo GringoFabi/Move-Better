@@ -119,11 +119,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         currentLocationTask.addOnCompleteListener {
             mapViewModel.stadaStationController.getStations()
-            mapViewModel.cityBikeController.getNetworks()
-            mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
+            refreshNetworkRequests()
         }
 
-        refreshNetworkRequests()
+
         return binding.root
     }
 
@@ -132,10 +131,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     private fun refreshNetworkRequests()
     {
         delayedRefreshRequestsJob = lifecycleScope.launch {
-            delay(DELAY_MILLIS)
-            mapViewModel.mapController.getCurrentLocation(activity!!)
             mapViewModel.cityBikeController.getNetworks()
             mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
+            delay(DELAY_MILLIS)
+            mapViewModel.mapController.getCurrentLocation(activity!!)
             refreshNetworkRequests()
         }
     }
@@ -243,9 +242,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     private fun setAdapter(feature: Feature?) {
         val provider = feature!!.getStringProperty("provider")
         if (provider.equals("bikes")) {
-            binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature), this::openNextBike)
+            binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature), this::openNextBike, this::onMapsNavigateTo)
         } else if (provider.equals("birds")) {
-            binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird)
+            binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird, this::onMapsNavigateTo)
         } else {
             mapViewModel.marudorController.getArrival((feature.getNumberProperty("evaId") as Double).toLong(), 150)
         }

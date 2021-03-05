@@ -17,7 +17,7 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 
 
-class BikeAdapter(private val data: ArrayList<Feature>, private val openNextBikeApp: () -> Unit) : RecyclerView.Adapter<BikeAdapter.BikeViewHolder?>() {
+class BikeAdapter(private val data: ArrayList<Feature>, private val openNextBikeApp: () -> Unit, private val navigateTo: (Double, Double) -> Unit) : RecyclerView.Adapter<BikeAdapter.BikeViewHolder?>() {
 
     lateinit var context: Context
 
@@ -59,7 +59,9 @@ class BikeAdapter(private val data: ArrayList<Feature>, private val openNextBike
             openNextBikeApp.invoke()
         }
         holder.gotoButton.setOnClickListener {
-
+            val lat = data[position].getNumberProperty("latitude").toDouble()
+            val lng = data[position].getNumberProperty("longitude").toDouble()
+            navigateTo.invoke(lat, lng)
         }
     }
 
