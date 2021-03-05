@@ -117,15 +117,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         val currentLocationTask = mapViewModel.mapController.getCurrentLocation(this.requireActivity())
 
-        currentLocationTask.addOnCompleteListener { location ->
-            var testLocation = location.result
-            if (testLocation == null) {
-                testLocation = mapViewModel.mapController.currentLocation
-            }
-
+        currentLocationTask.addOnCompleteListener {
             mapViewModel.stadaStationController.getStations()
             mapViewModel.cityBikeController.getNetworks()
-            mapViewModel.birdController.getBirds(testLocation)
+            mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
         }
 
         refreshNetworkRequests()

@@ -65,7 +65,6 @@ class MapController() {
     // nearest-network logic
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var permissionsManager: PermissionsManager? = null
     var currentLocation: Location = initLocation()
 
     private fun initLocation() : Location {
