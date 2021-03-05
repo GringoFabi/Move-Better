@@ -84,7 +84,7 @@ class TramAdapter(private val data: List<Departure>,
 
         if (!messages.delays.isNullOrEmpty()) {
             for (message in messages.delays) {
-                if (message.superseded) {
+                if (message.superseded || text.contains(message.text)) {
                     continue
                 }
                 if (text == "") {
@@ -96,7 +96,7 @@ class TramAdapter(private val data: List<Departure>,
 
         if (!messages.qos.isNullOrEmpty()) {
             for (message in messages.qos) {
-                if (message.superseded) {
+                if (message.superseded || text.contains(message.text)) {
                     continue
                 }
                 if (text == "") {

@@ -314,7 +314,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             mapViewModel.stadaStationController.setSelectedStation(evaId)
             mapViewModel.marudorController.getArrival(evaId, 60)
         }
-        
+
         binding.singleLocationRecyclerView.visibility = View.VISIBLE
     }
 
