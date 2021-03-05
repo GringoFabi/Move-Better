@@ -13,10 +13,14 @@ import com.group1.movebetter.R
 import com.group1.movebetter.model.Departure
 import com.group1.movebetter.model.Messages
 import com.group1.movebetter.model.RouteStation
+import com.mapbox.mapboxsdk.geometry.LatLng
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 
-class TramAdapter(private val data: List<Departure>, private val openNvvApp: () -> Unit) : RecyclerView.Adapter<TramAdapter.TramViewHolder?>() {
+class TramAdapter(private val data: List<Departure>,
+                  private val openNvvApp: () -> Unit,
+                  private val navigateTo: (Double, Double) -> Unit,
+                  private val selectedStation: LatLng?) : RecyclerView.Adapter<TramAdapter.TramViewHolder?>() {
 
     lateinit var context: Context
 
@@ -69,7 +73,9 @@ class TramAdapter(private val data: List<Departure>, private val openNvvApp: () 
         }
 
         holder.gotoButton.setOnClickListener {
-            
+            if (selectedStation != null) {
+                navigateTo.invoke(selectedStation.latitude, selectedStation.longitude)
+            }
         }
     }
 

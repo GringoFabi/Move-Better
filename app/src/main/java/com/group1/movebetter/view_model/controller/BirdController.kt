@@ -76,6 +76,8 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
         feature.addStringProperty("vehicleClass", vehicleClass)
         feature.addNumberProperty("batteryLevel", batteryLevel)
         feature.addNumberProperty("estimatedRange", estimatedRange)
+        feature.addNumberProperty("latitude", location.latitude)
+        feature.addNumberProperty("longitude", location.longitude)
         feature.addStringProperty("provider", "birds")
         return feature
     }

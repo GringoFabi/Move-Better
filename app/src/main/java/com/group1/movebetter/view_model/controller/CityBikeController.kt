@@ -91,6 +91,8 @@ class CityBikeController(private val viewModelScope: CoroutineScope, private val
             val featureStation = Feature.fromGeometry(Point.fromLngLat(station.longitude, station.latitude))
             featureStation.addStringProperty("name", station.name)
             featureStation.addStringProperty("id", station.id)
+            featureStation.addNumberProperty("latitude", station.latitude)
+            featureStation.addNumberProperty("longitude", station.longitude)
             featureStation.addNumberProperty("freeBikes", station.free_bikes.amount)
             featureStation.addNumberProperty("emptySlots", station.empty_slots.amount)
             featureStation.addStringProperty("timestamp", station.timestamp)
