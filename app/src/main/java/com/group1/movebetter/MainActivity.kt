@@ -19,7 +19,6 @@ package com.group1.movebetter
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -32,6 +31,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.group1.movebetter.bird_dialog.BirdDialog
 import com.group1.movebetter.view_model.controller.MenuController
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -43,7 +47,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val db = getDatabase(this)
-        db.databaseDevUuidDao.insertAll(listOf(DevUuid("uuid").asDatabaseDevUuid()))
+        runBlocking {
+            val job = launch(Dispatchers.IO) {
+                db.databaseDevUuidDao.insertAll(listOf(DevUuid(UUID.randomUUID().toString()).asDatabaseDevUuid()))
+                delay(3000)
+            }
+        }
 
         if (ContextCompat.checkSelfPermission(this,
                         Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {

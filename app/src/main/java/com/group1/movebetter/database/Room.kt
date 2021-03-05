@@ -82,7 +82,10 @@ interface DatabaseDevUuidDao {
     @Query("select * from databasedevuuid where `key` = :id")
     fun getDevUuid(id: String): LiveData<DatabaseDevUuid>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Query("select * from databasedevuuid")
+    fun getAllDevUuid(): LiveData<List<DatabaseDevUuid>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll( uuids: List<DatabaseDevUuid>)
 }
 

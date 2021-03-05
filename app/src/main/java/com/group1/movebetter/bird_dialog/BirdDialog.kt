@@ -44,7 +44,8 @@ class BirdDialog : AppCompatDialogFragment() {
         binding = inflate(LayoutInflater.from(context))
         val builder = AlertDialog.Builder(context)
 
-        repository = Repository(getDatabase(context!!))
+        val db = getDatabase(context!!)
+        repository = Repository(db, db.databaseDevUuidDao.getDevUuid("1").value!!.uuid)
         birdDialogViewModel = BirdDialogViewModel(repository)
 
         binding.lifecycleOwner = this
