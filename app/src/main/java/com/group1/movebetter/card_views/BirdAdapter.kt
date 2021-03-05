@@ -7,13 +7,12 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.group1.movebetter.R
 import com.mapbox.geojson.Feature
 
-class BirdAdapter(private val data: ArrayList<Feature>, private val openBirdApp: () -> Unit) : RecyclerView.Adapter<BirdAdapter.BirdViewHolder?>() {
+class BirdAdapter(private val data: ArrayList<Feature>, private val openBirdApp: () -> Unit, private val navigateTo: (Double, Double) -> Unit) : RecyclerView.Adapter<BirdAdapter.BirdViewHolder?>() {
 
     lateinit var context: Context
 
@@ -52,7 +51,9 @@ class BirdAdapter(private val data: ArrayList<Feature>, private val openBirdApp:
             openBirdApp.invoke()
         }
         holder.gotoButton.setOnClickListener {
-
+            val lat = data[position].getNumberProperty("latitude").toDouble()
+            val lng = data[position].getNumberProperty("longitude").toDouble()
+            navigateTo.invoke(lat, lng)
         }
     }
 

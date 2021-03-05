@@ -124,11 +124,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         currentLocationTask.addOnCompleteListener {
             mapViewModel.stadaStationController.getStations()
-            mapViewModel.cityBikeController.getNetworks()
-            mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
+            refreshNetworkRequests()
         }
 
-        refreshNetworkRequests()
+
         return binding.root
     }
 
@@ -170,10 +169,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     private fun refreshNetworkRequests()
     {
         delayedRefreshRequestsJob = lifecycleScope.launch {
-            delay(DELAY_MILLIS)
-            mapViewModel.mapController.getCurrentLocation(activity!!)
             mapViewModel.cityBikeController.getNetworks()
             mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
+            delay(DELAY_MILLIS)
+            mapViewModel.mapController.getCurrentLocation(activity!!)
             refreshNetworkRequests()
         }
     }
@@ -281,11 +280,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     private fun setAdapter(feature: Feature?) {
         val provider = feature!!.getStringProperty("provider")
         if (provider.equals("bikes")) {
-            binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature), this::openNextBike)
+            binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature), this::openNextBike, this::onMapsNavigateTo)
         } else if (provider.equals("birds")) {
-            binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird)
+            binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird, this::onMapsNavigateTo)
         } else {
-            mapViewModel.marudorController.getArrival((feature.getNumberProperty("evaId") as Double).toLong(), 150)
+            val evaId = (feature.getNumberProperty("evaId") as Double).toLong()
+            mapViewModel.stadaStationController.setSelectedStation(evaId)
+            mapViewModel.marudorController.getArrival(evaId, 60)
         }
         binding.singleLocationRecyclerView.visibility = View.VISIBLE
     }
@@ -465,8 +466,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         // Observer for Departure Board
         repository.getResponseArrival.observe(viewLifecycleOwner) {
             binding.singleLocationRecyclerView.adapter = TramAdapter(
-                it.filter { departure -> departure.arrival != null && departure.arrival.time != "N/A" },
-                this::openNvv
+                    it.filter { departure -> departure.arrival != null && departure.arrival.time != "N/A" },
+                    this::openNvv,
+                    this::onMapsNavigateTo,
+                    mapViewModel.stadaStationController.selectedStation ?: null
             )
         }
     }
