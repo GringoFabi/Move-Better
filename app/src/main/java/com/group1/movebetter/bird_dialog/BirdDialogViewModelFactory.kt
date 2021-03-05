@@ -8,8 +8,8 @@ import com.group1.movebetter.view_model.MapViewModel
 class BirdDialogViewModelFactory(private val repository: Repository) : ViewModelProvider.Factory  {
     @Suppress("unchecked_cast")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MapViewModel::class.java)) {
-            return MapViewModel(repository) as T
+        if (modelClass.isAssignableFrom(BirdDialogViewModel::class.java)) {
+            return BirdDialogViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
