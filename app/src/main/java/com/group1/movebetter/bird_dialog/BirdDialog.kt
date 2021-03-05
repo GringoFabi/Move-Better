@@ -36,7 +36,6 @@ class BirdDialog : AppCompatDialogFragment() {
 
     private lateinit var alertDialog: AlertDialog
     private lateinit var binding: BirdDialogBinding
-    private lateinit var googleButton: SignInButton
     private lateinit var birdDialogViewModel: BirdDialogViewModel
     private lateinit var repository : Repository
 
@@ -50,12 +49,6 @@ class BirdDialog : AppCompatDialogFragment() {
         birdDialogViewModel = ViewModelProvider(this, birdDialogViewModelFactory).get(BirdDialogViewModel::class.java)
 
         binding.lifecycleOwner = this
-
-        googleButton = binding.googleButton
-        setGooglePlusButtonText(googleButton, "Weiter mit Google")
-        googleButton.setOnClickListener {
-            signInWithGoogle()
-        }
 
         builder.setView(binding.root)
             .setTitle("Nutzung von Bird")
@@ -131,17 +124,6 @@ class BirdDialog : AppCompatDialogFragment() {
         changeToMagicToken()
     }
 
-    private fun signInWithGoogle() {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.web_token))
-            .requestEmail()
-            .build()
-
-        val mGoogleSignInClient = GoogleSignIn.getClient(context!!, gso)
-        val signInIntent = mGoogleSignInClient.signInIntent
-        startActivityForResult(signInIntent, REQUEST_CODE_EMAIL)
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_CODE_EMAIL) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
@@ -160,17 +142,6 @@ class BirdDialog : AppCompatDialogFragment() {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             Log.d("Sign in Error", "signInResult:failed code=" + e.statusCode)
-        }
-    }
-
-    private fun setGooglePlusButtonText(signInButton: SignInButton, buttonText: String?) {
-        // Find the TextView that is inside of the SignInButton and set its text
-        for (i in 0 until signInButton.childCount) {
-            val v: View = signInButton.getChildAt(i)
-            if (v is TextView) {
-                v.text = buttonText
-                return
-            }
         }
     }
 }
