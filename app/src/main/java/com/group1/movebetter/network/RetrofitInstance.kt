@@ -36,24 +36,7 @@ object RetrofitInstance {
                         add(FreeBikesAdapter()).
                         add(NextStationsAdapter()).
                         build())
-                )
-                .client(initOkHttp()).
-                build()
-    }
-
-    private fun initOkHttp(): OkHttpClient {
-        val client = OkHttpClient
-                .Builder()
-
-        client.connectTimeout(15, TimeUnit.SECONDS)
-        client.readTimeout(15, TimeUnit.SECONDS)
-
-        if (BuildConfig.DEBUG) {
-            val loggingInterceptor = HttpLoggingInterceptor()
-            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-            client.addInterceptor(loggingInterceptor)
-        }
-        return client.build()
+                ).build()
     }
 
     val apiCityBikes: CityBikesService by lazy {

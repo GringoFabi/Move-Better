@@ -115,12 +115,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        val currentLocationTask = mapViewModel.mapController.getCurrentLocation(this.requireActivity(), context, this)
+        val currentLocationTask = mapViewModel.mapController.getCurrentLocation(this.requireActivity())
 
-        currentLocationTask.addOnCompleteListener { location ->
+        currentLocationTask.addOnCompleteListener {
             mapViewModel.stadaStationController.getStations()
             mapViewModel.cityBikeController.getNetworks()
-            mapViewModel.birdController.getBirds(location.result)
+            mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
         }
 
         refreshNetworkRequests()
@@ -133,7 +133,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     {
         delayedRefreshRequestsJob = lifecycleScope.launch {
             delay(DELAY_MILLIS)
-            mapViewModel.mapController.getCurrentLocation(activity!!, context, this@MapFragment)
+            mapViewModel.mapController.getCurrentLocation(activity!!)
             mapViewModel.cityBikeController.getNetworks()
             mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
             refreshNetworkRequests()
@@ -349,8 +349,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         repository.getResponseNetworks.observe(viewLifecycleOwner) {
             val networkSource = style.getSourceAs<GeoJsonSource>(BIKE_NETWORKS)
             if (it.isNotEmpty()) {
-                mapViewModel.cityBikeController.getNearestNetwork(it)
-                val networks = mapViewModel.cityBikeController.createBikeNetworkList(it)
+                val filterList = it.filter { network -> network.location != null && network.location.latitude != -1.0 }
+                mapViewModel.cityBikeController.getNearestNetwork(filterList)
+                val networks = mapViewModel.cityBikeController.createBikeNetworkList(filterList)
                 mapViewModel.mapController.refreshSource(networkSource!!, networks)
             }
         }

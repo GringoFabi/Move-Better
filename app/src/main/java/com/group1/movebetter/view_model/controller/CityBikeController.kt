@@ -32,7 +32,7 @@ class CityBikeController(private val viewModelScope: CoroutineScope, private val
 
     fun createBikeNetworkList(cityBikes: List<CityBikesNetworks>): ArrayList<Feature> {
         for (network in cityBikes) {
-            val feature = createBikeFeature(network.id, network.location, true)
+            val feature = createBikeFeature(network.id, network.location!!, true)
 
             if (network.id == closestNetwork.id) {
                 feature.addBooleanProperty("show", false)
@@ -109,7 +109,7 @@ class CityBikeController(private val viewModelScope: CoroutineScope, private val
         val distanceNetworkMap = HashMap<Double, CityBikesNetworks>()
 
         for (network in res) {
-            val d = mapController.haversineFormular(mapController.getLocation(network.location.latitude, network.location.longitude))
+            val d = mapController.haversineFormular(mapController.getLocation(network.location!!.latitude, network.location.longitude))
             distances.add(d)
             distanceNetworkMap[d] = network
         }

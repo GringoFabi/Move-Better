@@ -52,13 +52,8 @@ class MapController() {
     }
 
     @SuppressLint("MissingPermission")
-    fun getCurrentLocation(activity: FragmentActivity, context: Context?, mapFragment: MapFragment): Task<Location> {
+    fun getCurrentLocation(activity: FragmentActivity): Task<Location> {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
-
-        if (!PermissionsManager.areLocationPermissionsGranted(context)) {
-            permissionsManager = PermissionsManager(mapFragment)
-            permissionsManager!!.requestLocationPermissions(activity)
-        }
 
         return fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
             if (location != null) {
@@ -70,7 +65,6 @@ class MapController() {
     // nearest-network logic
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var permissionsManager: PermissionsManager? = null
     var currentLocation: Location = initLocation()
 
     private fun initLocation() : Location {
