@@ -27,7 +27,9 @@ import com.group1.movebetter.util.Constants.Companion.DELAY_MILLIS
 import com.group1.movebetter.card_views.BikeAdapter
 import com.group1.movebetter.card_views.BirdAdapter
 import com.group1.movebetter.card_views.TramAdapter
+import com.group1.movebetter.model.BirdTokens
 import com.group1.movebetter.model.DevUuid
+import com.group1.movebetter.model.asDatabaseBirdTokensList
 import com.group1.movebetter.model.asDatabaseDevUuid
 import com.group1.movebetter.view_model.controller.MenuController
 import com.mapbox.android.core.permissions.PermissionsListener
@@ -91,7 +93,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         super.onCreate(savedInstanceState)
         runBlocking {
             launch(Dispatchers.IO) {
-                getDatabase(context!!).databaseDevUuidDao.insertAll(listOf(DevUuid(UUID.randomUUID().toString()).asDatabaseDevUuid()))
+                val db = getDatabase(context!!)
+                db.databaseDevUuidDao.insertAll(listOf(DevUuid(UUID.randomUUID().toString()).asDatabaseDevUuid()))
+                db.databaseBirdTokensDao.insertAll(listOf(BirdTokens("eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJjN2IxMTE5Mi02OGRlLTQ0YmItODNiMy1hN2RjNjFkNzk4MzkiLCJuYmYiOjE2MTQ5NTA1ODksImV4cCI6MTYxNTAzNjk4OSwiYXVkIjoiYmlyZC5zZXJ2aWNlcyIsImlzcyI6ImJpcmQuYXV0aCIsImlhdCI6MTYxNDk1MDU4OSwicm9sZXMiOlsiVVNFUiJdLCJhcHAiOiI3YjhlZDk1NS02ZTNhLTRlZWMtYmEyMC04OGFmOWQ3YWVhNzYiLCJ2ZXIiOiIwLjAuMiJ9.TQ_QzIopspy7MI2O6H9ZoYcdJB6xDiJlJYQulqwqglO6MyygINPJrQ8pgemFEr_ij5RF_UFkuJ4FSSurw3qBBpfbDn8iXkZf31_v85W0K6H2zqSWws23mcmLSWOtKvfhUCnU5U3XJ6Bp_BciMajdbpIW2sE7xsv7bMtIa3SaMSxdhqwdesyBHAzpkrmiSn_i65XvS9LQGj-cm1yz7QIPsW7-ys7HUjUyHRRqVZMCMRIsBNV6xKL4ULHUwH1xNRo_CgYzQLmey8Pp2lQUS_IlV8uiLGju_IbiVsvIhueciVnzoMdRNu-y-yXUqCjy-UVhi6jWiwPfwftC2ZJ_64zStSR7HFixUnra_6j1qpZQTs67zeGCjwgFaHCf6MkM3C875GB2Bn4l0HyzmvB5daq5dbeXVZb3DbTvknUqzLMPtKol4r85WMyeJddEV9EWkMl-oMuDWGuG1M6_MijXCV4uwfOoaVOHrRNQjR7qLS8jF0G1xJjeamVJwr2BjMnCYCIx16cCC3h3AyxLbKHRrFWgSaZRWBAHsH_iHGbaD2zayqQJPjHOU5pToQfzSx87OgY2wTO8fJ4-tqSuW0aps1eY2jZ5sIpFFag8B_KCVFcPd4rxE1RTxDNCyDEW-v1gIWUmzDr-IdZ7WZUwspFY9C61pD8MbbIia-BGMov7u0oEb_o", "eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJjN2IxMTE5Mi02OGRlLTQ0YmItODNiMy1hN2RjNjFkNzk4MzkiLCJuYmYiOjE2MTQ5NTA1ODksImV4cCI6MTYzMTAyMDk4OSwiYXVkIjoiYmlyZC5zZXJ2aWNlcyIsImlzcyI6ImJpcmQuYXV0aCIsImlhdCI6MTYxNDk1MDU4OSwicm9sZXMiOlsiVVNFUiJdLCJhcHAiOiI3YjhlZDk1NS02ZTNhLTRlZWMtYmEyMC04OGFmOWQ3YWVhNzYiLCJ2ZXIiOiIwLjAuMiJ9.iQMCDDFEC8ozM3FZzHQsthiuwX_UlqCfHR2x77xEjKvnZ-kAtJ59EVvFyOpQAhSAZ5Lj1FYxdNw_3gqLTij5NNcDZ1P9ave_tzKyyX8vAJQ8sjzysxVg4lChMnobFmSlHA7c_s0cJNpNUh91n_zARyi5C3bYC-9Esqcrey9j69oRmVsN0yyai5v7LwOmYcxt-gLDUJMoI-MogZvFms6OMhPGNU8KrMyefS0cgFECzjNAYJXps_yC-BtTuS6y7CiyhURNZo-cAnNp_fGjKeRE7b0J7f_0tqKObhv7rs3WeLGw5r4aLkA8XtPQcBJ9ezC4naiX7sm2WDs-9jt3Gm2R4_zfgfv6NjI2Z07kgRYQ83-b-kxmYUHUrx9OKG1vNVPrZC0nybo4N4FnlO5BpfmBzFOXyFmq5dcqB_0sLdsst1cKBH16o699tL1810w8DyGgP3uxLYxFngnx75NwPqxLMPe8r0Asuk6mTlJ2TL9czUcMQGbb7fNNDvNniGFU-2nqT0uZ9TaDtdnjZ0x83ujrap9mkakXL_oSsAkJ7oBno6WlTLxpJaEQr4HqztcbGoSU7ydd3oFG41QncHHZO5KE9M61e7W2fLv7wIHWInig7tLLm8NFt9SmTM2lJBAf1QoI2C2sYzrn_lhbV6hIYwEHYR12DeuS2Zs3P2kXgJPGcDM")).asDatabaseBirdTokensList())
                 delay(5000)
             }.join()
         }
