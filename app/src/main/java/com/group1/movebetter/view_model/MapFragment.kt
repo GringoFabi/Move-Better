@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -87,6 +88,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     private val menuController = MenuController.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setHasOptionsMenu(true)
         super.onCreate(savedInstanceState)
         repository = Repository(getDatabase(context!!));
         context?.let { Mapbox.getInstance(it, getString(R.string.mapbox_access_token)) }
@@ -122,8 +124,24 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             refreshNetworkRequests()
         }
 
-
         return binding.root
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.refresh -> {
+                instantRefresh()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun instantRefresh() {
+        mapViewModel.cityBikeController.getNetworks()
+        mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
+        mapViewModel.mapController.getCurrentLocation(activity!!)
+        Toast.makeText(context, "refreshed just now", Toast.LENGTH_SHORT).show()
     }
 
     private var delayedRefreshRequestsJob: Job? = null
