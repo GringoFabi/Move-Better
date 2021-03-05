@@ -115,12 +115,17 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        val currentLocationTask = mapViewModel.mapController.getCurrentLocation(this.requireActivity(), context, this)
+        val currentLocationTask = mapViewModel.mapController.getCurrentLocation(this.requireActivity())
 
         currentLocationTask.addOnCompleteListener { location ->
+            var testLocation = location.result
+            if (testLocation == null) {
+                testLocation = mapViewModel.mapController.currentLocation
+            }
+
             mapViewModel.stadaStationController.getStations()
             mapViewModel.cityBikeController.getNetworks()
-            mapViewModel.birdController.getBirds(location.result)
+            mapViewModel.birdController.getBirds(testLocation)
         }
 
         refreshNetworkRequests()
@@ -133,7 +138,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     {
         delayedRefreshRequestsJob = lifecycleScope.launch {
             delay(DELAY_MILLIS)
-            mapViewModel.mapController.getCurrentLocation(activity!!, context, this@MapFragment)
+            mapViewModel.mapController.getCurrentLocation(activity!!)
             mapViewModel.cityBikeController.getNetworks()
             mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
             refreshNetworkRequests()
