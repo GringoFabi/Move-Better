@@ -16,25 +16,93 @@
 
 package com.group1.movebetter
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.group1.movebetter.bird_dialog.BirdDialog
 import com.group1.movebetter.view_model.controller.MenuController
 
 class MainActivity : AppCompatActivity() {
+
+    private val FINE_LOCATION_CODE = 1
 
     // TODO: show dialog on condition (user wants to use bird)
     val show: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
+        if (ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Location permissions are granted", Toast.LENGTH_SHORT).show()
+            startApp()
+        } else {
+            requestFineLocationPermission()
+        }
+    }
+
+    private fun startApp() {
+        setContentView(R.layout.activity_main)
         if (show) {
             openDialog()
         }
+    }
+
+    private fun closeApp() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            finishAndRemoveTask()
+        }
+    }
+
+    private fun requestFineLocationPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            permissionDialog().show()
+        } else {
+            requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, FINE_LOCATION_CODE)
+        }
+    }
+
+    private fun permissionDialog(): AlertDialog {
+        return AlertDialog.Builder(this)
+            .setTitle("Standort Erlaubnis")
+            .setMessage("Wir benötigen diese Erlaubnis, um dir deine Position auf der Karte zeigen zu können.")
+            .setPositiveButton("erlauben") { _, _ ->
+                requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, FINE_LOCATION_CODE)
+            }
+            .setNegativeButton("ablehnen") { _, _ ->
+                closeApp()
+            }
+            .create()
+
+    }
+
+    override fun onRequestPermissionsResult(
+            requestCode: Int,
+            permissions: Array<out String>,
+            grantResults: IntArray
+    ) {
+        if (requestCode == FINE_LOCATION_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Erlaubnis erteilt", Toast.LENGTH_SHORT).show()
+                startApp()
+            } else {
+                Toast.makeText(this, "Erlaubnis verweigert", Toast.LENGTH_SHORT).show()
+                closeApp()
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    private fun requestPermission(permissionName: String, permissionRequestCode: Int) {
+        ActivityCompat.requestPermissions(this, arrayOf(permissionName), permissionRequestCode)
     }
 
     private fun openDialog() {
