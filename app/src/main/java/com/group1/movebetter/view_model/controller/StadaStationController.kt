@@ -6,6 +6,7 @@ import com.group1.movebetter.model.StaDaStation
 import com.group1.movebetter.repository.Repository
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.Point
+import com.mapbox.mapboxsdk.geometry.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -16,12 +17,18 @@ class StadaStationController(
 ) {
 
     lateinit var nearestStation: StaDaStation
+    private var evaIdLatLngMap: HashMap<Long, LatLng> = HashMap()
+    var selectedStation: LatLng? = null
 
     fun getStations()
     {
         viewModelScope.launch {
             repository.getStations()
         }
+    }
+
+    fun setSelectedStation(evaId: Long) {
+        selectedStation = evaIdLatLngMap[evaId]
     }
 
     fun createStationList(stations: List<StaDaStation>): ArrayList<Feature> {
@@ -53,6 +60,8 @@ class StadaStationController(
 
         feature.addStringProperty("address", "${mailingAddress?.street ?: "N/A"} ${mailingAddress?.zipcode ?: "N/A"} ${mailingAddress?.city ?: "N/A"}")
         feature.addStringProperty("provider", "trams")
+
+        evaIdLatLngMap[evaNumbers.number] = LatLng(coordinates[1], coordinates[0])
 
         return feature
     }

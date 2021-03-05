@@ -246,7 +246,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         } else if (provider.equals("birds")) {
             binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird, this::onMapsNavigateTo)
         } else {
-            mapViewModel.marudorController.getArrival((feature.getNumberProperty("evaId") as Double).toLong(), 150)
+            val evaId = (feature.getNumberProperty("evaId") as Double).toLong()
+            mapViewModel.stadaStationController.setSelectedStation(evaId)
+            mapViewModel.marudorController.getArrival(evaId, 60)
         }
         binding.singleLocationRecyclerView.visibility = View.VISIBLE
     }
@@ -423,8 +425,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         // Observer for Departure Board
         repository.getResponseArrival.observe(viewLifecycleOwner) {
             binding.singleLocationRecyclerView.adapter = TramAdapter(
-                it.filter { departure -> departure.arrival != null && departure.arrival.time != "N/A" },
-                this::openNvv
+                    it.filter { departure -> departure.arrival != null && departure.arrival.time != "N/A" },
+                    this::openNvv,
+                    this::onMapsNavigateTo,
+                    mapViewModel.stadaStationController.selectedStation ?: null
             )
         }
     }
