@@ -3,27 +3,12 @@ package com.group1.movebetter.bird_dialog
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatDialogFragment
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.view.marginRight
-import androidx.core.view.setMargins
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.SignInButton
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.tasks.Task
-import com.group1.movebetter.R
 import com.group1.movebetter.database.getDatabase
 import com.group1.movebetter.databinding.BirdDialogBinding
 import com.group1.movebetter.databinding.BirdDialogBinding.inflate
@@ -31,7 +16,6 @@ import com.group1.movebetter.repository.Repository
 
 class BirdDialog : AppCompatDialogFragment() {
     var email: String = ""
-    private val REQUEST_CODE_EMAIL = 1
     private var tokenFlag: Boolean = false
 
     private lateinit var alertDialog: AlertDialog
@@ -122,26 +106,5 @@ class BirdDialog : AppCompatDialogFragment() {
         birdDialogViewModel.birdController.getAuthToken(email)
         tokenFlag = true
         changeToMagicToken()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_CODE_EMAIL) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            handleSignInResult(task)
-        }
-    }
-
-    private fun handleSignInResult(task: Task<GoogleSignInAccount>?) {
-        try {
-            val account: GoogleSignInAccount = task!!.getResult(ApiException::class.java)
-
-            // Signed in successfully, show authenticated UI.
-            email = account.email.toString()
-            send()
-        } catch (e: ApiException) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.d("Sign in Error", "signInResult:failed code=" + e.statusCode)
-        }
     }
 }

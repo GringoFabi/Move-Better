@@ -52,6 +52,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
+import java.util.concurrent.CancellationException
 
 
 class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxMap.OnMapClickListener {
@@ -138,9 +139,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     }
 
     private fun instantRefresh() {
-        mapViewModel.cityBikeController.getNetworks()
-        mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
-        mapViewModel.mapController.getCurrentLocation(activity!!)
+        delayedRefreshRequestsJob?.cancel(CancellationException("Refresh"))
+        if (delayedRefreshRequestsJob?.isCancelled == true) {
+            mapViewModel.mapController.getCurrentLocation(activity!!)
+            refreshNetworkRequests()
+        }
         Toast.makeText(context, "refreshed just now", Toast.LENGTH_SHORT).show()
     }
 
