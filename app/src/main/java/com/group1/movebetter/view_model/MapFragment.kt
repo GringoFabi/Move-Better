@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil.bind
 import androidx.databinding.DataBindingUtil.inflate
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -26,6 +28,7 @@ import com.group1.movebetter.util.Constants.Companion.DELAY_MILLIS
 import com.group1.movebetter.card_views.BikeAdapter
 import com.group1.movebetter.card_views.BirdAdapter
 import com.group1.movebetter.card_views.TramAdapter
+import com.group1.movebetter.model.EvaNumbers
 import com.group1.movebetter.view_model.controller.MenuController
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -104,6 +107,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         binding.lifecycleOwner = this
 
+        initButtons()
+
         val rv = binding.singleLocationRecyclerView
         rv.setHasFixedSize(true)
 
@@ -125,6 +130,39 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         refreshNetworkRequests()
         return binding.root
+    }
+
+    private fun initButtons() {
+        val nearestBike = binding.nearestBike
+        nearestBike.background = BitmapDrawable(BitmapFactory.decodeResource(resources, R.raw.bike))
+
+        nearestBike.setOnClickListener {
+            val closestBike = mapViewModel.cityBikeController.nearestBike
+            onMapsNavigateTo(closestBike.latitude, closestBike.longitude)
+        }
+
+        val nearestScooter = binding.nearestScooter
+        nearestScooter.background = BitmapDrawable(BitmapFactory.decodeResource(resources, R.raw.scooter))
+
+        nearestScooter.setOnClickListener {
+            val nearestBird = mapViewModel.birdController.nearestBird
+            onMapsNavigateTo(nearestBird.location.latitude, nearestBird.location.longitude)
+        }
+
+        val nearestTrain = binding.nearestTrain
+        nearestTrain.background = BitmapDrawable(BitmapFactory.decodeResource(resources, R.raw.tram))
+
+        nearestTrain.setOnClickListener {
+            val nearestStation = mapViewModel.stadaStationController.nearestStation
+
+            for (evaNumbers in nearestStation.evaNumbers) {
+                val coordinates = evaNumbers.geographicCoordinates?.coordinates
+                if (coordinates != null && evaNumbers.isMain) {
+                    onMapsNavigateTo(coordinates[1], coordinates[0])
+                    break
+                }
+            }
+        }
     }
 
     private var delayedRefreshRequestsJob: Job? = null
@@ -363,6 +401,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             if (it.isNotEmpty()) {
                 val networks = mapViewModel.cityBikeController.updateCurrentNetwork(it[0])
                 val stations = mapViewModel.cityBikeController.exchangeNetworkWithStations(it[0])
+                binding.nearestBike.visibility = View.VISIBLE
                 mapViewModel.mapController.refreshSource(networkSource!!, networks)
                 mapViewModel.mapController.refreshSource(stationSource!!, stations)
             }
@@ -374,6 +413,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             if (it.isNotEmpty()) {
                 val birds = mapViewModel.birdController.createBirdList(it)
                 mapViewModel.birdController.getNearestBird(it)
+                binding.nearestScooter.visibility = View.VISIBLE
                 mapViewModel.mapController.refreshSource(birdSource!!, birds)
             }
         }
@@ -384,6 +424,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             if (it.isNotEmpty()) {
                 val stations = mapViewModel.stadaStationController.createStationList(it)
                 mapViewModel.stadaStationController.getNearestStation(it)
+                binding.nearestTrain.visibility = View.VISIBLE
                 mapViewModel.mapController.refreshSource(stationSource!!, stations)
             }
         }

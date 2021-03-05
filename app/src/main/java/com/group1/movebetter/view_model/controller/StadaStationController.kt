@@ -6,6 +6,7 @@ import com.group1.movebetter.model.StaDaStation
 import com.group1.movebetter.repository.Repository
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.Point
+import com.mapbox.mapboxsdk.geometry.LatLng
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -66,8 +67,8 @@ class StadaStationController(
             for (evaNumber in evaNumbers) {
                 if (evaNumber.isMain) {
                     val coordinates = evaNumber.geographicCoordinates?.coordinates
-                    val lat = coordinates?.get(0)
-                    val lng = coordinates?.get(1)
+                    val lng = coordinates?.get(0)
+                    val lat = coordinates?.get(1)
                     if (lat != null && lng != null) {
                         val location = mapController.getLocation(lat, lng)
                         val d = mapController.haversineFormular(location)
