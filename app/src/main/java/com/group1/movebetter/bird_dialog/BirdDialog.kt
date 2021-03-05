@@ -16,6 +16,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.marginRight
 import androidx.core.view.setMargins
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -45,7 +46,8 @@ class BirdDialog : AppCompatDialogFragment() {
         val builder = AlertDialog.Builder(context)
 
         repository = Repository(getDatabase(context!!))
-        birdDialogViewModel = BirdDialogViewModel(repository)
+        val birdDialogViewModelFactory = BirdDialogViewModelFactory(repository)
+        birdDialogViewModel = ViewModelProvider(this, birdDialogViewModelFactory).get(BirdDialogViewModel::class.java)
 
         binding.lifecycleOwner = this
 
