@@ -1,6 +1,8 @@
 package com.group1.movebetter.card_views
 
 import android.content.Context
+import android.text.SpannableString
+import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,7 +45,10 @@ class BirdAdapter(private val data: ArrayList<Feature>, private val openBirdApp:
     }
 
     override fun onBindViewHolder(holder: BirdViewHolder, position: Int) {
-        holder.title.text = data[position].getStringProperty("vehicleClass")
+        val content = SpannableString(data[position].getStringProperty("vehicleClass"))
+        content.setSpan(UnderlineSpan(), 0, content.length, 0)
+        holder.title.text = content
+
         holder.estimatedRange.text = "Estimated Range = ${data[position].getNumberProperty("estimatedRange")}"
         holder.batteryLevelPB.progress = (data[position].getNumberProperty("batteryLevel") as Double).toInt()
         holder.batteryLevel.text = "Derzeitiger Akkustand = ${data[position].getNumberProperty("batteryLevel")} %"

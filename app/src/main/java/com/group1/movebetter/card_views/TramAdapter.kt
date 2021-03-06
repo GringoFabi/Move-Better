@@ -2,6 +2,8 @@ package com.group1.movebetter.card_views
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.text.SpannableString
+import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +18,8 @@ import com.group1.movebetter.model.RouteStation
 import com.mapbox.mapboxsdk.geometry.LatLng
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import java.util.*
+
 
 class TramAdapter(private val data: List<Departure>,
                   private val openNvvApp: () -> Unit,
@@ -59,7 +63,10 @@ class TramAdapter(private val data: List<Departure>,
     }
 
     override fun onBindViewHolder(holder: TramViewHolder, position: Int) {
-        holder.station.text = selectedStation?.first ?: "Unknown"
+        val content = SpannableString(selectedStation?.first ?: "Unknown")
+        content.setSpan(UnderlineSpan(), 0, content.length, 0)
+        holder.station.text = content
+
         setDelay(holder, data[position])
         holder.tram.text = data[position].train.name
         holder.platform.text = data[position].arrival!!.platform
@@ -76,7 +83,7 @@ class TramAdapter(private val data: List<Departure>,
         }
 
         holder.navigateToButton.setOnClickListener {
-            if (selectedStation?.first != null) {
+            if (selectedStation?.second != null) {
                 navigateTo.invoke(selectedStation.second.latitude, selectedStation.second.longitude)
             }
         }
@@ -131,9 +138,11 @@ class TramAdapter(private val data: List<Departure>,
 
     @SuppressLint("SimpleDateFormat")
     private fun setDestinationTime(holder: TramViewHolder, departure: Departure) {
-        val dateFormat: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-        val time = dateFormat.parse(departure.arrival!!.time).toString()
-        holder.destinationTime.text = time.subSequence(11, 16)
+        val dateFormat: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        dateFormat.timeZone = TimeZone.getTimeZone("GMT")
+        val time = dateFormat.parse(departure.arrival!!.time)
+
+        holder.destinationTime.text = "${time.toString().subSequence(11, 16)}"
     }
 
     private fun setShowVia(holder: TramViewHolder, route: List<RouteStation>) {
