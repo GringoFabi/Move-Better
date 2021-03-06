@@ -31,31 +31,33 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
 
-            <Button
+            <ImageButton
                 android:id="@+id/nearest_bike"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginBottom="5dp"
-                app:backgroundTint="#000000"
                 app:layout_constraintBottom_toTopOf="@+id/nearest_train"
                 app:layout_constraintStart_toStartOf="parent"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                android:background="@null"
+                android:contentDescription="@string/navigate_to_nearest_bike" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/nearest_train"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginBottom="5dp"
-                app:backgroundTint="#000000"
                 app:layout_constraintBottom_toTopOf="@+id/nearest_scooter"
                 app:layout_constraintStart_toStartOf="parent"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                android:background="@null"
+                android:contentDescription="@string/navigate_to_nearest_train_station" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/nearest_scooter"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
@@ -65,7 +67,9 @@
                 app:backgroundTint="#000000"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                android:background="@null"
+                android:contentDescription="@string/navigate_to_nearest_bird" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

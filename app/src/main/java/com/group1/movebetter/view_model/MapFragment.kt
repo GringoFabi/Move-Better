@@ -5,13 +5,13 @@ import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
@@ -133,9 +133,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         return binding.root
     }
 
+    // Buttons for the "navigate to nearest bike/scooter/tram station" feature
     private fun initButtons() {
         val nearestBike = binding.nearestBike
-        nearestBike.background = BitmapDrawable(BitmapFactory.decodeResource(resources, R.raw.bike))
+        nearestBike.setImageBitmap(BitmapFactory.decodeResource(resources, R.raw.bike))
+        nearestBike.scaleType = ImageView.ScaleType.CENTER
+        nearestBike.adjustViewBounds = true
 
         nearestBike.setOnClickListener {
             val closestBike = mapViewModel.cityBikeController.nearestBike
@@ -143,7 +146,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
 
         val nearestScooter = binding.nearestScooter
-        nearestScooter.background = BitmapDrawable(BitmapFactory.decodeResource(resources, R.raw.scooter))
+        nearestScooter.setImageBitmap(BitmapFactory.decodeResource(resources, R.raw.scooter))
+        nearestScooter.scaleType = ImageView.ScaleType.CENTER
+        nearestScooter.adjustViewBounds = true
 
         nearestScooter.setOnClickListener {
             val nearestBird = mapViewModel.birdController.nearestBird
@@ -151,7 +156,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
 
         val nearestTrain = binding.nearestTrain
-        nearestTrain.background = BitmapDrawable(BitmapFactory.decodeResource(resources, R.raw.tram))
+        nearestTrain.setImageBitmap(BitmapFactory.decodeResource(resources, R.raw.tram))
+        nearestTrain.scaleType = ImageView.ScaleType.CENTER
+        nearestTrain.adjustViewBounds = true
 
         nearestTrain.setOnClickListener {
             val nearestStation = mapViewModel.stadaStationController.nearestStation
