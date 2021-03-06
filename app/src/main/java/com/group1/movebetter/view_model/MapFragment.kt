@@ -197,7 +197,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     private fun refreshNetworkRequests() {
         delayedRefreshRequestsJob = lifecycleScope.launch {
             mapViewModel.cityBikeController.getNetworks()
-            //mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
+            mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
             delay(DELAY_MILLIS)
             mapViewModel.mapController.getCurrentLocation(activity!!)
             refreshNetworkRequests()
