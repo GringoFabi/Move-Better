@@ -20,12 +20,13 @@ import java.text.SimpleDateFormat
 class TramAdapter(private val data: List<Departure>,
                   private val openNvvApp: () -> Unit,
                   private val navigateTo: (Double, Double) -> Unit,
-                  private val selectedStation: LatLng?) : RecyclerView.Adapter<TramAdapter.TramViewHolder?>() {
+                  private val selectedStation: Pair<String, LatLng>?) : RecyclerView.Adapter<TramAdapter.TramViewHolder?>() {
 
     lateinit var context: Context
 
     class TramViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var cv: CardView
+        var station: TextView
         var destinationTime: TextView
         var delay: TextView
         var tram: TextView
@@ -34,10 +35,11 @@ class TramAdapter(private val data: List<Departure>,
         var showVia: TextView
         var messages: TextView
         var button: Button
-        var gotoButton: Button
+        var navigateToButton: Button
 
         init {
             cv = itemView.findViewById(R.id.tramCardView)
+            station = itemView.findViewById(R.id.station)
             destinationTime = itemView.findViewById(R.id.destinationTime)
             delay = itemView.findViewById(R.id.delay)
             tram = itemView.findViewById(R.id.tram)
@@ -46,7 +48,7 @@ class TramAdapter(private val data: List<Departure>,
             showVia = itemView.findViewById(R.id.showVia)
             messages = itemView.findViewById(R.id.messages)
             button = itemView.findViewById(R.id.btnNVV)
-            gotoButton = itemView.findViewById(R.id.btnGoToStation)
+            navigateToButton = itemView.findViewById(R.id.btnGoToStation)
         }
     }
 
@@ -57,6 +59,7 @@ class TramAdapter(private val data: List<Departure>,
     }
 
     override fun onBindViewHolder(holder: TramViewHolder, position: Int) {
+        holder.station.text = selectedStation?.first ?: "Unknown"
         setDelay(holder, data[position])
         holder.tram.text = data[position].train.name
         holder.platform.text = data[position].arrival!!.platform
@@ -72,9 +75,9 @@ class TramAdapter(private val data: List<Departure>,
             openNvvApp.invoke()
         }
 
-        holder.gotoButton.setOnClickListener {
-            if (selectedStation != null) {
-                navigateTo.invoke(selectedStation.latitude, selectedStation.longitude)
+        holder.navigateToButton.setOnClickListener {
+            if (selectedStation?.first != null) {
+                navigateTo.invoke(selectedStation.second.latitude, selectedStation.second.longitude)
             }
         }
     }
@@ -89,8 +92,9 @@ class TramAdapter(private val data: List<Departure>,
                 }
                 if (text == "") {
                     text = message.text
+                } else {
+                    text += "+++" + message.text
                 }
-                text += "+++" + message.text
             }
         }
 
@@ -101,8 +105,9 @@ class TramAdapter(private val data: List<Departure>,
                 }
                 if (text == "") {
                     text = message.text
+                } else {
+                    text += "+++" + message.text
                 }
-                text += "+++" + message.text
             }
         }
 
@@ -128,7 +133,7 @@ class TramAdapter(private val data: List<Departure>,
     private fun setDestinationTime(holder: TramViewHolder, departure: Departure) {
         val dateFormat: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
         val time = dateFormat.parse(departure.arrival!!.time).toString()
-        holder.destinationTime.text = time.subSequence(0, 16)
+        holder.destinationTime.text = time.subSequence(11, 16)
     }
 
     private fun setShowVia(holder: TramViewHolder, route: List<RouteStation>) {

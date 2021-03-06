@@ -75,7 +75,7 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
-            android:layout_height="240dp"
+            android:layout_height="250dp"
             android:id="@+id/single_location_recyclerView"
             android:alpha="0.9"
             android:layout_gravity="bottom"

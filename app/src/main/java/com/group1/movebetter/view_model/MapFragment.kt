@@ -515,7 +515,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                     it.filter { departure -> departure.arrival != null && departure.arrival.time != "N/A" },
                     this::openNvv,
                     this::onMapsNavigateTo,
-                    mapViewModel.stadaStationController.selectedStation ?: null
+                    mapViewModel.stadaStationController.selectedStation
             )
         }
     }
