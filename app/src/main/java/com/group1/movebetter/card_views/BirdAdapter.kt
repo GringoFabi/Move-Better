@@ -20,7 +20,7 @@ import com.mapbox.geojson.Feature
 class BirdAdapter(private val data: ArrayList<Feature>, private val openBirdApp: () -> Unit, private val navigateTo: (Double, Double) -> Unit) : RecyclerView.Adapter<BirdAdapter.BirdViewHolder?>() {
 
     private lateinit var birdIconBitmap: Bitmap
-    lateinit var context: Context
+    private lateinit var context: Context
 
     class BirdViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var cv: CardView
@@ -55,6 +55,7 @@ class BirdAdapter(private val data: ArrayList<Feature>, private val openBirdApp:
         val content = SpannableString(data[position].getStringProperty("vehicleClass"))
         content.setSpan(UnderlineSpan(), 0, content.length, 0)
         holder.title.text = content
+
         holder.birdAppIcon.setImageBitmap(birdIconBitmap)
         holder.birdAppIcon.scaleType = ImageView.ScaleType.CENTER
         holder.birdAppIcon.adjustViewBounds = true

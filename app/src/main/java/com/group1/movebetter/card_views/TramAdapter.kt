@@ -2,12 +2,15 @@ package com.group1.movebetter.card_views
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.text.SpannableString
 import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
@@ -26,11 +29,15 @@ class TramAdapter(private val data: List<Departure>,
                   private val navigateTo: (Double, Double) -> Unit,
                   private val selectedStation: Pair<String, LatLng>?) : RecyclerView.Adapter<TramAdapter.TramViewHolder?>() {
 
-    lateinit var context: Context
+    private lateinit var context: Context
+    private lateinit var dbIconBitmap: Bitmap
+    private lateinit var nvvIconBitmap: Bitmap
 
     class TramViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var cv: CardView
         var station: TextView
+        var nvvAppIcon: ImageView
+        var dbAppIcon: ImageView
         var destinationTime: TextView
         var delay: TextView
         var tram: TextView
@@ -44,6 +51,8 @@ class TramAdapter(private val data: List<Departure>,
         init {
             cv = itemView.findViewById(R.id.tramCardView)
             station = itemView.findViewById(R.id.station)
+            nvvAppIcon = itemView.findViewById(R.id.nvvAppIcon)
+            dbAppIcon = itemView.findViewById(R.id.dbAppIcon)
             destinationTime = itemView.findViewById(R.id.destinationTime)
             delay = itemView.findViewById(R.id.delay)
             tram = itemView.findViewById(R.id.tram)
@@ -58,6 +67,8 @@ class TramAdapter(private val data: List<Departure>,
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TramViewHolder {
         context = parent.context
+        dbIconBitmap = BitmapFactory.decodeResource(context.resources, R.raw.db_app_icon)
+        nvvIconBitmap = BitmapFactory.decodeResource(context.resources, R.raw.nvv_app_icon)
         val v = LayoutInflater.from(parent.context).inflate(R.layout.card_view_departure_boards, parent, false)
         return TramViewHolder(v)
     }
@@ -66,6 +77,8 @@ class TramAdapter(private val data: List<Departure>,
         val content = SpannableString(selectedStation?.first ?: "Unknown")
         content.setSpan(UnderlineSpan(), 0, content.length, 0)
         holder.station.text = content
+
+        setImages(holder)
 
         setDelay(holder, data[position])
         holder.tram.text = data[position].train.name
@@ -87,6 +100,15 @@ class TramAdapter(private val data: List<Departure>,
                 navigateTo.invoke(selectedStation.second.latitude, selectedStation.second.longitude)
             }
         }
+    }
+
+    private fun setImages(holder: TramViewHolder) {
+        holder.nvvAppIcon.setImageBitmap(nvvIconBitmap)
+        holder.nvvAppIcon.scaleType = ImageView.ScaleType.CENTER
+        holder.nvvAppIcon.adjustViewBounds = true
+        holder.dbAppIcon.setImageBitmap(dbIconBitmap)
+        holder.dbAppIcon.scaleType = ImageView.ScaleType.CENTER
+        holder.dbAppIcon.adjustViewBounds = true
     }
 
     private fun setMessages(holder: TramViewHolder, messages: Messages) {
