@@ -25,4 +25,5 @@
     <string name="navigate_to_nearest_bike">Navigate to nearest bike</string>
     <string name="navigate_to_nearest_train_station">Navigate to nearest train station</string>
     <string name="navigate_to_nearest_bird">Navigate to nearest bird</string>
+    <string name="bird_app_icon">Bird App Icon</string>
 </resources>
