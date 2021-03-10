@@ -139,7 +139,7 @@ data class DatabaseDeparture (
 fun List<DatabaseDeparture>.asDepartureList(): List<Departure> {
         return map {
                 val listType: Type = object : TypeToken<ArrayList<RouteStation>>() {}.type
-                Departure(it.scheduledDestination, Train(it.trainName), it.cancelled, Gson().fromJson(it.messages, Messages::class.java), Arrival(it.arrivalTime,it.arrivalPlatform,it.arrivalDelay),Gson().fromJson(it.route, listType))
+                Departure(it.scheduledDestination, Train(it.trainName), it.cancelled, Gson().fromJson(it.messages, Messages::class.java), Arrival(it.arrivalTime,it.arrivalPlatform,it.arrivalDelay),Gson().fromJson(it.route, listType), CurrentStation("", ""))
         }
 }
 

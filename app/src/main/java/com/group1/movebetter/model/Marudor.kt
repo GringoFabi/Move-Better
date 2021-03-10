@@ -15,8 +15,13 @@ data class Departure (
     val messages: Messages,
     val arrival: Arrival?,
     val route: List<RouteStation>,
+    val currentStation: CurrentStation
 )
 
+data class CurrentStation (
+        val title: String,
+        val id: String
+)
 
 fun List<Departure>.asDatabaseDepartureList(): List<DatabaseDeparture> {
     return map {
