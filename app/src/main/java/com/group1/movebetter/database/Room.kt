@@ -91,7 +91,7 @@ interface DatabaseDevUuidDao {
 
 
 
-@Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class, DatabaseStaDaStation::class, DatabaseDeparture::class, DatabaseBird::class, DatabaseBirdTokens::class, DatabaseDevUuid::class], version = 7)
+@Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class, DatabaseStaDaStation::class, DatabaseDeparture::class, DatabaseBird::class, DatabaseBirdTokens::class, DatabaseDevUuid::class], version = 8)
 abstract class MyDatabase: RoomDatabase() {
     abstract val cityBikesNetworksDao: CityBikesNetworksDao
     abstract val cityBikesNetworkDao: CityBikesNetworkDao

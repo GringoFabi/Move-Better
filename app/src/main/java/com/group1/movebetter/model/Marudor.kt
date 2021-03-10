@@ -25,7 +25,7 @@ data class CurrentStation (
 
 fun List<Departure>.asDatabaseDepartureList(): List<DatabaseDeparture> {
     return map {
-        DatabaseDeparture(scheduledDestination = it.scheduledDestination, trainName =  it.train.name, cancelled =  it.cancelled, messages =  Gson().toJson(it.messages), arrivalTime =  it.arrival?.time ?: "N/A", arrivalPlatform =  it.arrival?.platform ?: "N/A", arrivalDelay =  it.arrival?.delay ?: 0, route =  Gson().toJson(it.route))
+        DatabaseDeparture(scheduledDestination = it.scheduledDestination, trainName =  it.train.name, cancelled =  it.cancelled, messages =  Gson().toJson(it.messages), arrivalTime =  it.arrival?.time ?: "N/A", arrivalPlatform =  it.arrival?.platform ?: "N/A", arrivalDelay =  it.arrival?.delay ?: 0, route =  Gson().toJson(it.route), currentStationTitle =  it.currentStation.title, currentStationId =  it.currentStation.id)
     }
 }
 
