@@ -88,14 +88,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="45dp"
-                    android:text="@string/go_to_station"
+                    android:text="@string/navigate_to"
                     android:textColor="@color/black" />
 
                 <Button
                     android:id="@+id/btnBirds"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/go_to_birds_app"
+                    android:text="@string/open_birds_app"
                     android:textColor="@color/black" />
 
             </LinearLayout>

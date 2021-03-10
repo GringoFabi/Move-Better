@@ -136,6 +136,10 @@ class MainActivity : AppCompatActivity() {
                 menuController!!.marudorItem.postValue(item.isChecked)
                 true
             }
+            R.id.nvv -> {
+                menuController!!.nvvItem.postValue(item.isChecked)
+                true
+            }
             R.id.bird -> {
                 // if (tokenUnset) {
                 // openDialog()
@@ -145,6 +149,10 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.refresh -> {
                 false
+            }
+            R.id.overlay -> {
+                menuController!!.overlayItem.postValue(item.isChecked)
+                true
             }
             else -> super.onOptionsItemSelected(item)
         }
