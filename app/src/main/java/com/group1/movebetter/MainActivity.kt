@@ -145,8 +145,6 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.isCheckable) {
             item.isChecked = !item.isChecked
-        } else {
-            // refresh-method call
         }
         return when (item.itemId) {
             R.id.cityBikes -> {
@@ -160,6 +158,9 @@ class MainActivity : AppCompatActivity() {
             R.id.bird -> {
                 menuController!!.birdItem.postValue(item.isChecked)
                 true
+            }
+            R.id.refresh -> {
+                false
             }
             else -> super.onOptionsItemSelected(item)
         }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:mapbox="http://schemas.android.com/apk/res-auto">
 
@@ -26,9 +27,55 @@
             mapbox:mapbox_cameraZoom="12">
         </com.mapbox.mapboxsdk.maps.MapView>
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <ImageButton
+                android:id="@+id/nearest_bike"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="5dp"
+                app:layout_constraintBottom_toTopOf="@+id/nearest_train"
+                app:layout_constraintStart_toStartOf="parent"
+                android:visibility="gone"
+                android:background="@null"
+                android:contentDescription="@string/navigate_to_nearest_bike" />
+
+            <ImageButton
+                android:id="@+id/nearest_train"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="5dp"
+                app:layout_constraintBottom_toTopOf="@+id/nearest_scooter"
+                app:layout_constraintStart_toStartOf="parent"
+                android:visibility="gone"
+                android:background="@null"
+                android:contentDescription="@string/navigate_to_nearest_train_station" />
+
+            <ImageButton
+                android:id="@+id/nearest_scooter"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="30dp"
+                app:backgroundTint="#000000"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:visibility="gone"
+                android:background="@null"
+                android:contentDescription="@string/navigate_to_nearest_bird" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
-            android:layout_height="240dp"
+            android:layout_height="250dp"
             android:id="@+id/single_location_recyclerView"
             android:alpha="0.9"
             android:layout_gravity="bottom"
@@ -41,5 +88,4 @@
             android:visibility="gone"/>
 
     </FrameLayout>
-
 </layout>

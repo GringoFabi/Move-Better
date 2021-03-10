@@ -9,11 +9,14 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil.inflate
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -55,6 +58,7 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.coroutines.*
 import java.util.*
+import java.util.concurrent.CancellationException
 
 
 class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxMap.OnMapClickListener {
@@ -91,6 +95,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     private val menuController = MenuController.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setHasOptionsMenu(true)
         super.onCreate(savedInstanceState)
         context?.let { Mapbox.getInstance(it, getString(R.string.mapbox_access_token)) }
     }
@@ -115,8 +120,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         binding.lifecycleOwner = this
 
+        initButtons()
+
         val rv = binding.singleLocationRecyclerView
         rv.setHasFixedSize(true)
+        rv.visibility = View.GONE
 
         val llm = LinearLayoutManager(context)
         rv.layoutManager = llm
@@ -130,23 +138,79 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         currentLocationTask.addOnCompleteListener {
             mapViewModel.stadaStationController.getStations()
-            mapViewModel.cityBikeController.getNetworks()
-            mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
+            refreshNetworkRequests()
         }
 
-        refreshNetworkRequests()
         return binding.root
+    }
+
+    // Buttons for the "navigate to nearest bike/scooter/tram station" feature
+    private fun initButtons() {
+        val nearestBike = binding.nearestBike
+        nearestBike.setImageBitmap(BitmapFactory.decodeResource(resources, R.raw.bike))
+        nearestBike.scaleType = ImageView.ScaleType.CENTER
+        nearestBike.adjustViewBounds = true
+
+        nearestBike.setOnClickListener {
+            val closestBike = mapViewModel.cityBikeController.nearestBike
+            onMapsNavigateTo(closestBike.latitude, closestBike.longitude)
+        }
+
+        val nearestScooter = binding.nearestScooter
+        nearestScooter.setImageBitmap(BitmapFactory.decodeResource(resources, R.raw.scooter))
+        nearestScooter.scaleType = ImageView.ScaleType.CENTER
+        nearestScooter.adjustViewBounds = true
+
+        nearestScooter.setOnClickListener {
+            val nearestBird = mapViewModel.birdController.nearestBird
+            onMapsNavigateTo(nearestBird.location.latitude, nearestBird.location.longitude)
+        }
+
+        val nearestTrain = binding.nearestTrain
+        nearestTrain.setImageBitmap(BitmapFactory.decodeResource(resources, R.raw.tram))
+        nearestTrain.scaleType = ImageView.ScaleType.CENTER
+        nearestTrain.adjustViewBounds = true
+
+        nearestTrain.setOnClickListener {
+            val nearestStation = mapViewModel.stadaStationController.nearestStation
+
+            for (evaNumbers in nearestStation.evaNumbers) {
+                val coordinates = evaNumbers.geographicCoordinates?.coordinates
+                if (coordinates != null && evaNumbers.isMain) {
+                    onMapsNavigateTo(coordinates[1], coordinates[0])
+                    break
+                }
+            }
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.refresh -> {
+                instantRefresh()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun instantRefresh() {
+        delayedRefreshRequestsJob?.cancel(CancellationException("Refresh"))
+        if (delayedRefreshRequestsJob?.isCancelled == true) {
+            mapViewModel.mapController.getCurrentLocation(activity!!)
+            refreshNetworkRequests()
+        }
+        Toast.makeText(context, "refreshed just now", Toast.LENGTH_SHORT).show()
     }
 
     private var delayedRefreshRequestsJob: Job? = null
 
-    private fun refreshNetworkRequests()
-    {
+    private fun refreshNetworkRequests() {
         delayedRefreshRequestsJob = lifecycleScope.launch {
-            delay(DELAY_MILLIS)
-            mapViewModel.mapController.getCurrentLocation(activity!!)
             mapViewModel.cityBikeController.getNetworks()
             mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
+            delay(DELAY_MILLIS)
+            mapViewModel.mapController.getCurrentLocation(activity!!)
             refreshNetworkRequests()
         }
     }
@@ -187,7 +251,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 resetSelectedMarkerLayer(style)
                 mapViewModel.cityBikeController.getNetwork(bikeNetworks[0]!!.getStringProperty("id"))
             }
-
 
             // when clicked on icon which was already clicked on, show card view
             if (selectedFeature.size > 0 && markerSelected) {
@@ -249,17 +312,27 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     private fun checkRVVisible() {
         binding.singleLocationRecyclerView.visibility = View.GONE
+        binding.nearestBike.visibility = View.VISIBLE
+        binding.nearestScooter.visibility = View.VISIBLE
+        binding.nearestTrain.visibility = View.VISIBLE
     }
 
     private fun setAdapter(feature: Feature?) {
+        binding.nearestBike.visibility = View.GONE
+        binding.nearestScooter.visibility = View.GONE
+        binding.nearestTrain.visibility = View.GONE
+
         val provider = feature!!.getStringProperty("provider")
         if (provider.equals("bikes")) {
-            binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature), this::openNextBike)
+            binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature), this::openNextBike, this::onMapsNavigateTo)
         } else if (provider.equals("birds")) {
-            binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird)
+            binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird, this::onMapsNavigateTo)
         } else {
-            mapViewModel.marudorController.getArrival((feature.getNumberProperty("evaId") as Double).toLong(), 150)
+            val evaId = (feature.getNumberProperty("evaId") as Double).toLong()
+            mapViewModel.stadaStationController.setSelectedStation(evaId)
+            mapViewModel.marudorController.getArrival(evaId, 60)
         }
+
         binding.singleLocationRecyclerView.visibility = View.VISIBLE
     }
 
@@ -374,6 +447,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             if (it.isNotEmpty()) {
                 val networks = mapViewModel.cityBikeController.updateCurrentNetwork(it[0])
                 val stations = mapViewModel.cityBikeController.exchangeNetworkWithStations(it[0])
+
+                if (!binding.singleLocationRecyclerView.isVisible) {
+                    binding.nearestBike.visibility = View.VISIBLE
+                }
+
                 mapViewModel.mapController.refreshSource(networkSource!!, networks)
                 mapViewModel.mapController.refreshSource(stationSource!!, stations)
             }
@@ -385,6 +463,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             if (it.isNotEmpty()) {
                 val birds = mapViewModel.birdController.createBirdList(it)
                 mapViewModel.birdController.getNearestBird(it)
+
+                if (!binding.singleLocationRecyclerView.isVisible) {
+                    binding.nearestScooter.visibility = View.VISIBLE
+                }
+
                 mapViewModel.mapController.refreshSource(birdSource!!, birds)
             }
         }
@@ -395,6 +478,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             if (it.isNotEmpty()) {
                 val stations = mapViewModel.stadaStationController.createStationList(it)
                 mapViewModel.stadaStationController.getNearestStation(it)
+
+                if (!binding.singleLocationRecyclerView.isVisible) {
+                    binding.nearestTrain.visibility = View.VISIBLE
+                }
+
                 mapViewModel.mapController.refreshSource(stationSource!!, stations)
             }
         }
@@ -435,8 +523,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         // Observer for Departure Board
         repository.getResponseArrival.observe(viewLifecycleOwner) {
             binding.singleLocationRecyclerView.adapter = TramAdapter(
-                it.filter { departure -> departure.arrival != null && departure.arrival.time != "N/A" },
-                this::openNvv
+                    it.filter { departure -> departure.arrival != null && departure.arrival.time != "N/A" },
+                    this::openNvv,
+                    this::onMapsNavigateTo,
+                    mapViewModel.stadaStationController.selectedStation
             )
         }
     }

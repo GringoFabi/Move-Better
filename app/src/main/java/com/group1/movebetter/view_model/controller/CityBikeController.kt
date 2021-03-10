@@ -28,7 +28,7 @@ class CityBikeController(private val viewModelScope: CoroutineScope, private val
 
     private val networkFeatures: ArrayList<Feature> = ArrayList()
     private var currentNetwork: CityBikesNetwork? = null
-    private var closestBike: CityBikesStation? = null
+    lateinit var nearestBike: CityBikesStation
 
     fun createBikeNetworkList(cityBikes: List<CityBikesNetworks>): ArrayList<Feature> {
         for (network in cityBikes) {
@@ -78,7 +78,8 @@ class CityBikeController(private val viewModelScope: CoroutineScope, private val
             networkFeatures.add(createBikeFeature(currentNetwork!!.id, currentNetwork!!.location, true))
             currentNetwork = network
         }
-        closestBike = getNearestBike(network.stations)
+
+        nearestBike = getNearestBike(network.stations)!!
 
         return networkFeatures
     }
@@ -91,6 +92,8 @@ class CityBikeController(private val viewModelScope: CoroutineScope, private val
             val featureStation = Feature.fromGeometry(Point.fromLngLat(station.longitude, station.latitude))
             featureStation.addStringProperty("name", station.name)
             featureStation.addStringProperty("id", station.id)
+            featureStation.addNumberProperty("latitude", station.latitude)
+            featureStation.addNumberProperty("longitude", station.longitude)
             featureStation.addNumberProperty("freeBikes", station.free_bikes.amount)
             featureStation.addNumberProperty("emptySlots", station.empty_slots.amount)
             featureStation.addStringProperty("timestamp", station.timestamp)

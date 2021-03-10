@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--Layout top level and data + binding for textView.text-->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:tag="cards main container">
 
     <androidx.cardview.widget.CardView
@@ -16,48 +16,59 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/white"
-            android:gravity="center_horizontal"
+            android:gravity="center_vertical"
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/bikeTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:textColor="@android:color/black"
-                android:textSize="18sp"/>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <Space
-                android:layout_width="2sp"
-                android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/bikeTitle"
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/bikeAppIcon"
+                    android:contentDescription="@string/bike_app_icon"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_height="50dp"
+                    android:layout_width="50dp"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
                 android:id="@+id/freeBikes"
+                android:layout_gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="12dp"
                 android:textColor="@android:color/black"
                 android:textSize="16sp"/>
-
-            <Space
-                android:layout_width="2sp"
-                android:layout_height="wrap_content" />
 
             <TextView
                 android:id="@+id/emptySlots"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="12dp"
+                android:layout_gravity="center"
                 android:textColor="@android:color/black"
                 android:textSize="16sp"/>
 
-            <Space
-                android:layout_width="2sp"
-                android:layout_height="wrap_content" />
-
             <TextView
                 android:id="@+id/timestamp"
+                android:layout_gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
@@ -74,20 +85,15 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
                     android:id="@+id/btnGoToStation"
-                    android:text="@string/go_to_station"
-                    />
-
-                <Space
-                    android:layout_width="45sp"
-                    android:layout_height="wrap_content" />
+                    android:layout_marginEnd="45dp"
+                    android:text="@string/go_to_station"/>
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
                     android:id="@+id/btnNextBike"
-                    android:text="@string/go_to_nextbike"
-                    />
+                    android:text="@string/go_to_nextbike" />
 
             </LinearLayout>
         </LinearLayout>

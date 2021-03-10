@@ -18,8 +18,15 @@
     <string name="NETWORK_ICON_ID">network</string>
     <string name="SCOOTER_ICON_ID">scooter</string>
     <string name="TRAM_STATION_ICON_ID">tram</string>
-    <string name="go_to_nextbike">Go to NextBike</string>
-    <string name="go_to_birds_app">Go to Birds App</string>
-    <string name="go_to_station">Go to Station</string>
-    <string name="go_to_nvv_app">Go to NVV App</string>
+    <string name="go_to_nextbike">Open NextBike App</string>
+    <string name="go_to_birds_app">Open Birds App</string>
+    <string name="go_to_station">Navigate to</string>
+    <string name="go_to_nvv_app">Open NVV App</string>
+    <string name="navigate_to_nearest_bike">Navigate to nearest bike</string>
+    <string name="navigate_to_nearest_train_station">Navigate to nearest train station</string>
+    <string name="navigate_to_nearest_bird">Navigate to nearest bird</string>
+    <string name="bird_app_icon">Bird App Icon</string>
+    <string name="db_app_icon">DB App Icon</string>
+    <string name="nvv_app_icon">NVV App Icon</string>
+    <string name="bike_app_icon">Bike App Icon</string>
 </resources>

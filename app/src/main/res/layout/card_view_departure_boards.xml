@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:tag="cards main container">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/tramCardView"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_gravity="bottom"
         android:layout_marginTop="8dp"
@@ -21,66 +23,121 @@
             android:orientation="vertical"
             android:padding="8dp">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="5dp">
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/station"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textSize="20sp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:text="Bahnhof"/>
+
+                <ImageView
+                    android:id="@+id/dbAppIcon"
+                    android:contentDescription="@string/db_app_icon"
+                    app:layout_constraintEnd_toStartOf="@id/nvvAppIcon"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_height="30dp"
+                    android:layout_width="30dp"/>
+
+                <ImageView
+                    android:id="@+id/nvvAppIcon"
+                    android:contentDescription="@string/nvv_app_icon"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_height="30dp"
+                    android:layout_width="30dp"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/linearLayout2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:orientation="vertical"
-                    android:gravity="center">
+                    app:layout_constraintEnd_toStartOf="@+id/tram"
+                    app:layout_constraintStart_toStartOf="@+id/guideline"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <TextView
                         android:id="@+id/destinationTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="14sp"
+                        android:layout_gravity="center"
+                        android:text="Ankunft"
                         android:textColor="@color/black"
-                        android:text="Ankunft"/>
-
+                        android:textSize="20sp" />
 
                     <TextView
                         android:id="@+id/delay"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="14sp"
+                        android:layout_gravity="center"
+                        android:text="Delay"
                         android:textColor="@color/black"
-                        android:text="Delay"/>
-
+                        android:textSize="16sp" />
                 </LinearLayout>
 
-
-                <Space
-                    android:layout_width="45sp"
-                    android:layout_height="wrap_content" />
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_end="361dp" />
 
                 <TextView
                     android:id="@+id/tram"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="18sp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="Zug"
                     android:textColor="@color/black"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:text="ZugNummer"/>
-
-                <Space
-                    android:layout_width="45sp"
-                    android:layout_height="wrap_content" />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/platform"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:textColor="@color/black"
                     android:text="Platform"
-                    />
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline3"
+                    app:layout_constraintStart_toEndOf="@+id/tram"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            </LinearLayout>
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_end="16dp" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
                 android:id="@+id/destination"
@@ -109,6 +166,7 @@
                 android:text="Important Messages"/>
 
             <LinearLayout
+                android:layout_marginTop="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center">
@@ -122,7 +180,7 @@
                     />
 
                 <Space
-                    android:layout_width="45sp"
+                    android:layout_width="45dp"
                     android:layout_height="wrap_content" />
 
                 <Button
