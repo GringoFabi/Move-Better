@@ -3,6 +3,7 @@ package com.group1.movebetter.bird_dialog
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -67,20 +68,20 @@ class BirdDialog : AppCompatDialogFragment() {
 
         builder.setView(binding.root)
             .setTitle("Nutzung von Bird")
-            .setNegativeButton("skip", null)
+            .setNegativeButton("skip") {d, _ -> d.dismiss()}
             .setPositiveButton("send", null)
 
         alertDialog = builder.show()
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             if (tokenFlag) {
                 if (binding.enterEmail.text.isNotEmpty()) {
-                    val magicToken = binding.enterEmail.text.toString()
-                    verify(magicToken)
-                    dismiss()
-                }
-            } else {
-                if (!binding.enterEmail.text.matches(Regex("[a-zA-Z0-9._-]+@[a-z]+.[a-z]+"))) {
-                    binding.errorText.visibility = View.VISIBLE
+                        val magicToken = binding.enterEmail.text.toString()
+                        verify(magicToken)
+                        dismiss()
+                    }
+                } else {
+                    if (!binding.enterEmail.text.matches(Regex("[a-zA-Z0-9._-]+@[a-z]+.[a-z]+"))) {
+                        binding.errorText.visibility = View.VISIBLE
                 } else {
                     email = binding.enterEmail.text.toString()
                     binding.enterEmail.setText("")

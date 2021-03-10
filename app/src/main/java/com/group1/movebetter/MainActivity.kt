@@ -30,6 +30,7 @@ import com.group1.movebetter.model.asDatabaseDevUuid
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.group1.movebetter.bird_dialog.BirdDialog
+import com.group1.movebetter.model.BirdTokens
 import com.group1.movebetter.view_model.controller.MenuController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -41,20 +42,14 @@ class MainActivity : AppCompatActivity() {
 
     private val FINE_LOCATION_CODE = 1
 
-    // TODO: show dialog on condition (user wants to use bird)
-    val show: Boolean = true
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        /*val db = getDatabase(this)
         runBlocking {
-            val job = launch(Dispatchers.IO) {
+            launch(Dispatchers.IO) {
+                val db = getDatabase(this@MainActivity)
                 db.databaseDevUuidDao.insertAll(listOf(DevUuid(UUID.randomUUID().toString()).asDatabaseDevUuid()))
-                delay(3000)
-            }
-            job.join()
-        }*/
-
+            }.join()
+        }
         if (ContextCompat.checkSelfPermission(this,
                         Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Location permissions are granted", Toast.LENGTH_SHORT).show()
@@ -65,10 +60,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startApp() {
-        setContentView(R.layout.activity_main)
-        if (show) {
+        var access: String? = null
+        runBlocking {
+            launch(Dispatchers.IO) {
+                val db = getDatabase(this@MainActivity)
+                access = db.databaseBirdTokensDao.getBirdToken("1")?.access
+            }.join()
+        }
+        if (access == null || access!!.isEmpty()) {
             openDialog()
         }
+        setContentView(R.layout.activity_main)
+    }
+
+
+    private fun openDialog(): BirdDialog {
+        val birdDialog = BirdDialog()
+        birdDialog.show(supportFragmentManager, "bird dialog")
+        return birdDialog
     }
 
     private fun closeApp() {
@@ -120,11 +129,6 @@ class MainActivity : AppCompatActivity() {
         ActivityCompat.requestPermissions(this, arrayOf(permissionName), permissionRequestCode)
     }
 
-    private fun openDialog() {
-        val birdDialog = BirdDialog()
-        birdDialog.show(supportFragmentManager, "bird dialog")
-    }
-
     private var menu: Menu? = null
     private val menuController = MenuController.getInstance()
 
@@ -154,10 +158,7 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.bird -> {
-                // if (tokenUnset) {
-                // openDialog()
                 menuController!!.birdItem.postValue(item.isChecked)
-                // }
                 true
             }
             else -> super.onOptionsItemSelected(item)

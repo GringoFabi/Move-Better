@@ -6,10 +6,7 @@ import com.group1.movebetter.model.*
 import com.group1.movebetter.repository.Repository
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.Point
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
 class BirdController(private val viewModelScope: CoroutineScope, private val repository: Repository, private val mapController: MapController) {
 
@@ -52,7 +49,6 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
     // sends the access-token to the api (retrieves the scooter)
     fun getBirds(location: Location) {
 
-        // TODO: set rad to width of the screen
         val position = Position(
             location.latitude,
             location.longitude,
@@ -63,13 +59,20 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
         val radius = 1000
         val loc: String = Gson().toJson(position)
         viewModelScope.launch {
-            var access = ""
+            var access: String? = null
             runBlocking {
                 launch(Dispatchers.IO) {
-                    access = repository.database.databaseBirdTokensDao.getBirdToken("1").access
+                    access = repository.database.databaseBirdTokensDao.getBirdToken("1")?.access
                 }
             }
-            repository.getBirds(location.latitude, location.longitude, radius, "Bearer ${access}", loc)
+            try {
+                access?.let {
+                    repository.getBirds(location.latitude, location.longitude, radius, "Bearer $access", loc)
+                }
+            } catch (err: java.lang.Exception) {
+                refresh()
+                getBirds(location)
+            }
         }
     }
 

@@ -56,9 +56,10 @@ class RetrofitInstance(uuid: String) {
     // auth api
     private val birdAuthRetrofit by lazy {
         Retrofit.Builder()
+                .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .baseUrl(BIRD_AUTH_URL)
                 .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(MoshiConverterFactory.create(Moshi.Builder().build()))
                 .build()
     }
 
@@ -70,8 +71,9 @@ class RetrofitInstance(uuid: String) {
     private val birdRetrofit by lazy {
         Retrofit.Builder()
                 .baseUrl(BIRD_URL)
+                .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(MoshiConverterFactory.create(Moshi.Builder().build())                )
                 .build()
 
     }

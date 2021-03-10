@@ -161,19 +161,17 @@ class Repository(val database: MyDatabase, uuid:String) {
     }
 
     suspend fun postMagicToken(body: Token) {
-        launch(instance.birdAuthApi.postAuthTokenAsync(body), {}, {
-            if (it != null) {
-                database.databaseBirdTokensDao.insertAll(listOf(it).asDatabaseBirdTokensList())
-            }
-        }, { Log.d("postMagicToken", it.toString()) })
+        withContext(Dispatchers.IO) {
+            val response = instance.birdAuthApi.postAuthTokenAsync(body)
+            database.databaseBirdTokensDao.insertAll(listOf(response).asDatabaseBirdTokensList())
+        }
     }
 
     suspend fun refresh(token: String) {
-        launch(instance.birdAuthApi.refreshAsync(token), {}, {
-            if (it != null) {
-                database.databaseBirdTokensDao.insertAll(listOf(it).asDatabaseBirdTokensList())
-            }
-        }, { Log.d("postMagicToken", it.toString()) })
+        withContext(Dispatchers.IO) {
+            val response = instance.birdAuthApi.refreshAsync(token)
+            database.databaseBirdTokensDao.insertAll(listOf(response).asDatabaseBirdTokensList())
+        }
     }
 
     suspend fun getBirds(lat: Double, lng: Double, rad: Int, token: String, location: String) {
