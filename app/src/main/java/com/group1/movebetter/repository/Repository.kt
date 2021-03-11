@@ -177,6 +177,7 @@ class Repository(val database: MyDatabase, uuid:String) {
     suspend fun getBirds(lat: Double, lng: Double, rad: Int, token: String, location: String) {
         withContext(Dispatchers.IO){
             val response = instance.birdApi.getNearbyBirds(lat, lng, rad, token, location)
+            database.databaseBirdDao.clearTable()
             database.databaseBirdDao.insertAll(response.birds.asDatabaseBirdList())
         }
     }

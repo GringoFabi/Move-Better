@@ -64,6 +64,9 @@ interface DatabaseBirdDao {
     @Query("select * from databasebird")
     fun getBird(): LiveData<List<DatabaseBird>>
 
+    @Query("delete from databasebird")
+    fun clearTable()
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll( birds: List<DatabaseBird>)
 }
