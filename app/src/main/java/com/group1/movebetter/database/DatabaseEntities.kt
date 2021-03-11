@@ -134,12 +134,14 @@ data class DatabaseDeparture (
         val arrivalPlatform: String,
         val arrivalDelay: Long,
         val route: String,
+        val currentStationTitle: String,
+        val currentStationId: String
 )
 
 fun List<DatabaseDeparture>.asDepartureList(): List<Departure> {
         return map {
                 val listType: Type = object : TypeToken<ArrayList<RouteStation>>() {}.type
-                Departure(it.scheduledDestination, Train(it.trainName), it.cancelled, Gson().fromJson(it.messages, Messages::class.java), Arrival(it.arrivalTime,it.arrivalPlatform,it.arrivalDelay),Gson().fromJson(it.route, listType))
+                Departure(it.scheduledDestination, Train(it.trainName), it.cancelled, Gson().fromJson(it.messages, Messages::class.java), Arrival(it.arrivalTime,it.arrivalPlatform,it.arrivalDelay),Gson().fromJson(it.route, listType), CurrentStation(it.currentStationTitle, it.currentStationId))
         }
 }
 
@@ -178,4 +180,15 @@ fun List<DatabaseBirdTokens>.asBirdTokensList(): List<BirdTokens> {
         return map {
                 BirdTokens(it.access,it.refresh)
         }
+}
+
+@Entity(tableName = "databasedevuuid")
+data class DatabaseDevUuid (
+        @PrimaryKey
+        val key: String,
+        val uuid : String,
+)
+
+fun DatabaseDevUuid.asDevUuid(): DevUuid {
+        return DevUuid(this.uuid)
 }

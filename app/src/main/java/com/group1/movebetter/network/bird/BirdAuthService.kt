@@ -19,12 +19,12 @@ interface BirdAuthService {
     @POST("magic-link/use")
     suspend fun postAuthTokenAsync(
             @Body token: Token
-    ) : Deferred<Response<BirdTokens>>
+    ) : BirdTokens
 
     @POST("refresh/token")
     suspend fun refreshAsync(
             @Header("Authorization") token: String
-    ) : Deferred<Response<BirdTokens>>
+    ) : BirdTokens
 
 }
 

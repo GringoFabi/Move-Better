@@ -1,7 +1,6 @@
 package com.group1.movebetter.network
 
 
-import com.group1.movebetter.BuildConfig
 import com.group1.movebetter.network.adapters.*
 import com.group1.movebetter.util.Constants.Companion.URL_CITYBIKES
 import com.group1.movebetter.network.adapters.CityBikesStationExtraStatusAdapter
@@ -15,13 +14,11 @@ import com.group1.movebetter.util.Constants.Companion.BIRD_URL
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.util.concurrent.TimeUnit
 
-object RetrofitInstance {
+class RetrofitInstance(uuid: String) {
     private val retrofit by lazy {
         Retrofit.Builder()
                 .baseUrl(URL_CITYBIKES)
@@ -53,15 +50,16 @@ object RetrofitInstance {
 
     // modified interceptor class for adding the standard headers to all bird-requests
     private val client = OkHttpClient.Builder().apply {
-        addInterceptor(BirdInterceptor())
+        addInterceptor(BirdInterceptor(uuid))
     }.build()
 
     // auth api
     private val birdAuthRetrofit by lazy {
         Retrofit.Builder()
+                .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .baseUrl(BIRD_AUTH_URL)
                 .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(MoshiConverterFactory.create(Moshi.Builder().build()))
                 .build()
     }
 
@@ -73,8 +71,9 @@ object RetrofitInstance {
     private val birdRetrofit by lazy {
         Retrofit.Builder()
                 .baseUrl(BIRD_URL)
+                .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(MoshiConverterFactory.create(Moshi.Builder().build())                )
                 .build()
 
     }

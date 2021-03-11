@@ -64,22 +64,37 @@ interface DatabaseBirdDao {
     @Query("select * from databasebird")
     fun getBird(): LiveData<List<DatabaseBird>>
 
+    @Query("delete from databasebird")
+    fun clearTable()
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll( birds: List<DatabaseBird>)
 }
 
 @Dao
 interface DatabaseBirdTokensDao {
-    @Query("select * from databasebirdtokens")
-    fun getBirdTokens(): LiveData<List<DatabaseBirdTokens>>
+    @Query("select * from databasebirdtokens where `key` = :id")
+    fun getBirdToken(id: String): DatabaseBirdTokens
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll( birdtokens: List<DatabaseBirdTokens>)
 }
 
+@Dao
+interface DatabaseDevUuidDao {
+    @Query("select * from databasedevuuid where `key` = :id")
+    fun getDevUuid(id: String): DatabaseDevUuid
+
+    @Query("select * from databasedevuuid")
+    fun getAllDevUuid(): LiveData<List<DatabaseDevUuid>>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertAll( uuids: List<DatabaseDevUuid>)
+}
 
 
-@Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class, DatabaseStaDaStation::class, DatabaseDeparture::class, DatabaseBird::class, DatabaseBirdTokens::class], version = 6)
+
+@Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class, DatabaseStaDaStation::class, DatabaseDeparture::class, DatabaseBird::class, DatabaseBirdTokens::class, DatabaseDevUuid::class], version = 8)
 abstract class MyDatabase: RoomDatabase() {
     abstract val cityBikesNetworksDao: CityBikesNetworksDao
     abstract val cityBikesNetworkDao: CityBikesNetworkDao
@@ -87,6 +102,7 @@ abstract class MyDatabase: RoomDatabase() {
     abstract val databaseDepartureDao: DatabaseDepartureDao
     abstract val databaseBirdDao: DatabaseBirdDao
     abstract val databaseBirdTokensDao: DatabaseBirdTokensDao
+    abstract val databaseDevUuidDao: DatabaseDevUuidDao
 }
 
 private lateinit var INSTANCE: MyDatabase
