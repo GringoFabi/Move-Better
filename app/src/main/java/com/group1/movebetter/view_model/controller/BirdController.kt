@@ -6,14 +6,13 @@ import com.group1.movebetter.model.*
 import com.group1.movebetter.repository.Repository
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.Point
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class BirdController(private val viewModelScope: CoroutineScope, private val repository: Repository, private val mapController: MapController) {
 
     // TODO: retrieve the tokens from a database
-    private val refresh: Token = Tokens.refresh
-    private val access: Token = Tokens.access
+    //private val refresh: Token = Tokens.refresh
+    //private val access: Token = Tokens.access
 
     lateinit var nearestBird: Bird
 
@@ -28,33 +27,52 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
     // sends the token from the verifying mail to the auth api (retrieves the tokens)
     fun postAuthToken(token: String) {
         val body = Token(token)
-        viewModelScope.launch {
+        runBlocking {
             repository.postMagicToken(body)
         }
     }
 
     // sends the refresh-token to the auth api (overwrites the current tokens)
     fun refresh() {
-        viewModelScope.launch {
-            repository.refresh("Bearer ${refresh.token}")
+        var refresh = ""
+        runBlocking {
+            launch(Dispatchers.IO) {
+                refresh = repository.database.databaseBirdTokensDao.getBirdToken("1").refresh
+            }
+        }
+        runBlocking {
+            repository.refresh("Bearer ${refresh}")
         }
     }
 
     // sends the access-token to the api (retrieves the scooter)
     fun getBirds(location: Location) {
 
-        // TODO: set rad to width of the screen
         val position = Position(
-            location.latitude,
-            location.longitude,
-            location.altitude,
-            location.accuracy,
-            location.speed,
+                location.latitude,
+                location.longitude,
+                location.altitude,
+                location.accuracy,
+                location.speed,
         )
         val radius = 1000
         val loc: String = Gson().toJson(position)
+
+        var access: String? = null
+        runBlocking {
+            launch(Dispatchers.IO) {
+                access = repository.database.databaseBirdTokensDao.getBirdToken("1")?.access
+            }
+        }
         viewModelScope.launch {
-            repository.getBirds(location.latitude, location.longitude, radius, "Bearer ${access.token}", loc)
+            try {
+                access?.let {
+                    repository.getBirds(location.latitude, location.longitude, radius, "Bearer $access", loc)
+                }
+            } catch (err: java.lang.Exception) {
+                refresh()
+                getBirds(location)
+            }
         }
     }
 

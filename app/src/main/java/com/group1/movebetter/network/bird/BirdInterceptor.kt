@@ -1,14 +1,15 @@
 package com.group1.movebetter.network.bird
 
+import androidx.lifecycle.LiveData
 import com.group1.movebetter.database.MyDatabase
 import com.group1.movebetter.database.getDatabase
+import com.group1.movebetter.model.BirdTokens
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class BirdInterceptor: Interceptor {
+class BirdInterceptor(uuid : String): Interceptor {
 
-    // TODO: retrieve the device-id from a database
-    private val deviceID = "bb657dc4-8538-48f1-9058-85dfdd89c98d"
+    private val deviceID = uuid
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()

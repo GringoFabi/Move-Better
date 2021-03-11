@@ -13,6 +13,9 @@ import com.group1.movebetter.database.getDatabase
 import com.group1.movebetter.databinding.BirdDialogBinding
 import com.group1.movebetter.databinding.BirdDialogBinding.inflate
 import com.group1.movebetter.repository.Repository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class BirdDialog : AppCompatDialogFragment() {
     var email: String = ""
@@ -28,7 +31,14 @@ class BirdDialog : AppCompatDialogFragment() {
         binding = inflate(LayoutInflater.from(context))
         val builder = AlertDialog.Builder(context)
 
-        repository = Repository(getDatabase(context!!))
+        val db = getDatabase(context!!)
+        var uuid = ""
+        runBlocking {
+            launch(Dispatchers.IO) {
+                uuid = db.databaseDevUuidDao.getDevUuid("1").uuid
+            }.join()
+        }
+        repository = Repository(db, uuid)
         val birdDialogViewModelFactory = BirdDialogViewModelFactory(repository)
         birdDialogViewModel = ViewModelProvider(this, birdDialogViewModelFactory).get(BirdDialogViewModel::class.java)
 
@@ -36,20 +46,20 @@ class BirdDialog : AppCompatDialogFragment() {
 
         builder.setView(binding.root)
             .setTitle("Nutzung von Bird")
-            .setNegativeButton("skip", null)
+            .setNegativeButton("skip") {d, _ -> d.dismiss()}
             .setPositiveButton("send", null)
 
         alertDialog = builder.show()
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             if (tokenFlag) {
                 if (binding.enterEmail.text.isNotEmpty()) {
-                    val magicToken = binding.enterEmail.text.toString()
-                    verify(magicToken)
-                    dismiss()
-                }
-            } else {
-                if (!binding.enterEmail.text.matches(Regex("[a-zA-Z0-9._-]+@[a-z]+.[a-z]+"))) {
-                    binding.errorText.visibility = View.VISIBLE
+                        val magicToken = binding.enterEmail.text.toString()
+                        verify(magicToken)
+                        dismiss()
+                    }
+                } else {
+                    if (!binding.enterEmail.text.matches(Regex("[a-zA-Z0-9._-]+@[a-z]+.[a-z]+"))) {
+                        binding.errorText.visibility = View.VISIBLE
                 } else {
                     email = binding.enterEmail.text.toString()
                     binding.enterEmail.setText("")

@@ -13,7 +13,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 
-class Repository(private val database: MyDatabase) {
+class Repository(val database: MyDatabase, uuid:String) {
+
+    val instance: RetrofitInstance = RetrofitInstance(uuid)
 
     val getResponseNetworks: LiveData<List<CityBikesNetworks>> = Transformations.map(database.cityBikesNetworksDao.getCityBikesNetworks()){
         it.asCityBikesNetworksList()
@@ -50,17 +52,13 @@ class Repository(private val database: MyDatabase) {
 
     private val _myTokens: MutableLiveData<BirdTokens> = MutableLiveData()
 
-    val myTokens: LiveData<List<BirdTokens>> = Transformations.map(database.databaseBirdTokensDao.getBirdTokens()){
-        it.asBirdTokensList()
-    }
-
     val myBirds: LiveData<List<Bird>> = Transformations.map(database.databaseBirdDao.getBird()){
         it.asBirdList()
     }
 
     suspend fun getNetworks()
     {
-        launch(RetrofitInstance.apiCityBikes.getNetworksAsync(), {}, {
+        launch(instance.apiCityBikes.getNetworksAsync(), {}, {
             if (it != null) {
                 database.cityBikesNetworksDao.insertAll(it.networks.asDatabaseCityBikesNetworksList())
             }
@@ -110,12 +108,12 @@ class Repository(private val database: MyDatabase) {
 
     suspend fun getNetworksFiltered(fields: String)
     {
-        launch(RetrofitInstance.apiCityBikes.getNetworksFilteredAsync(fields), {}, { _getResponseNetworksFiltered.postValue(it) }, { Log.d("getNetworksFiltered", it.toString()) })
+        launch(instance.apiCityBikes.getNetworksFilteredAsync(fields), {}, { _getResponseNetworksFiltered.postValue(it) }, { Log.d("getNetworksFiltered", it.toString()) })
     }
 
     suspend fun getNetwork(networkId: String)
     {
-        launch(RetrofitInstance.apiCityBikes.getNetworkAsync(networkId), {}, {
+        launch(instance.apiCityBikes.getNetworkAsync(networkId), {}, {
             if (it != null) {
                 database.cityBikesNetworkDao.insertAll(it.network.asDatabaseCityBikesNetworkList())
             }
@@ -124,7 +122,7 @@ class Repository(private val database: MyDatabase) {
 
     suspend fun getStations()
     {
-        launch(RetrofitInstance.apiStadaStations.getStationsAsync(), {}, {
+        launch(instance.apiStadaStations.getStationsAsync(), {}, {
             if (it != null) {
                 database.staDaStationDao.insertAll(it.result.asDatabaseStaDaStationList())
             }
@@ -133,7 +131,7 @@ class Repository(private val database: MyDatabase) {
 
     suspend fun getArrival(evaId: Long, lookahead: Long)
     {
-        launch(RetrofitInstance.apiMarudor.getArrivalAsync(evaId, lookahead), {}, {
+        launch(instance.apiMarudor.getArrivalAsync(evaId, lookahead), {}, {
             if (it != null) {
                 database.databaseDepartureDao.clearTable()
                 database.databaseDepartureDao.insertAll(it.departures.asDatabaseDepartureList())
@@ -143,7 +141,7 @@ class Repository(private val database: MyDatabase) {
 
     suspend fun getNextStations(lat: Double, lng: Double, radius: Long)
     {
-        launch(RetrofitInstance.apiMarudor.getNextStationsAsync(lat, lng, radius),
+        launch(instance.apiMarudor.getNextStationsAsync(lat, lng, radius),
             {},
             {
                 _getResponseNextStations.postValue(it) },
@@ -152,35 +150,34 @@ class Repository(private val database: MyDatabase) {
 
     suspend fun getStationsByTerm(searchTerm: String)
     {
-        launch(RetrofitInstance.apiMarudor.getStationsByTermAsync(searchTerm),
+        launch(instance.apiMarudor.getStationsByTermAsync(searchTerm),
             {},
             { _getStationsByTerm.postValue(it) },
             { Log.d("getNetworksFiltered", it.toString()) })
     }
 
     suspend fun getBirdToken(body: EmailBody) {
-        return RetrofitInstance.birdAuthApi.getAuthToken(body)
+        return instance.birdAuthApi.getAuthToken(body)
     }
 
     suspend fun postMagicToken(body: Token) {
-        launch(RetrofitInstance.birdAuthApi.postAuthTokenAsync(body), {}, {
-            if (it != null) {
-                database.databaseBirdTokensDao.insertAll(listOf(it).asDatabaseBirdTokensList())
-            }
-        }, { Log.d("postMagicToken", it.toString()) })
+        withContext(Dispatchers.IO) {
+            val response = instance.birdAuthApi.postAuthTokenAsync(body)
+            database.databaseBirdTokensDao.insertAll(listOf(response).asDatabaseBirdTokensList())
+        }
     }
 
     suspend fun refresh(token: String) {
-        launch(RetrofitInstance.birdAuthApi.refreshAsync(token), {}, {
-            if (it != null) {
-                database.databaseBirdTokensDao.insertAll(listOf(it).asDatabaseBirdTokensList())
-            }
-        }, { Log.d("postMagicToken", it.toString()) })
+        withContext(Dispatchers.IO) {
+            val response = instance.birdAuthApi.refreshAsync(token)
+            database.databaseBirdTokensDao.insertAll(listOf(response).asDatabaseBirdTokensList())
+        }
     }
 
     suspend fun getBirds(lat: Double, lng: Double, rad: Int, token: String, location: String) {
         withContext(Dispatchers.IO){
-            val response = RetrofitInstance.birdApi.getNearbyBirds(lat, lng, rad, token, location)
+            val response = instance.birdApi.getNearbyBirds(lat, lng, rad, token, location)
+            database.databaseBirdDao.clearTable()
             database.databaseBirdDao.insertAll(response.birds.asDatabaseBirdList())
         }
     }
