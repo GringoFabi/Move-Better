@@ -30,14 +30,15 @@
 
                 <TextView
                     android:id="@+id/station"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:textSize="20sp"
+                    android:layout_marginLeft="38dp"
+                    android:layout_marginRight="40dp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/dbAppIcon"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     android:text="Bahnhof"/>
@@ -45,18 +46,10 @@
                 <ImageView
                     android:id="@+id/dbAppIcon"
                     android:contentDescription="@string/db_app_icon"
-                    app:layout_constraintEnd_toStartOf="@id/nvvAppIcon"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:layout_height="30dp"
-                    android:layout_width="30dp"/>
-
-                <ImageView
-                    android:id="@+id/nvvAppIcon"
-                    android:contentDescription="@string/nvv_app_icon"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:layout_height="30dp"
-                    android:layout_width="30dp"/>
+                    android:layout_height="40dp"
+                    android:layout_width="40dp"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -188,7 +181,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
                     android:id="@+id/btnNVV"
-                    android:text="@string/open_nvv_app"
+                    android:text="@string/open_db_app"
                     />
 
             </LinearLayout>

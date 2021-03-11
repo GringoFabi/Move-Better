@@ -36,7 +36,6 @@ class TramAdapter(private val data: List<Departure>,
     class TramViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var cv: CardView
         var station: TextView
-        var nvvAppIcon: ImageView
         var dbAppIcon: ImageView
         var destinationTime: TextView
         var delay: TextView
@@ -51,7 +50,6 @@ class TramAdapter(private val data: List<Departure>,
         init {
             cv = itemView.findViewById(R.id.tramCardView)
             station = itemView.findViewById(R.id.station)
-            nvvAppIcon = itemView.findViewById(R.id.nvvAppIcon)
             dbAppIcon = itemView.findViewById(R.id.dbAppIcon)
             destinationTime = itemView.findViewById(R.id.destinationTime)
             delay = itemView.findViewById(R.id.delay)
@@ -103,9 +101,6 @@ class TramAdapter(private val data: List<Departure>,
     }
 
     private fun setImages(holder: TramViewHolder) {
-        holder.nvvAppIcon.setImageBitmap(nvvIconBitmap)
-        holder.nvvAppIcon.scaleType = ImageView.ScaleType.CENTER
-        holder.nvvAppIcon.adjustViewBounds = true
         holder.dbAppIcon.setImageBitmap(dbIconBitmap)
         holder.dbAppIcon.scaleType = ImageView.ScaleType.CENTER
         holder.dbAppIcon.adjustViewBounds = true

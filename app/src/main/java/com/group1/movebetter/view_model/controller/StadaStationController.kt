@@ -60,6 +60,8 @@ class StadaStationController(
 
         feature.addStringProperty("address", "${mailingAddress?.street ?: "N/A"} ${mailingAddress?.zipcode ?: "N/A"} ${mailingAddress?.city ?: "N/A"}")
         feature.addStringProperty("provider", "trams")
+        feature.addNumberProperty("latitude", coordinates[1])
+        feature.addNumberProperty("longitude", coordinates[0])
 
         evaIdLatLngMap[evaNumbers.number] = Pair(name, LatLng(coordinates[1], coordinates[0]))
 

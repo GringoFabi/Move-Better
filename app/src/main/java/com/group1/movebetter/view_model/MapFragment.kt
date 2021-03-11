@@ -35,6 +35,8 @@ import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.camera.CameraPosition
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
@@ -257,8 +259,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
             // when clicked on a bikeNetwork get the stations via REST
             if (bikeNetworks.isNotEmpty()) {
+                animateCameraPosition(bikeNetworks[0])
                 resetSelectedMarkerLayer(style)
                 mapViewModel.cityBikeController.getNetwork(bikeNetworks[0]!!.getStringProperty("id"))
+                return false
             }
 
             // when clicked on icon which was already clicked on, show card view
@@ -307,24 +311,41 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             // make it bigger and show information
             when {
                 bikeStation.size > 0 -> {
+                    animateCameraPosition(bikeStation[0])
                     selectMarker(selectedMarkerLayer)
                     setAdapter(bikeStation[0])
                 }
                 tramStation.size > 0 -> {
+                    animateCameraPosition(tramStation[0])
                     selectMarker(selectedMarkerLayer)
                     setAdapter(tramStation[0])
                 }
                 scooter.size > 0 -> {
+                    animateCameraPosition(scooter[0])
                     selectMarker(selectedMarkerLayer)
                     setAdapter(scooter[0])
                 }
                 nvvStation.size > 0 -> {
+                    animateCameraPosition(nvvStation[0])
                     selectMarker(selectedMarkerLayer)
                     setAdapter(nvvStation[0])
                 }
             }
         }
         return true
+    }
+
+    private fun animateCameraPosition(feature: Feature?) {
+        val latitude = feature!!.getNumberProperty("latitude") as Double
+        val longitude = feature.getNumberProperty("longitude") as Double
+        val builder = CameraPosition.Builder()
+                .target(LatLng(latitude, longitude))
+
+        if (feature.getStringProperty("provider") != "trams") {
+            builder.zoom(12.0)
+        }
+
+        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(builder.build()), 500)
     }
 
     private fun checkRVVisible() {
@@ -442,7 +463,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     private fun createLayer(id: String, src: String, icon: String): SymbolLayer {
         val layer = SymbolLayer(id, src).withProperties(
                 iconImage(icon),
-                iconAllowOverlap(false),
                 iconSize(0.3f))
 
         if (id == BIKE_NETWORK_LAYER) {
@@ -515,7 +535,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         repository.getResponseArrival.observe(viewLifecycleOwner) {
             binding.singleLocationRecyclerView.adapter = TramAdapter(
                     it.filter { departure -> departure.arrival != null && departure.arrival.time != "N/A" },
-                    this::openNvv,
+                    this::openDB,
                     this::onMapsNavigateTo,
                     mapViewModel.stadaStationController.selectedStation
             )
@@ -680,8 +700,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     // Open other Apps or their link to play store
 
-    @SuppressLint("QueryPermissionsNeeded")
-    private fun onMapsNavigateTo(lat: Double, lng: Double){
+    private fun onMapsNavigateTo(lat: Double, lng: Double) {
         val gmmIntentUri: Uri = Uri.parse("google.navigation:q=$lat,$lng&mode=w")
         val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
         mapIntent.setPackage("com.google.android.apps.maps")
@@ -693,8 +712,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
-    @SuppressLint("QueryPermissionsNeeded")
-    private fun openBird(){
+    private fun openBird() {
         val intentL = context!!.packageManager.getLaunchIntentForPackage("co.bird.android")
 
         if (intentL?.resolveActivity(context!!.packageManager) != null) {
@@ -704,8 +722,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
-    @SuppressLint("QueryPermissionsNeeded")
-    private fun openNvv(){
+    private fun openNvv() {
         val intentL = context!!.packageManager.getLaunchIntentForPackage("de.hafas.android.nvv")
 
         if (intentL?.resolveActivity(context!!.packageManager) != null) {
@@ -715,14 +732,23 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
-    @SuppressLint("QueryPermissionsNeeded")
-    private fun openNextBike(){
+    private fun openNextBike() {
         val intentL = context!!.packageManager.getLaunchIntentForPackage("de.nextbike")
 
         if (intentL?.resolveActivity(context!!.packageManager) != null) {
             startActivity(intentL)
         } else {
             openPlayStoreFor("de.nextbike")
+        }
+    }
+
+    private fun openDB() {
+        val intentL = context!!.packageManager.getLaunchIntentForPackage("de.hafas.android.db")
+
+        if (intentL?.resolveActivity(context!!.packageManager) != null) {
+            startActivity(intentL)
+        } else {
+            openPlayStoreFor("de.hafas.android.db")
         }
     }
 

@@ -49,6 +49,8 @@ class CityBikeController(private val viewModelScope: CoroutineScope, private val
         val feature = Feature.fromGeometry(Point.fromLngLat(location.longitude, location.latitude))
         feature.addStringProperty("id", id)
         feature.addBooleanProperty("show", show)
+        feature.addNumberProperty("latitude", location.latitude)
+        feature.addNumberProperty("longitude", location.longitude)
 
         return feature
     }
