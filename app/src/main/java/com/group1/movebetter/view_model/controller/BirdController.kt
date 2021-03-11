@@ -27,21 +27,20 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
     // sends the token from the verifying mail to the auth api (retrieves the tokens)
     fun postAuthToken(token: String) {
         val body = Token(token)
-        viewModelScope.launch {
+        runBlocking {
             repository.postMagicToken(body)
         }
     }
 
     // sends the refresh-token to the auth api (overwrites the current tokens)
     fun refresh() {
-        viewModelScope.launch {
-
-            var refresh = ""
-            runBlocking {
-                launch(Dispatchers.IO) {
-                    refresh = repository.database.databaseBirdTokensDao.getBirdToken("1").refresh
-                }
+        var refresh = ""
+        runBlocking {
+            launch(Dispatchers.IO) {
+                refresh = repository.database.databaseBirdTokensDao.getBirdToken("1").refresh
             }
+        }
+        runBlocking {
             repository.refresh("Bearer ${refresh}")
         }
     }
@@ -50,21 +49,22 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
     fun getBirds(location: Location) {
 
         val position = Position(
-            location.latitude,
-            location.longitude,
-            location.altitude,
-            location.accuracy,
-            location.speed,
+                location.latitude,
+                location.longitude,
+                location.altitude,
+                location.accuracy,
+                location.speed,
         )
         val radius = 1000
         val loc: String = Gson().toJson(position)
-        viewModelScope.launch {
-            var access: String? = null
-            runBlocking {
-                launch(Dispatchers.IO) {
-                    access = repository.database.databaseBirdTokensDao.getBirdToken("1")?.access
-                }
+
+        var access: String? = null
+        runBlocking {
+            launch(Dispatchers.IO) {
+                access = repository.database.databaseBirdTokensDao.getBirdToken("1")?.access
             }
+        }
+        viewModelScope.launch {
             try {
                 access?.let {
                     repository.getBirds(location.latitude, location.longitude, radius, "Bearer $access", loc)
