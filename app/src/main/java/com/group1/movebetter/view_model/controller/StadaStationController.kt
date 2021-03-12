@@ -17,8 +17,8 @@ class StadaStationController(
 ) {
 
     lateinit var nearestStation: StaDaStation
-    private var evaIdLatLngMap: HashMap<Long, Pair<String, LatLng>> = HashMap()
-    var selectedStation: Pair<String, LatLng>? = null
+    private var evaIdLatLngMap: HashMap<Long, LatLng> = HashMap()
+    var selectedStation: LatLng? = null
 
     fun getStations()
     {
@@ -63,7 +63,7 @@ class StadaStationController(
         feature.addNumberProperty("latitude", coordinates[1])
         feature.addNumberProperty("longitude", coordinates[0])
 
-        evaIdLatLngMap[evaNumbers.number] = Pair(name, LatLng(coordinates[1], coordinates[0]))
+        evaIdLatLngMap[evaNumbers.number] = LatLng(coordinates[1], coordinates[0])
 
         return feature
     }

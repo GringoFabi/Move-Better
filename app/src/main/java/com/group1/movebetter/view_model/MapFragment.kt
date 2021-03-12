@@ -365,6 +365,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     }
 
     private fun checkRVVisible() {
+        binding.singleLocationRecyclerView.adapter = null
         binding.singleLocationRecyclerView.visibility = View.GONE
         binding.nearestBike.visibility = View.VISIBLE
         if (mapViewModel.birdController.nearestBird != null) {
@@ -381,14 +382,21 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         binding.nearestTram.visibility = View.GONE
 
         val provider = feature!!.getStringProperty("provider")
-        if (provider.equals("bikes")) {
-            binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature), this::openNextBike, this::onMapsNavigateTo)
-        } else if (provider.equals("birds")) {
-            binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird, this::onMapsNavigateTo)
-        } else {
-            val evaId = (feature.getNumberProperty("evaId") as Double).toLong()
-            mapViewModel.stadaStationController.setSelectedStation(evaId)
-            mapViewModel.marudorController.getArrival(evaId, 60)
+        when {
+            provider.equals("bikes") -> {
+                binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature), this::openNextBike, this::onMapsNavigateTo)
+            }
+            provider.equals("birds") -> {
+                binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird, this::onMapsNavigateTo)
+            }
+            provider.equals("nvv") -> {
+                // TODO when NVV implemented
+            }
+            else -> {
+                val evaId = (feature.getNumberProperty("evaId") as Double).toLong()
+                mapViewModel.stadaStationController.setSelectedStation(evaId)
+                mapViewModel.marudorController.getArrival(evaId, 60)
+            }
         }
 
         binding.singleLocationRecyclerView.visibility = View.VISIBLE
@@ -551,12 +559,18 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         // Observer for Departure Board
         repository.getResponseArrival.observe(viewLifecycleOwner) {
-            binding.singleLocationRecyclerView.adapter = TramAdapter(
-                    it.filter { departure -> departure.arrival != null && departure.arrival.time != "N/A" },
-                    this::openDB,
-                    this::onMapsNavigateTo,
-                    mapViewModel.stadaStationController.selectedStation
-            )
+            if (it.isNotEmpty()) {
+                val departures = it.filter { departure -> departure.arrival != null && departure.arrival.time != "N/A" }
+
+                if (mapViewModel.stadaStationController.selectedStation != null) {
+                    binding.singleLocationRecyclerView.adapter = TramAdapter(
+                            departures,
+                            this::openDB,
+                            this::onMapsNavigateTo,
+                            mapViewModel.stadaStationController.selectedStation
+                    )
+                }
+            }
         }
 
         // Observer for filtering bikes
