@@ -16,5 +16,3 @@ local.properties
 ehthumbs.db
 Thumbs.db
 app/src/main/res/values/developer-config.xml
-app/src/main/java/com/group1/movebetter/view_model/controller/Tokens.kt
-credentials.json

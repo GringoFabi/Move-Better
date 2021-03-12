@@ -10,7 +10,6 @@ import retrofit2.http.*
 
 interface BirdAuthService {
 
-    // TODO: eventually add handling for the response codes
     @POST("email")
     suspend fun getAuthToken(
             @Body email: EmailBody

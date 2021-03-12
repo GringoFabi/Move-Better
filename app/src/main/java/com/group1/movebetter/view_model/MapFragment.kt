@@ -159,7 +159,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         nearestBike.setOnClickListener {
             val closestBike = mapViewModel.cityBikeController.nearestBike
-            onMapsNavigateTo(closestBike.latitude, closestBike.longitude)
+            if (closestBike != null) {
+                onMapsNavigateTo(closestBike.latitude, closestBike.longitude)
+            } else {
+                Toast.makeText(context, "No nearest bike found!", Toast.LENGTH_SHORT).show()
+            }
         }
 
         // Navigate to nearest scooter
@@ -170,7 +174,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         nearestScooter.setOnClickListener {
             val nearestBird = mapViewModel.birdController.nearestBird
-            onMapsNavigateTo(nearestBird.location.latitude, nearestBird.location.longitude)
+            onMapsNavigateTo(nearestBird!!.location.latitude, nearestBird.location.longitude)
         }
 
         // Navigate to nearest db tram station
@@ -226,7 +230,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     private fun refreshNetworkRequests() {
         delayedRefreshRequestsJob = lifecycleScope.launch {
             mapViewModel.cityBikeController.getNetworks()
-            //mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
+            mapViewModel.birdController.getBirds(mapViewModel.mapController.currentLocation)
             delay(DELAY_MILLIS)
             mapViewModel.mapController.getCurrentLocation(activity!!)
             refreshNetworkRequests()
@@ -320,6 +324,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
             // if clicked on a bike station/ scooter/ tram station,
             // make it bigger and show information
+            // and animate camera
             when {
                 bikeStation.size > 0 -> {
                     animateCameraPosition(bikeStation[0])
@@ -362,7 +367,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     private fun checkRVVisible() {
         binding.singleLocationRecyclerView.visibility = View.GONE
         binding.nearestBike.visibility = View.VISIBLE
-        binding.nearestScooter.visibility = View.VISIBLE
+        if (mapViewModel.birdController.nearestBird != null) {
+            binding.nearestScooter.visibility = View.VISIBLE
+        }
         binding.nearestTrain.visibility = View.VISIBLE
         binding.nearestTram.visibility = View.VISIBLE
     }
