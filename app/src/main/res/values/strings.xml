@@ -30,7 +30,7 @@
     <string name="navigate_to_nearest_bike">Navigate to nearest bike</string>
     <string name="navigate_to_nearest_tram_station">Navigate to nearest tram station</string>
     <string name="navigate_to_nearest_bird">Navigate to nearest bird</string>
-    <string name="navigate_to_nearest_train_station">navigate to nearest train station</string>
+    <string name="navigate_to_nearest_train_station">Navigate to nearest train station</string>
     <string name="bird_app_icon">Bird App Icon</string>
     <string name="db_app_icon">DB App Icon</string>
     <string name="nvv_app_icon">NVV App Icon</string>

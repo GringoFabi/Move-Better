@@ -1,20 +1,17 @@
 package com.group1.movebetter.view_model
 
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil.inflate
@@ -30,19 +27,12 @@ import com.group1.movebetter.util.Constants.Companion.DELAY_MILLIS
 import com.group1.movebetter.card_views.BikeAdapter
 import com.group1.movebetter.card_views.BirdAdapter
 import com.group1.movebetter.card_views.TramAdapter
-import com.group1.movebetter.model.BirdTokens
-import com.group1.movebetter.model.DevUuid
-import com.group1.movebetter.model.asDatabaseBirdTokensList
-import com.group1.movebetter.model.asDatabaseDevUuid
-import com.group1.movebetter.view_model.controller.BirdController
 import com.group1.movebetter.view_model.controller.MenuController
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.camera.CameraPosition
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
@@ -84,9 +74,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     private lateinit var DB_TRAM_STATION_ICON_ID: String
     private lateinit var NVV_STATION_ICON_ID: String
 
-    private var markerAnimator: ValueAnimator? = null
-    private var markerSelected = false
-
     private lateinit var mapView: MapView
     private lateinit var mapboxMap: MapboxMap
     private var permissionsManager: PermissionsManager? = null
@@ -118,7 +105,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 uuid = db.databaseDevUuidDao.getDevUuid("1").uuid
             }.join()
         }
-        repository = Repository(db, uuid);
+        repository = Repository(db, uuid)
         val viewModelFactory = MapViewModelFactory(repository)
         mapViewModel = ViewModelProvider(this, viewModelFactory).get(MapViewModel::class.java)
         binding.mapViewModel = mapViewModel
@@ -261,6 +248,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     override fun onMapClick(point: LatLng): Boolean {
         val style = mapboxMap.style
         if (style != null) {
+            val markerSelected = mapViewModel.mapController.markerSelected
             val pixel = mapboxMap.projection.toScreenLocation(point)
 
             val bikeNetworks = mapboxMap.queryRenderedFeatures(pixel, BIKE_NETWORK_LAYER)
@@ -274,8 +262,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
             // when clicked on a bikeNetwork get the stations via REST
             if (bikeNetworks.isNotEmpty()) {
-                animateCameraPosition(bikeNetworks[0])
-                resetSelectedMarkerLayer(style)
+                mapViewModel.mapController.animateCameraPosition(mapboxMap, bikeNetworks[0])
+                mapViewModel.mapController.resetSelectedMarkerLayer(style, SELECTED_MARKER)
                 mapViewModel.cityBikeController.getNetwork(bikeNetworks[0]!!.getStringProperty("id"))
                 return false
             }
@@ -290,7 +278,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 // when card view is shown and user clicks on map, make it invisible
                 checkRVVisible()
                 if (markerSelected) {
-                    deselectMarker(selectedMarkerLayer, style, true)
+                    mapViewModel.mapController.deselectMarker(selectedMarkerLayer, style, true, SELECTED_MARKER)
                 }
                 return false
             }
@@ -319,7 +307,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
             // check if an icon is already selected
             if (markerSelected) {
-                deselectMarker(selectedMarkerLayer, style, false)
+                mapViewModel.mapController.deselectMarker(selectedMarkerLayer, style, false, SELECTED_MARKER)
             }
 
             // if clicked on a bike station/ scooter/ tram station,
@@ -327,41 +315,28 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             // and animate camera
             when {
                 bikeStation.size > 0 -> {
-                    animateCameraPosition(bikeStation[0])
-                    selectMarker(selectedMarkerLayer)
+                    mapViewModel.mapController.animateCameraPosition(mapboxMap, bikeStation[0])
+                    mapViewModel.mapController.selectMarker(selectedMarkerLayer)
                     setAdapter(bikeStation[0])
                 }
                 tramStation.size > 0 -> {
-                    animateCameraPosition(tramStation[0])
-                    selectMarker(selectedMarkerLayer)
+                    mapViewModel.mapController.animateCameraPosition(mapboxMap, tramStation[0])
+                    mapViewModel.mapController.selectMarker(selectedMarkerLayer)
                     setAdapter(tramStation[0])
                 }
                 scooter.size > 0 -> {
-                    animateCameraPosition(scooter[0])
-                    selectMarker(selectedMarkerLayer)
+                    mapViewModel.mapController.animateCameraPosition(mapboxMap, scooter[0])
+                    mapViewModel.mapController.selectMarker(selectedMarkerLayer)
                     setAdapter(scooter[0])
                 }
                 nvvStation.size > 0 -> {
-                    animateCameraPosition(nvvStation[0])
-                    selectMarker(selectedMarkerLayer)
+                    mapViewModel.mapController.animateCameraPosition(mapboxMap, nvvStation[0])
+                    mapViewModel.mapController.selectMarker(selectedMarkerLayer)
                     setAdapter(nvvStation[0])
                 }
             }
         }
         return true
-    }
-
-    private fun animateCameraPosition(feature: Feature?) {
-        val latitude = feature!!.getNumberProperty("latitude") as Double
-        val longitude = feature.getNumberProperty("longitude") as Double
-        val builder = CameraPosition.Builder()
-                .target(LatLng(latitude, longitude))
-
-        if (feature.getStringProperty("provider") != "trams") {
-            builder.zoom(12.0)
-        }
-
-        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(builder.build()), 500)
     }
 
     private fun checkRVVisible() {
@@ -400,43 +375,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
 
         binding.singleLocationRecyclerView.visibility = View.VISIBLE
-    }
-
-    private fun resetSelectedMarkerLayer(style: Style) {
-        val source = style.getSourceAs<GeoJsonSource>(SELECTED_MARKER)
-        source?.setGeoJson(FeatureCollection.fromFeatures(arrayOf()))
-    }
-
-    private fun selectMarker(iconLayer: SymbolLayer) {
-        markerAnimator = ValueAnimator()
-        markerAnimator!!.setObjectValues(0.3f, 0.6f)
-        markerAnimator!!.duration = 300
-        markerAnimator!!.addUpdateListener { animator ->
-            iconLayer.setProperties(
-                    iconSize(animator.animatedValue as Float)
-            )
-        }
-        markerAnimator!!.start()
-        markerSelected = true
-    }
-
-    private fun deselectMarker(iconLayer: SymbolLayer, style: Style, clickedOnMap: Boolean) {
-        markerAnimator!!.setObjectValues(0.6f, 0.3f)
-        markerAnimator!!.duration = 300
-        markerAnimator!!.addUpdateListener { animator ->
-            iconLayer.setProperties(
-                    iconSize(animator.animatedValue as Float)
-            )
-        }
-        if (clickedOnMap) {
-            markerAnimator!!.doOnEnd {
-                // Reset selected-marker-source
-                val source = style.getSourceAs<GeoJsonSource>(SELECTED_MARKER)
-                source?.setGeoJson(FeatureCollection.fromFeatures(arrayOf()))
-            }
-        }
-        markerAnimator!!.start()
-        markerSelected = false
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -726,7 +664,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     override fun onDestroy() {
         super.onDestroy()
         mapboxMap.removeOnMapClickListener(this)
-        markerAnimator?.cancel()
+        mapViewModel.mapController.markerAnimator?.cancel()
         mapView.onDestroy()
     }
 
