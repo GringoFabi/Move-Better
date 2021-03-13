@@ -16,6 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/white"
+            android:layout_gravity="left"
             android:gravity="center_vertical"
             android:orientation="vertical"
             android:padding="16dp">
@@ -27,30 +28,29 @@
                 <TextView
                     android:id="@+id/bikeTitle"
                     android:layout_gravity="center"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginRight="40dp"
                     android:textStyle="bold"
                     android:textColor="@android:color/black"
                     android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/bikeAppIcon"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
                     android:id="@+id/bikeAppIcon"
-                    android:contentDescription="@string/bike_app_icon"
+                    android:contentDescription="@string/next_bike_app_icon"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:layout_height="50dp"
-                    android:layout_width="50dp"/>
+                    android:layout_height="40dp"
+                    android:layout_width="40dp"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
                 android:id="@+id/freeBikes"
-                android:layout_gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
@@ -62,13 +62,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:layout_gravity="center"
                 android:textColor="@android:color/black"
                 android:textSize="16sp"/>
 
             <TextView
                 android:id="@+id/timestamp"
-                android:layout_gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
@@ -86,14 +84,14 @@
                     android:textColor="@color/black"
                     android:id="@+id/btnGoToStation"
                     android:layout_marginEnd="45dp"
-                    android:text="@string/go_to_station"/>
+                    android:text="@string/navigate_to"/>
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
                     android:id="@+id/btnNextBike"
-                    android:text="@string/go_to_nextbike" />
+                    android:text="@string/open_next_bike_app" />
 
             </LinearLayout>
         </LinearLayout>

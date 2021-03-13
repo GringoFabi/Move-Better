@@ -10,11 +10,7 @@ import kotlinx.coroutines.*
 
 class BirdController(private val viewModelScope: CoroutineScope, private val repository: Repository, private val mapController: MapController) {
 
-    // TODO: retrieve the tokens from a database
-    //private val refresh: Token = Tokens.refresh
-    //private val access: Token = Tokens.access
-
-    lateinit var nearestBird: Bird
+    var nearestBird: Bird? = null
 
     // sends email to the auth api
     fun getAuthToken(email: String) {
@@ -41,7 +37,7 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
             }
         }
         runBlocking {
-            repository.refresh("Bearer ${refresh}")
+            repository.refresh("Bearer $refresh")
         }
     }
 
