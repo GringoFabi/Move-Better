@@ -45,6 +45,10 @@ class Repository(val database: MyDatabase, uuid:String) {
     val getStationsByTerm: LiveData<NextStations>
         get() = _getStationsByTerm
 
+    private val _getNvvStation: MutableLiveData<NextNvvStations> = MutableLiveData()
+    val getNvvStation: LiveData<NextNvvStations>
+        get() = _getNvvStation
+
 
     private val _myResponse: MutableLiveData<EmailBody> = MutableLiveData()
     val myResponse: LiveData<EmailBody>
@@ -129,6 +133,13 @@ class Repository(val database: MyDatabase, uuid:String) {
         }, { Log.d("getStations", it.toString()) })
     }
 
+    suspend fun getNvvStations()
+    {
+        launch(instance.apiNvv.getNvvStationsAsync(), {}, {
+            it
+        }, { Log.d("getStations", it.toString()) })
+    }
+
     suspend fun getArrival(evaId: Long, lookahead: Long)
     {
         launch(instance.apiMarudor.getArrivalAsync(evaId, lookahead), {}, {
@@ -137,6 +148,13 @@ class Repository(val database: MyDatabase, uuid:String) {
                 database.databaseDepartureDao.insertAll(it.departures.asDatabaseDepartureList())
             }
         }, { Log.d("getArrival", it.toString()) })
+    }
+
+    suspend fun getArrivalNvvAsync(evaId: String)
+    {
+        launch(instance.apiMarudor.getArrivalNvvAsync(evaId), {}, {
+            it
+        }, { Log.d("getArrivalNvvAsync", it.toString()) })
     }
 
     suspend fun getNextStations(lat: Double, lng: Double, radius: Long)
@@ -154,6 +172,17 @@ class Repository(val database: MyDatabase, uuid:String) {
             {},
             { _getStationsByTerm.postValue(it) },
             { Log.d("getNetworksFiltered", it.toString()) })
+    }
+
+
+    suspend fun getNvvStationIdAsync(searchTerm: String, type: String, max: Long)
+    {
+        launch(instance.apiMarudor.getNvvStationIdAsync(searchTerm, type, max),
+                {},
+                {
+                    it
+                    _getNvvStation.postValue(it) },
+                { Log.d("getNvvStationIdAsync", it.toString()) })
     }
 
     suspend fun getBirdToken(body: EmailBody) {

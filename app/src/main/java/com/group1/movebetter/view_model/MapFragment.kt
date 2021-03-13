@@ -135,7 +135,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapView.getMapAsync(this)
 
         val currentLocationTask = mapViewModel.mapController.getCurrentLocation(this.requireActivity())
-
+        mapViewModel.nvvController.getNvvStations()
+        mapViewModel.marudorController.getNvvStation("Sonnenhang   Ri. Blindenheim")
+        mapViewModel.marudorController.getNvvArrival("000447364")
         currentLocationTask.addOnCompleteListener {
             mapViewModel.stadaStationController.getStations()
             refreshNetworkRequests()
