@@ -3,30 +3,45 @@
 
 <!--    Layers and Sources-->
     <string name="BIKE_STATION_LAYER">bike-station-layer</string>
-    <string name="BIKE_STATIONS">bike-stations</string>
+    <string name="BIKE_STATION">bike-station</string>
     <string name="BIKE_NETWORK_LAYER">bike-network-layer</string>
-    <string name="BIKE_NETWORKS">bike-network-source</string>
+    <string name="BIKE_NETWORK">bike-network-source</string>
     <string name="SELECTED_MARKER_LAYER">selected-marker-layer</string>
     <string name="SELECTED_MARKER">selected-marker</string>
     <string name="BIRD_SCOOTER_LAYER">bird-scooter-layer</string>
     <string name="BIRD_SCOOTER">bird-scooter</string>
-    <string name="TRAM_STATION">tram-station</string>
-    <string name="TRAM_STATION_LAYER">tram-station-layer</string>
+    <string name="DB_TRAM_STATION">db-tram-station</string>
+    <string name="DB_TRAM_STATION_LAYER">db-tram-station-layer</string>
+    <string name="NVV_TRAIN_STATION">nvv-train-station</string>
+    <string name="NVV_TRAIN_STATION_LAYER">nvv-train-station-layer</string>
 
 <!--    Icons-->
-    <string name="BIKE_ICON_ID">bike</string>
-    <string name="NETWORK_ICON_ID">network</string>
-    <string name="SCOOTER_ICON_ID">scooter</string>
-    <string name="TRAM_STATION_ICON_ID">tram</string>
-    <string name="go_to_nextbike">Open NextBike App</string>
-    <string name="go_to_birds_app">Open Birds App</string>
-    <string name="go_to_station">Navigate to</string>
-    <string name="go_to_nvv_app">Open NVV App</string>
+    <string name="BIKE_STATION_ICON_ID">bike</string>
+    <string name="BIKE_NETWORK_ICON_ID">network</string>
+    <string name="BIRD_SCOOTER_ICON_ID">scooter</string>
+    <string name="DB_TRAM_STATION_ICON_ID">db</string>
+    <string name="NVV_TRAIN_STATION_ICON_ID">nvv</string>
+
+
+    <string name="open_next_bike_app">Open NextBike App</string>
+    <string name="open_birds_app">Open Birds App</string>
+    <string name="open_nvv_app">Open NVV App</string>
+    <string name="navigate_to">Navigate to</string>
     <string name="navigate_to_nearest_bike">Navigate to nearest bike</string>
-    <string name="navigate_to_nearest_train_station">Navigate to nearest train station</string>
+    <string name="navigate_to_nearest_tram_station">Navigate to nearest tram station</string>
     <string name="navigate_to_nearest_bird">Navigate to nearest bird</string>
+    <string name="navigate_to_nearest_train_station">Navigate to nearest train station</string>
     <string name="bird_app_icon">Bird App Icon</string>
     <string name="db_app_icon">DB App Icon</string>
     <string name="nvv_app_icon">NVV App Icon</string>
-    <string name="bike_app_icon">Bike App Icon</string>
+    <string name="next_bike_app_icon">Bike App Icon</string>
+
+<!--    Menu Items-->
+    <string name="city_bikes">City Bikes</string>
+    <string name="nvv">NVV</string>
+    <string name="bird_scooter">Bird Scooter</string>
+    <string name="db">DB</string>
+    <string name="overlay">Overlay</string>
+    <string name="refresh">Refresh</string>
+    <string name="open_db_app">Open DB App</string>
 </resources>

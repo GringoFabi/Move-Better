@@ -33,43 +33,58 @@
 
             <ImageButton
                 android:id="@+id/nearest_bike"
-                android:layout_width="50dp"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginBottom="5dp"
-                app:layout_constraintBottom_toTopOf="@+id/nearest_train"
-                app:layout_constraintStart_toStartOf="parent"
-                android:visibility="gone"
                 android:background="@null"
-                android:contentDescription="@string/navigate_to_nearest_bike" />
+                android:contentDescription="@string/navigate_to_nearest_bike"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@id/nearest_tram"
+                app:layout_constraintStart_toStartOf="parent" />
 
             <ImageButton
-                android:id="@+id/nearest_train"
-                android:layout_width="50dp"
+                android:id="@+id/nearest_tram"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginBottom="5dp"
-                app:layout_constraintBottom_toTopOf="@+id/nearest_scooter"
-                app:layout_constraintStart_toStartOf="parent"
-                android:visibility="gone"
                 android:background="@null"
-                android:contentDescription="@string/navigate_to_nearest_train_station" />
+                android:contentDescription="@string/navigate_to_nearest_tram_station"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@id/nearest_scooter"
+                app:layout_constraintStart_toStartOf="parent" />
 
             <ImageButton
                 android:id="@+id/nearest_scooter"
-                android:layout_width="50dp"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginBottom="30dp"
-                app:backgroundTint="#000000"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:visibility="gone"
                 android:background="@null"
-                android:contentDescription="@string/navigate_to_nearest_bird" />
+                android:contentDescription="@string/navigate_to_nearest_bird"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="5dp"
+                android:visibility="gone"
+                app:backgroundTint="#000000"
+                app:layout_constraintBottom_toTopOf="@id/nearest_train"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <ImageButton
+                android:id="@+id/nearest_train"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:background="@null"
+                android:contentDescription="@string/navigate_to_nearest_train_station"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@+id/guideline2"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_end="30dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

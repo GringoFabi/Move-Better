@@ -6,22 +6,34 @@
             android:id="@+id/cityBikes"
             android:checkable="true"
             android:checked="true"
-            android:title="City Bikes"></item>
+            android:title="@string/city_bikes" />
 
         <item
             android:id="@+id/marudor"
             android:checkable="true"
             android:checked="false"
-            android:title="NVV"></item>
+            android:title="@string/db" />
+
+        <item
+            android:id="@+id/nvv"
+            android:checkable="true"
+            android:checked="false"
+            android:title="@string/nvv" />
 
         <item
             android:id="@+id/bird"
             android:checkable="true"
             android:checked="false"
-            android:title="Bird Scooter"></item>
+            android:title="@string/bird_scooter" />
     </group>
 
     <item
+        android:id="@+id/overlay"
+        android:checkable="true"
+        android:checked="false"
+        android:title="@string/overlay" />
+
+    <item
         android:id="@+id/refresh"
-        android:title="Refresh"></item>
+        android:title="@string/refresh" />
 </menu>

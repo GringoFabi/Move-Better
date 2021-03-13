@@ -8,7 +8,11 @@ class MenuController {
 
     val marudorItem: MutableLiveData<Boolean> = MutableLiveData(false)
 
+    val nvvItem: MutableLiveData<Boolean> = MutableLiveData(false)
+
     val birdItem: MutableLiveData<Boolean> = MutableLiveData(false)
+
+    val overlayItem: MutableLiveData<Boolean> = MutableLiveData(false)
 
     companion object {
         private var instance: MenuController? = null

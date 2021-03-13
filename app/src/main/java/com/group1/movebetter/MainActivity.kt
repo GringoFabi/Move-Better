@@ -155,12 +155,20 @@ class MainActivity : AppCompatActivity() {
                 menuController!!.marudorItem.postValue(item.isChecked)
                 true
             }
+            R.id.nvv -> {
+                menuController!!.nvvItem.postValue(item.isChecked)
+                true
+            }
             R.id.bird -> {
                 menuController!!.birdItem.postValue(item.isChecked)
                 true
             }
             R.id.refresh -> {
                 false
+            }
+            R.id.overlay -> {
+                menuController!!.overlayItem.postValue(item.isChecked)
+                true
             }
             else -> super.onOptionsItemSelected(item)
         }

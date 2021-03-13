@@ -1,20 +1,17 @@
 package com.group1.movebetter.view_model
 
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil.inflate
@@ -30,11 +27,6 @@ import com.group1.movebetter.util.Constants.Companion.DELAY_MILLIS
 import com.group1.movebetter.card_views.BikeAdapter
 import com.group1.movebetter.card_views.BirdAdapter
 import com.group1.movebetter.card_views.TramAdapter
-import com.group1.movebetter.model.BirdTokens
-import com.group1.movebetter.model.DevUuid
-import com.group1.movebetter.model.asDatabaseBirdTokensList
-import com.group1.movebetter.model.asDatabaseDevUuid
-import com.group1.movebetter.view_model.controller.BirdController
 import com.group1.movebetter.view_model.controller.MenuController
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -71,16 +63,16 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     private lateinit var SELECTED_MARKER: String
     private lateinit var BIRD_SCOOTER_LAYER: String
     private lateinit var BIRD_SCOOTER: String
-    private lateinit var TRAM_STATION: String
-    private lateinit var TRAM_STATION_LAYER: String
+    private lateinit var DB_TRAM_STATION: String
+    private lateinit var DB_TRAM_STATION_LAYER: String
+    private lateinit var NVV_TRAIN_STATION: String
+    private lateinit var NVV_TRAIN_STATION_LAYER: String
 
-    private lateinit var BIKE_ICON_ID: String
-    private lateinit var NETWORK_ICON_ID: String
-    private lateinit var SCOOTER_ICON_ID: String
-    private lateinit var TRAM_STATION_ICON_ID: String
-
-    private var markerAnimator: ValueAnimator? = null
-    private var markerSelected = false
+    private lateinit var BIKE_STATION_ICON_ID: String
+    private lateinit var BIKE_NETWORK_ICON_ID: String
+    private lateinit var BIRD_SCOOTER_ICON_ID: String
+    private lateinit var DB_TRAM_STATION_ICON_ID: String
+    private lateinit var NVV_STATION_ICON_ID: String
 
     private lateinit var mapView: MapView
     private lateinit var mapboxMap: MapboxMap
@@ -113,7 +105,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 uuid = db.databaseDevUuidDao.getDevUuid("1").uuid
             }.join()
         }
-        repository = Repository(db, uuid);
+        repository = Repository(db, uuid)
         val viewModelFactory = MapViewModelFactory(repository)
         mapViewModel = ViewModelProvider(this, viewModelFactory).get(MapViewModel::class.java)
         binding.mapViewModel = mapViewModel
@@ -148,6 +140,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     // Buttons for the "navigate to nearest bike/scooter/tram station" feature
     private fun initButtons() {
+        // Navigate to nearest bike station
         val nearestBike = binding.nearestBike
         nearestBike.setImageBitmap(BitmapFactory.decodeResource(resources, R.raw.bike))
         nearestBike.scaleType = ImageView.ScaleType.CENTER
@@ -155,9 +148,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         nearestBike.setOnClickListener {
             val closestBike = mapViewModel.cityBikeController.nearestBike
-            onMapsNavigateTo(closestBike.latitude, closestBike.longitude)
+            if (closestBike != null) {
+                onMapsNavigateTo(closestBike.latitude, closestBike.longitude)
+            } else {
+                Toast.makeText(context, "No nearest bike found!", Toast.LENGTH_SHORT).show()
+            }
         }
 
+        // Navigate to nearest scooter
         val nearestScooter = binding.nearestScooter
         nearestScooter.setImageBitmap(BitmapFactory.decodeResource(resources, R.raw.scooter))
         nearestScooter.scaleType = ImageView.ScaleType.CENTER
@@ -165,15 +163,16 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         nearestScooter.setOnClickListener {
             val nearestBird = mapViewModel.birdController.nearestBird
-            onMapsNavigateTo(nearestBird.location.latitude, nearestBird.location.longitude)
+            onMapsNavigateTo(nearestBird!!.location.latitude, nearestBird.location.longitude)
         }
 
-        val nearestTrain = binding.nearestTrain
-        nearestTrain.setImageBitmap(BitmapFactory.decodeResource(resources, R.raw.tram))
-        nearestTrain.scaleType = ImageView.ScaleType.CENTER
-        nearestTrain.adjustViewBounds = true
+        // Navigate to nearest db tram station
+        val nearestTram = binding.nearestTram
+        nearestTram.setImageBitmap(BitmapFactory.decodeResource(resources, R.raw.bahnhof))
+        nearestTram.scaleType = ImageView.ScaleType.CENTER
+        nearestTram.adjustViewBounds = true
 
-        nearestTrain.setOnClickListener {
+        nearestTram.setOnClickListener {
             val nearestStation = mapViewModel.stadaStationController.nearestStation
 
             for (evaNumbers in nearestStation.evaNumbers) {
@@ -183,6 +182,16 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                     break
                 }
             }
+        }
+
+        // Navigate to nearest nvv train station
+        val nearestTrain = binding.nearestTrain
+        nearestTrain.setImageBitmap(BitmapFactory.decodeResource(resources, R.raw.tram))
+        nearestTrain.scaleType = ImageView.ScaleType.CENTER
+        nearestTrain.adjustViewBounds = true
+
+        nearestTrain.setOnClickListener {
+            Toast.makeText(context, "Navigate to nearest nvv train", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -219,39 +228,46 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     private fun initIds() {
         BIKE_STATION_LAYER = resources.getString(R.string.BIKE_STATION_LAYER)
-        BIKE_STATIONS = resources.getString(R.string.BIKE_STATIONS)
+        BIKE_STATIONS = resources.getString(R.string.BIKE_STATION)
         BIKE_NETWORK_LAYER = resources.getString(R.string.BIKE_NETWORK_LAYER)
-        BIKE_NETWORKS = resources.getString(R.string.BIKE_NETWORKS)
+        BIKE_NETWORKS = resources.getString(R.string.BIKE_NETWORK)
         SELECTED_MARKER = resources.getString(R.string.SELECTED_MARKER)
         SELECTED_MARKER_LAYER = resources.getString(R.string.SELECTED_MARKER_LAYER)
         BIRD_SCOOTER_LAYER = resources.getString(R.string.BIRD_SCOOTER_LAYER)
         BIRD_SCOOTER = resources.getString(R.string.BIRD_SCOOTER)
-        TRAM_STATION_LAYER = resources.getString(R.string.TRAM_STATION_LAYER)
-        TRAM_STATION = resources.getString(R.string.TRAM_STATION)
+        DB_TRAM_STATION_LAYER = resources.getString(R.string.DB_TRAM_STATION_LAYER)
+        DB_TRAM_STATION = resources.getString(R.string.DB_TRAM_STATION)
+        NVV_TRAIN_STATION_LAYER = resources.getString(R.string.NVV_TRAIN_STATION_LAYER)
+        NVV_TRAIN_STATION = resources.getString(R.string.NVV_TRAIN_STATION)
 
-        BIKE_ICON_ID = resources.getString(R.string.BIKE_ICON_ID)
-        NETWORK_ICON_ID = resources.getString(R.string.NETWORK_ICON_ID)
-        SCOOTER_ICON_ID = resources.getString(R.string.SCOOTER_ICON_ID)
-        TRAM_STATION_ICON_ID = resources.getString(R.string.TRAM_STATION_ICON_ID)
+        BIKE_STATION_ICON_ID = resources.getString(R.string.BIKE_STATION_ICON_ID)
+        BIKE_NETWORK_ICON_ID = resources.getString(R.string.BIKE_NETWORK_ICON_ID)
+        BIRD_SCOOTER_ICON_ID = resources.getString(R.string.BIRD_SCOOTER_ICON_ID)
+        DB_TRAM_STATION_ICON_ID = resources.getString(R.string.DB_TRAM_STATION_ICON_ID)
+        NVV_STATION_ICON_ID = resources.getString(R.string.NVV_TRAIN_STATION_ICON_ID)
     }
 
     override fun onMapClick(point: LatLng): Boolean {
         val style = mapboxMap.style
         if (style != null) {
+            val markerSelected = mapViewModel.mapController.markerSelected
             val pixel = mapboxMap.projection.toScreenLocation(point)
 
             val bikeNetworks = mapboxMap.queryRenderedFeatures(pixel, BIKE_NETWORK_LAYER)
             val bikeStation = mapboxMap.queryRenderedFeatures(pixel, BIKE_STATION_LAYER)
             val scooter = mapboxMap.queryRenderedFeatures(pixel, BIRD_SCOOTER_LAYER)
-            val tramStation = mapboxMap.queryRenderedFeatures(pixel, TRAM_STATION_LAYER)
+            val tramStation = mapboxMap.queryRenderedFeatures(pixel, DB_TRAM_STATION_LAYER)
+            val nvvStation = mapboxMap.queryRenderedFeatures(pixel, NVV_STATION_ICON_ID)
             val selectedFeature = mapboxMap.queryRenderedFeatures(pixel, SELECTED_MARKER_LAYER)
 
             val selectedMarkerLayer = style.getLayer(SELECTED_MARKER_LAYER) as SymbolLayer
 
             // when clicked on a bikeNetwork get the stations via REST
             if (bikeNetworks.isNotEmpty()) {
-                resetSelectedMarkerLayer(style)
+                mapViewModel.mapController.animateCameraPosition(mapboxMap, bikeNetworks[0])
+                mapViewModel.mapController.resetSelectedMarkerLayer(style, SELECTED_MARKER)
                 mapViewModel.cityBikeController.getNetwork(bikeNetworks[0]!!.getStringProperty("id"))
+                return false
             }
 
             // when clicked on icon which was already clicked on, show card view
@@ -260,11 +276,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             }
 
             // when clicked on map and a marker is selected, deselect it
-            if (bikeStation.isEmpty() && scooter.isEmpty() && tramStation.isEmpty()) {
+            if (bikeStation.isEmpty() && scooter.isEmpty() && tramStation.isEmpty() && nvvStation.isEmpty()) {
                 // when card view is shown and user clicks on map, make it invisible
                 checkRVVisible()
                 if (markerSelected) {
-                    deselectMarker(selectedMarkerLayer, style, true)
+                    mapViewModel.mapController.deselectMarker(selectedMarkerLayer, style, true, SELECTED_MARKER)
                 }
                 return false
             }
@@ -275,37 +291,50 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             when {
                 bikeStation.isNotEmpty() -> {
                     source?.setGeoJson(FeatureCollection.fromFeature(bikeStation[0]))
-                    selectedMarkerLayer.setProperties(iconImage(BIKE_ICON_ID))
+                    selectedMarkerLayer.setProperties(iconImage(BIKE_STATION_ICON_ID))
                 }
                 scooter.isNotEmpty() -> {
                     source?.setGeoJson(FeatureCollection.fromFeature(scooter[0]))
-                    selectedMarkerLayer.setProperties(iconImage(SCOOTER_ICON_ID))
+                    selectedMarkerLayer.setProperties(iconImage(BIRD_SCOOTER_ICON_ID))
                 }
                 tramStation.isNotEmpty() -> {
                     source?.setGeoJson(FeatureCollection.fromFeature(tramStation[0]))
-                    selectedMarkerLayer.setProperties(iconImage(TRAM_STATION_ICON_ID))
+                    selectedMarkerLayer.setProperties(iconImage(DB_TRAM_STATION_ICON_ID))
+                }
+                nvvStation.isNotEmpty() -> {
+                    source?.setGeoJson(FeatureCollection.fromFeature(nvvStation[0]))
+                    selectedMarkerLayer.setProperties(iconImage(NVV_STATION_ICON_ID))
                 }
             }
 
             // check if an icon is already selected
             if (markerSelected) {
-                deselectMarker(selectedMarkerLayer, style, false)
+                mapViewModel.mapController.deselectMarker(selectedMarkerLayer, style, false, SELECTED_MARKER)
             }
 
             // if clicked on a bike station/ scooter/ tram station,
             // make it bigger and show information
+            // and animate camera
             when {
                 bikeStation.size > 0 -> {
-                    selectMarker(selectedMarkerLayer)
+                    mapViewModel.mapController.animateCameraPosition(mapboxMap, bikeStation[0])
+                    mapViewModel.mapController.selectMarker(selectedMarkerLayer)
                     setAdapter(bikeStation[0])
                 }
                 tramStation.size > 0 -> {
-                    selectMarker(selectedMarkerLayer)
+                    mapViewModel.mapController.animateCameraPosition(mapboxMap, tramStation[0])
+                    mapViewModel.mapController.selectMarker(selectedMarkerLayer)
                     setAdapter(tramStation[0])
                 }
                 scooter.size > 0 -> {
-                    selectMarker(selectedMarkerLayer)
+                    mapViewModel.mapController.animateCameraPosition(mapboxMap, scooter[0])
+                    mapViewModel.mapController.selectMarker(selectedMarkerLayer)
                     setAdapter(scooter[0])
+                }
+                nvvStation.size > 0 -> {
+                    mapViewModel.mapController.animateCameraPosition(mapboxMap, nvvStation[0])
+                    mapViewModel.mapController.selectMarker(selectedMarkerLayer)
+                    setAdapter(nvvStation[0])
                 }
             }
         }
@@ -313,66 +342,41 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     }
 
     private fun checkRVVisible() {
+        binding.singleLocationRecyclerView.adapter = null
         binding.singleLocationRecyclerView.visibility = View.GONE
         binding.nearestBike.visibility = View.VISIBLE
-        binding.nearestScooter.visibility = View.VISIBLE
+        if (mapViewModel.birdController.nearestBird != null) {
+            binding.nearestScooter.visibility = View.VISIBLE
+        }
         binding.nearestTrain.visibility = View.VISIBLE
+        binding.nearestTram.visibility = View.VISIBLE
     }
 
     private fun setAdapter(feature: Feature?) {
         binding.nearestBike.visibility = View.GONE
         binding.nearestScooter.visibility = View.GONE
         binding.nearestTrain.visibility = View.GONE
+        binding.nearestTram.visibility = View.GONE
 
         val provider = feature!!.getStringProperty("provider")
-        if (provider.equals("bikes")) {
-            binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature), this::openNextBike, this::onMapsNavigateTo)
-        } else if (provider.equals("birds")) {
-            binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird, this::onMapsNavigateTo)
-        } else {
-            val evaId = (feature.getNumberProperty("evaId") as Double).toLong()
-            mapViewModel.stadaStationController.setSelectedStation(evaId)
-            mapViewModel.marudorController.getArrival(evaId, 60)
+        when {
+            provider.equals("bikes") -> {
+                binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature), this::openNextBike, this::onMapsNavigateTo)
+            }
+            provider.equals("birds") -> {
+                binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird, this::onMapsNavigateTo)
+            }
+            provider.equals("nvv") -> {
+                // TODO when NVV implemented
+            }
+            else -> {
+                val evaId = (feature.getNumberProperty("evaId") as Double).toLong()
+                mapViewModel.stadaStationController.setSelectedStation(evaId)
+                mapViewModel.marudorController.getArrival(evaId, 60)
+            }
         }
 
         binding.singleLocationRecyclerView.visibility = View.VISIBLE
-    }
-
-    private fun resetSelectedMarkerLayer(style: Style) {
-        val source = style.getSourceAs<GeoJsonSource>(SELECTED_MARKER)
-        source?.setGeoJson(FeatureCollection.fromFeatures(arrayOf()))
-    }
-
-    private fun selectMarker(iconLayer: SymbolLayer) {
-        markerAnimator = ValueAnimator()
-        markerAnimator!!.setObjectValues(0.3f, 0.6f)
-        markerAnimator!!.duration = 300
-        markerAnimator!!.addUpdateListener { animator ->
-            iconLayer.setProperties(
-                    iconSize(animator.animatedValue as Float)
-            )
-        }
-        markerAnimator!!.start()
-        markerSelected = true
-    }
-
-    private fun deselectMarker(iconLayer: SymbolLayer, style: Style, clickedOnMap: Boolean) {
-        markerAnimator!!.setObjectValues(0.6f, 0.3f)
-        markerAnimator!!.duration = 300
-        markerAnimator!!.addUpdateListener { animator ->
-            iconLayer.setProperties(
-                    iconSize(animator.animatedValue as Float)
-            )
-        }
-        if (clickedOnMap) {
-            markerAnimator!!.doOnEnd {
-                // Reset selected-marker-source
-                val source = style.getSourceAs<GeoJsonSource>(SELECTED_MARKER)
-                source?.setGeoJson(FeatureCollection.fromFeatures(arrayOf()))
-            }
-        }
-        markerAnimator!!.start()
-        markerSelected = false
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -390,22 +394,27 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         // Bike Network Layer
         style.addSource(GeoJsonSource(BIKE_NETWORKS))
 
-        style.addLayer(createLayer(BIKE_NETWORK_LAYER, BIKE_NETWORKS, NETWORK_ICON_ID))
+        style.addLayer(createLayer(BIKE_NETWORK_LAYER, BIKE_NETWORKS, BIKE_NETWORK_ICON_ID))
 
         // Bike Stations Layer
         style.addSource(GeoJsonSource(BIKE_STATIONS))
 
-        style.addLayer(createLayer(BIKE_STATION_LAYER, BIKE_STATIONS, BIKE_ICON_ID))
+        style.addLayer(createLayer(BIKE_STATION_LAYER, BIKE_STATIONS, BIKE_STATION_ICON_ID))
 
         // Bird Scooter Layer
         style.addSource(GeoJsonSource(BIRD_SCOOTER))
 
-        style.addLayer(createLayer(BIRD_SCOOTER_LAYER, BIRD_SCOOTER, SCOOTER_ICON_ID))
+        style.addLayer(createLayer(BIRD_SCOOTER_LAYER, BIRD_SCOOTER, BIRD_SCOOTER_ICON_ID))
 
         // Tram Station Layer
-        style.addSource(GeoJsonSource(TRAM_STATION))
+        style.addSource(GeoJsonSource(DB_TRAM_STATION))
 
-        style.addLayer(createLayer(TRAM_STATION_LAYER, TRAM_STATION, TRAM_STATION_ICON_ID))
+        style.addLayer(createLayer(DB_TRAM_STATION_LAYER, DB_TRAM_STATION, DB_TRAM_STATION_ICON_ID))
+
+        // NVV Station Layer
+        style.addSource(GeoJsonSource(NVV_TRAIN_STATION))
+
+        style.addLayer(createLayer(NVV_TRAIN_STATION_LAYER, NVV_TRAIN_STATION, NVV_STATION_ICON_ID))
 
         // Selected Icon Layer
         style.addSource(GeoJsonSource(SELECTED_MARKER))
@@ -420,7 +429,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     private fun createLayer(id: String, src: String, icon: String): SymbolLayer {
         val layer = SymbolLayer(id, src).withProperties(
                 iconImage(icon),
-                iconAllowOverlap(false),
                 iconSize(0.3f))
 
         if (id == BIKE_NETWORK_LAYER) {
@@ -476,16 +484,32 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         // Observer for tram stations
         repository.getResponseStations.observe(viewLifecycleOwner) {
-            val stationSource = style.getSourceAs<GeoJsonSource>(TRAM_STATION)
+            val stationSource = style.getSourceAs<GeoJsonSource>(DB_TRAM_STATION)
             if (it.isNotEmpty()) {
                 val stations = mapViewModel.stadaStationController.createStationList(it)
                 mapViewModel.stadaStationController.getNearestStation(it)
 
                 if (!binding.singleLocationRecyclerView.isVisible) {
-                    binding.nearestTrain.visibility = View.VISIBLE
+                    binding.nearestTram.visibility = View.VISIBLE
                 }
 
                 mapViewModel.mapController.refreshSource(stationSource!!, stations)
+            }
+        }
+
+        // Observer for Departure Board
+        repository.getResponseArrival.observe(viewLifecycleOwner) {
+            if (it.isNotEmpty()) {
+                val departures = it.filter { departure -> departure.arrival != null && departure.arrival.time != "N/A" }
+
+                if (mapViewModel.stadaStationController.selectedStation != null) {
+                    binding.singleLocationRecyclerView.adapter = TramAdapter(
+                            departures,
+                            this::openDB,
+                            this::onMapsNavigateTo,
+                            mapViewModel.stadaStationController.selectedStation
+                    )
+                }
             }
         }
 
@@ -502,13 +526,23 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             }
         }
 
-        // Observer for filtering trams
+        // Observer for filtering db trams
         menuController.marudorItem.observe(viewLifecycleOwner) {
-            val tramLayer = style.getLayer(TRAM_STATION_LAYER) as SymbolLayer
+            val tramLayer = style.getLayer(DB_TRAM_STATION_LAYER) as SymbolLayer
             if (it) {
                 tramLayer.setProperties(visibility(VISIBLE))
             } else {
                 tramLayer.setProperties(visibility(NONE))
+            }
+        }
+
+        // Observer for filtering nvv trams
+        menuController.nvvItem.observe(viewLifecycleOwner) {
+            val nvvLayer = style.getLayer(NVV_TRAIN_STATION_LAYER) as SymbolLayer
+            if (it) {
+                nvvLayer.setProperties(visibility(VISIBLE))
+            } else {
+                nvvLayer.setProperties(visibility(NONE))
             }
         }
 
@@ -522,22 +556,28 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             }
         }
 
-        // Observer for Departure Board
-        repository.getResponseArrival.observe(viewLifecycleOwner) {
-            binding.singleLocationRecyclerView.adapter = TramAdapter(
-                    it.filter { departure -> departure.arrival != null && departure.arrival.time != "N/A" },
-                    this::openNvv,
-                    this::onMapsNavigateTo,
-                    mapViewModel.stadaStationController.selectedStation
-            )
+        // Observer for turning overlay on and off
+        menuController.overlayItem.observe(viewLifecycleOwner) {
+            val networkLayer = style.getLayer(BIKE_NETWORK_LAYER) as SymbolLayer
+            val stationLayer = style.getLayer(BIKE_STATION_LAYER) as SymbolLayer
+            val tramLayer = style.getLayer(DB_TRAM_STATION_LAYER) as SymbolLayer
+            val nvvLayer = style.getLayer(NVV_TRAIN_STATION_LAYER) as SymbolLayer
+            val birdLayer = style.getLayer(BIRD_SCOOTER_LAYER) as SymbolLayer
+
+            networkLayer.setProperties(iconAllowOverlap(it))
+            stationLayer.setProperties(iconAllowOverlap(it))
+            tramLayer.setProperties(iconAllowOverlap(it))
+            nvvLayer.setProperties(iconAllowOverlap(it))
+            birdLayer.setProperties(iconAllowOverlap(it))
         }
     }
 
     private fun loadImages(style: Style) {
-        style.addImage(BIKE_ICON_ID, BitmapFactory.decodeResource(resources, R.raw.bike))
-        style.addImage(NETWORK_ICON_ID, BitmapFactory.decodeResource(resources, R.raw.network))
-        style.addImage(SCOOTER_ICON_ID, BitmapFactory.decodeResource(resources, R.raw.scooter))
-        style.addImage(TRAM_STATION_ICON_ID, BitmapFactory.decodeResource(resources, R.raw.tram))
+        style.addImage(BIKE_STATION_ICON_ID, BitmapFactory.decodeResource(resources, R.raw.bike))
+        style.addImage(BIKE_NETWORK_ICON_ID, BitmapFactory.decodeResource(resources, R.raw.network))
+        style.addImage(BIRD_SCOOTER_ICON_ID, BitmapFactory.decodeResource(resources, R.raw.scooter))
+        style.addImage(DB_TRAM_STATION_ICON_ID, BitmapFactory.decodeResource(resources, R.raw.bahnhof))
+        style.addImage(NVV_STATION_ICON_ID, BitmapFactory.decodeResource(resources, R.raw.tram))
     }
 
     @SuppressLint("MissingPermission")
@@ -626,14 +666,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
     override fun onDestroy() {
         super.onDestroy()
         mapboxMap.removeOnMapClickListener(this)
-        markerAnimator?.cancel()
+        mapViewModel.mapController.markerAnimator?.cancel()
         mapView.onDestroy()
     }
 
     // Open other Apps or their link to play store
 
-    @SuppressLint("QueryPermissionsNeeded")
-    private fun onMapsNavigateTo(lat: Double, lng: Double){
+    private fun onMapsNavigateTo(lat: Double, lng: Double) {
         val gmmIntentUri: Uri = Uri.parse("google.navigation:q=$lat,$lng&mode=w")
         val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
         mapIntent.setPackage("com.google.android.apps.maps")
@@ -645,8 +684,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
-    @SuppressLint("QueryPermissionsNeeded")
-    private fun openBird(){
+    private fun openBird() {
         val intentL = context!!.packageManager.getLaunchIntentForPackage("co.bird.android")
 
         if (intentL?.resolveActivity(context!!.packageManager) != null) {
@@ -656,8 +694,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
-    @SuppressLint("QueryPermissionsNeeded")
-    private fun openNvv(){
+    private fun openNvv() {
         val intentL = context!!.packageManager.getLaunchIntentForPackage("de.hafas.android.nvv")
 
         if (intentL?.resolveActivity(context!!.packageManager) != null) {
@@ -667,14 +704,23 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
-    @SuppressLint("QueryPermissionsNeeded")
-    private fun openNextBike(){
+    private fun openNextBike() {
         val intentL = context!!.packageManager.getLaunchIntentForPackage("de.nextbike")
 
         if (intentL?.resolveActivity(context!!.packageManager) != null) {
             startActivity(intentL)
         } else {
             openPlayStoreFor("de.nextbike")
+        }
+    }
+
+    private fun openDB() {
+        val intentL = context!!.packageManager.getLaunchIntentForPackage("de.hafas.android.db")
+
+        if (intentL?.resolveActivity(context!!.packageManager) != null) {
+            startActivity(intentL)
+        } else {
+            openPlayStoreFor("de.hafas.android.db")
         }
     }
 
