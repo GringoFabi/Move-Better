@@ -367,7 +367,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird, this::onMapsNavigateTo)
             }
             provider.equals("nvv") -> {
-                val name = feature.getStringProperty("name")
+                val name = feature.getStringProperty("name") + " Kassel"
                 mapViewModel.nvvController.setSelectedStation(feature.getNumberProperty("latitude") as Double, feature.getNumberProperty("longitude") as Double)
                 mapViewModel.marudorController.getNvvStation(name)
             }
@@ -517,8 +517,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         // Observer for stations by term
         repository.getNvvStation.observe(viewLifecycleOwner) {
             if (it.nextStation.isNotEmpty()) {
-                val evaId = it.nextStation[0].id
-                mapViewModel.marudorController.getNvvArrival(evaId)
+                if (it.nextStation[0].id != null) {
+                    val evaId = it.nextStation[0].id
+                    mapViewModel.marudorController.getNvvArrival(evaId)
+                }
             }
         }
 
