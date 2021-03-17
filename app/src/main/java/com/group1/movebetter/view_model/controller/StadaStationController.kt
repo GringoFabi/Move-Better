@@ -59,7 +59,7 @@ class StadaStationController(
         feature.addStringProperty("name", name)
 
         feature.addStringProperty("address", "${mailingAddress?.street ?: "N/A"} ${mailingAddress?.zipcode ?: "N/A"} ${mailingAddress?.city ?: "N/A"}")
-        feature.addStringProperty("provider", "trams")
+        feature.addStringProperty("provider", "db")
         feature.addNumberProperty("latitude", coordinates[1])
         feature.addNumberProperty("longitude", coordinates[0])
 

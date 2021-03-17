@@ -26,7 +26,8 @@ import com.group1.movebetter.repository.Repository
 import com.group1.movebetter.util.Constants.Companion.DELAY_MILLIS
 import com.group1.movebetter.card_views.BikeAdapter
 import com.group1.movebetter.card_views.BirdAdapter
-import com.group1.movebetter.card_views.TramAdapter
+import com.group1.movebetter.card_views.DBTramAdapter
+import com.group1.movebetter.card_views.NVVTrainAdapter
 import com.group1.movebetter.view_model.controller.MenuController
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -255,8 +256,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             val bikeNetworks = mapboxMap.queryRenderedFeatures(pixel, BIKE_NETWORK_LAYER)
             val bikeStation = mapboxMap.queryRenderedFeatures(pixel, BIKE_STATION_LAYER)
             val scooter = mapboxMap.queryRenderedFeatures(pixel, BIRD_SCOOTER_LAYER)
-            val tramStation = mapboxMap.queryRenderedFeatures(pixel, DB_TRAM_STATION_LAYER)
-            val nvvStation = mapboxMap.queryRenderedFeatures(pixel, NVV_STATION_ICON_ID)
+            val dbStation = mapboxMap.queryRenderedFeatures(pixel, DB_TRAM_STATION_LAYER)
+            val nvvStation = mapboxMap.queryRenderedFeatures(pixel, NVV_TRAIN_STATION_LAYER)
             val selectedFeature = mapboxMap.queryRenderedFeatures(pixel, SELECTED_MARKER_LAYER)
 
             val selectedMarkerLayer = style.getLayer(SELECTED_MARKER_LAYER) as SymbolLayer
@@ -275,7 +276,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             }
 
             // when clicked on map and a marker is selected, deselect it
-            if (bikeStation.isEmpty() && scooter.isEmpty() && tramStation.isEmpty() && nvvStation.isEmpty()) {
+            if (bikeStation.isEmpty() && scooter.isEmpty() && dbStation.isEmpty() && nvvStation.isEmpty()) {
                 // when card view is shown and user clicks on map, make it invisible
                 checkRVVisible()
                 if (markerSelected) {
@@ -296,8 +297,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                     source?.setGeoJson(FeatureCollection.fromFeature(scooter[0]))
                     selectedMarkerLayer.setProperties(iconImage(BIRD_SCOOTER_ICON_ID))
                 }
-                tramStation.isNotEmpty() -> {
-                    source?.setGeoJson(FeatureCollection.fromFeature(tramStation[0]))
+                dbStation.isNotEmpty() -> {
+                    source?.setGeoJson(FeatureCollection.fromFeature(dbStation[0]))
                     selectedMarkerLayer.setProperties(iconImage(DB_TRAM_STATION_ICON_ID))
                 }
                 nvvStation.isNotEmpty() -> {
@@ -320,10 +321,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                     mapViewModel.mapController.selectMarker(selectedMarkerLayer)
                     setAdapter(bikeStation[0])
                 }
-                tramStation.size > 0 -> {
-                    mapViewModel.mapController.animateCameraPosition(mapboxMap, tramStation[0])
+                dbStation.size > 0 -> {
+                    mapViewModel.mapController.animateCameraPosition(mapboxMap, dbStation[0])
                     mapViewModel.mapController.selectMarker(selectedMarkerLayer)
-                    setAdapter(tramStation[0])
+                    setAdapter(dbStation[0])
                 }
                 scooter.size > 0 -> {
                     mapViewModel.mapController.animateCameraPosition(mapboxMap, scooter[0])
@@ -366,7 +367,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird, this::onMapsNavigateTo)
             }
             provider.equals("nvv") -> {
-                // TODO when NVV implemented
+                val name = feature.getStringProperty("name")
+                mapViewModel.nvvController.setSelectedStation(feature.getNumberProperty("latitude") as Double, feature.getNumberProperty("longitude") as Double)
+                mapViewModel.marudorController.getNvvStation(name)
             }
             else -> {
                 val evaId = (feature.getNumberProperty("evaId") as Double).toLong()
@@ -481,7 +484,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             }
         }
 
-        // Observer for tram stations
+        // Observer for db stations
         repository.getResponseStations.observe(viewLifecycleOwner) {
             val stationSource = style.getSourceAs<GeoJsonSource>(DB_TRAM_STATION)
             if (it.isNotEmpty()) {
@@ -496,7 +499,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             }
         }
 
-        // Observer for tram stations
+        // Observer for nvv stations
         repository.getNvvStations.observe(viewLifecycleOwner) {
             val stationSource = style.getSourceAs<GeoJsonSource>(NVV_TRAIN_STATION)
             if (it.stops.isNotEmpty()) {
@@ -511,6 +514,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             }
         }
 
+        // Observer for stations by term
+        repository.getNvvStation.observe(viewLifecycleOwner) {
+            if (it.nextStation.isNotEmpty()) {
+                val evaId = it.nextStation[0].id
+                mapViewModel.marudorController.getNvvArrival(evaId)
+            }
+        }
 
         // Observer for Departure Board
         repository.getResponseArrival.observe(viewLifecycleOwner) {
@@ -518,11 +528,25 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 val departures = it.filter { departure -> departure.arrival != null && departure.arrival.time != "N/A" }
 
                 if (mapViewModel.stadaStationController.selectedStation != null) {
-                    binding.singleLocationRecyclerView.adapter = TramAdapter(
+                    binding.singleLocationRecyclerView.adapter = DBTramAdapter(
                             departures,
                             this::openDB,
                             this::onMapsNavigateTo,
                             mapViewModel.stadaStationController.selectedStation
+                    )
+                }
+            }
+        }
+
+        // Observer for Nvv Departure Board
+        repository.getResponseNvvArrival.observe(viewLifecycleOwner) {
+            if (it.departures.isNotEmpty()) {
+                if (mapViewModel.nvvController.selectedStation != null) {
+                    binding.singleLocationRecyclerView.adapter = NVVTrainAdapter(
+                            it.departures,
+                            this::openNvv,
+                            this::onMapsNavigateTo,
+                            mapViewModel.nvvController.selectedStation
                     )
                 }
             }

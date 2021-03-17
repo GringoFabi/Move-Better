@@ -54,6 +54,9 @@ class Repository(val database: MyDatabase, uuid:String) {
     val getNvvStation: LiveData<NextNvvStations>
         get() = _getNvvStation
 
+    private val _getResponseNvvArrival: MutableLiveData<NvvDepartures> = MutableLiveData()
+    val getResponseNvvArrival: LiveData<NvvDepartures>
+        get() = _getResponseNvvArrival
 
     private val _myResponse: MutableLiveData<EmailBody> = MutableLiveData()
     val myResponse: LiveData<EmailBody>
@@ -158,7 +161,7 @@ class Repository(val database: MyDatabase, uuid:String) {
     suspend fun getArrivalNvvAsync(evaId: String)
     {
         launch(instance.apiMarudor.getArrivalNvvAsync(evaId), {}, {
-            it
+            _getResponseNvvArrival.postValue(it)
         }, { Log.d("getArrivalNvvAsync", it.toString()) })
     }
 

@@ -73,8 +73,12 @@ class MapController {
         val builder = CameraPosition.Builder()
                 .target(LatLng(latitude, longitude))
 
-        if (feature.getStringProperty("provider") != "trams") {
+        val provider = feature.getStringProperty("provider")
+
+        if (provider == "bikes" || provider == "birds") {
             builder.zoom(12.0)
+        } else if (provider == "nvv") {
+            builder.zoom(15.0)
         }
 
         mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(builder.build()), 500)
