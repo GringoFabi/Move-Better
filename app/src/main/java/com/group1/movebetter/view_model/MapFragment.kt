@@ -190,7 +190,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         nearestTrain.adjustViewBounds = true
 
         nearestTrain.setOnClickListener {
-            Toast.makeText(context, "Navigate to nearest nvv train", Toast.LENGTH_SHORT).show()
+            val nearestStation = mapViewModel.nvvController.nearestStation
+            onMapsNavigateTo(nearestStation!!.lat, nearestStation.lng)
         }
     }
 

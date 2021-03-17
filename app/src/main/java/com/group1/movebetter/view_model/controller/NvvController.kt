@@ -18,6 +18,7 @@ class NvvController(
     private val mapController: MapController
 ) {
 
+    var nearestStation: NvvStation? = null
 
     fun getNvvStations()
     {
@@ -33,6 +34,8 @@ class NvvController(
             val feature = createStationFeature(station.name, station.number, station.lat, station.lng)
             stationFeatures.add(feature)
         }
+
+        nearestStation = getNearestStation(stops)
         return stationFeatures
     }
 
@@ -45,5 +48,17 @@ class NvvController(
         feature.addNumberProperty("latitude", lat)
         feature.addNumberProperty("longitude", lng)
         return feature
+    }
+
+    private fun getNearestStation(stations: List<NvvStation>): NvvStation? {
+        val distances = ArrayList<Double>()
+        val distanceNetworkMap = HashMap<Double, NvvStation>()
+        for (station in stations) {
+            val d = mapController.haversineFormular(mapController.getLocation(station.lat, station.lng))
+            distances.add(d)
+            distanceNetworkMap[d] = station
+        }
+        val minDistance: Double? = distances.minByOrNull { it }
+        return distanceNetworkMap[minDistance]
     }
 }
