@@ -25,6 +25,11 @@ class Repository(val database: MyDatabase, uuid:String) {
     val getResponseNetworksFiltered: LiveData<CityBikes>
         get() = _getResponseNetworksFiltered
 
+
+    private val _getNvvStations: MutableLiveData<NvvStations> = MutableLiveData()
+    val getNvvStations: LiveData<NvvStations>
+        get() = _getNvvStations
+
     val getResponseNetwork: LiveData<List<CityBikesNetwork>> = Transformations.map(database.cityBikesNetworkDao.getCityBikesNetwork()){
         it.asCityBikesNetworkList()
     }
@@ -136,8 +141,8 @@ class Repository(val database: MyDatabase, uuid:String) {
     suspend fun getNvvStations()
     {
         launch(instance.apiNvv.getNvvStationsAsync(), {}, {
-            it
-        }, { Log.d("getStations", it.toString()) })
+            _getNvvStations.postValue(it)
+        }, { Log.d("getNvvStations", it.toString()) })
     }
 
     suspend fun getArrival(evaId: Long, lookahead: Long)

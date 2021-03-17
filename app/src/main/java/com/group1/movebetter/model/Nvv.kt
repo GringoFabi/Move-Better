@@ -6,12 +6,12 @@ import com.group1.movebetter.database.DatabaseStaDaStation
 
 
 data class NvvStations (
-    val stops : List<NvvStation>
+    val stops: List<NvvStation>
 )
 
 data class NvvStation (
     val number: String,
     val name: String,
-    val lat: String,
-    val lng: String
+    val lat: Double,
+    val lng: Double
 )

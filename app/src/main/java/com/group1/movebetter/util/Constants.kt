@@ -13,6 +13,6 @@ class Constants {
         const val DELAY_MILLIS = 30000L
         const val BIRD_AUTH_URL = "https://api-auth.prod.birdapp.com/api/v1/auth/"
         const val BIRD_URL = "https://api-bird.prod.birdapp.com/"
-        const val URL_NVV = "https://leroy.click/s/Kqike87qyNWm7M3/download"
+        const val URL_NVV = "https://leroy.click/s/gAXnjQCATzj4JW9/download"
     }
 }

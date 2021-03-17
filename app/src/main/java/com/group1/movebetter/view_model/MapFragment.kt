@@ -127,11 +127,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         mapView.getMapAsync(this)
 
         val currentLocationTask = mapViewModel.mapController.getCurrentLocation(this.requireActivity())
-        mapViewModel.nvvController.getNvvStations()
-        mapViewModel.marudorController.getNvvStation("Sonnenhang   Ri. Blindenheim")
-        mapViewModel.marudorController.getNvvArrival("000447364")
+
         currentLocationTask.addOnCompleteListener {
             mapViewModel.stadaStationController.getStations()
+            mapViewModel.nvvController.getNvvStations()
             refreshNetworkRequests()
         }
 
@@ -496,6 +495,22 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 mapViewModel.mapController.refreshSource(stationSource!!, stations)
             }
         }
+
+        // Observer for tram stations
+        repository.getNvvStations.observe(viewLifecycleOwner) {
+            val stationSource = style.getSourceAs<GeoJsonSource>(NVV_TRAIN_STATION)
+            if (it.stops.isNotEmpty()) {
+                val stations = mapViewModel.nvvController.createStationList(it.stops)
+                //mapViewModel.nvvController.getNearestStation(it)
+
+                if (!binding.singleLocationRecyclerView.isVisible) {
+                    binding.nearestTrain.visibility = View.VISIBLE
+                }
+
+                mapViewModel.mapController.refreshSource(stationSource!!, stations)
+            }
+        }
+
 
         // Observer for Departure Board
         repository.getResponseArrival.observe(viewLifecycleOwner) {
