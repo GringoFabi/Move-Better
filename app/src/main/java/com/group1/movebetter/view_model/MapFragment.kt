@@ -502,7 +502,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             val stationSource = style.getSourceAs<GeoJsonSource>(NVV_TRAIN_STATION)
             if (it.stops.isNotEmpty()) {
                 val stations = mapViewModel.nvvController.createStationList(it.stops)
-                //mapViewModel.nvvController.getNearestStation(it)
+                mapViewModel.nvvController.getNearestStation(it.stops)
 
                 if (!binding.singleLocationRecyclerView.isVisible) {
                     binding.nearestTrain.visibility = View.VISIBLE
