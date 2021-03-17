@@ -32,6 +32,8 @@ class RetrofitInstance(uuid: String) {
                         add(EmptySlotsAdapter()).
                         add(FreeBikesAdapter()).
                         add(NextStationsAdapter()).
+                        add(NextNvvStationsAdapter()).
+                        add(NvvDeparturesAdapter()).
                         build())
                 ).build()
     }
@@ -46,6 +48,10 @@ class RetrofitInstance(uuid: String) {
 
     val apiMarudor: MarudorService by lazy {
         retrofit.create(MarudorService::class.java)
+    }
+
+    val apiNvv: NvvService by lazy {
+        retrofit.create(NvvService::class.java)
     }
 
     // modified interceptor class for adding the standard headers to all bird-requests

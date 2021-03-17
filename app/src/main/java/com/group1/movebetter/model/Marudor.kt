@@ -18,6 +18,18 @@ data class Departure (
     val currentStation: CurrentStation
 )
 
+data class NvvDepartures(
+        val departures: List<NvvDeparture>,
+)
+
+data class NvvDeparture(
+        val train: Train,
+        val finalDestination: String,
+        val currentStation: CurrentStation,
+        val arrival: Arrival
+
+)
+
 data class CurrentStation (
         val title: String,
         val id: String
@@ -67,6 +79,16 @@ data class NextStation(
         val title: String,
         val id: String,
         val location: Location,
+)
+
+data class NextNvvStations(
+        val nextStation: List<NextNvvStation>
+)
+
+
+data class NextNvvStation(
+        val title: String,
+        val id: String,
 )
 
 data class Location(

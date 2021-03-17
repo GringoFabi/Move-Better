@@ -25,6 +25,11 @@ class Repository(val database: MyDatabase, uuid:String) {
     val getResponseNetworksFiltered: LiveData<CityBikes>
         get() = _getResponseNetworksFiltered
 
+
+    private val _getNvvStations: MutableLiveData<NvvStations> = MutableLiveData()
+    val getNvvStations: LiveData<NvvStations>
+        get() = _getNvvStations
+
     val getResponseNetwork: LiveData<List<CityBikesNetwork>> = Transformations.map(database.cityBikesNetworkDao.getCityBikesNetwork()){
         it.asCityBikesNetworkList()
     }
@@ -44,6 +49,10 @@ class Repository(val database: MyDatabase, uuid:String) {
     private val _getStationsByTerm: MutableLiveData<NextStations> = MutableLiveData()
     val getStationsByTerm: LiveData<NextStations>
         get() = _getStationsByTerm
+
+    private val _getNvvStation: MutableLiveData<NextNvvStations> = MutableLiveData()
+    val getNvvStation: LiveData<NextNvvStations>
+        get() = _getNvvStation
 
 
     private val _myResponse: MutableLiveData<EmailBody> = MutableLiveData()
@@ -129,6 +138,13 @@ class Repository(val database: MyDatabase, uuid:String) {
         }, { Log.d("getStations", it.toString()) })
     }
 
+    suspend fun getNvvStations()
+    {
+        launch(instance.apiNvv.getNvvStationsAsync(), {}, {
+            _getNvvStations.postValue(it)
+        }, { Log.d("getNvvStations", it.toString()) })
+    }
+
     suspend fun getArrival(evaId: Long, lookahead: Long)
     {
         launch(instance.apiMarudor.getArrivalAsync(evaId, lookahead), {}, {
@@ -137,6 +153,13 @@ class Repository(val database: MyDatabase, uuid:String) {
                 database.databaseDepartureDao.insertAll(it.departures.asDatabaseDepartureList())
             }
         }, { Log.d("getArrival", it.toString()) })
+    }
+
+    suspend fun getArrivalNvvAsync(evaId: String)
+    {
+        launch(instance.apiMarudor.getArrivalNvvAsync(evaId), {}, {
+            it
+        }, { Log.d("getArrivalNvvAsync", it.toString()) })
     }
 
     suspend fun getNextStations(lat: Double, lng: Double, radius: Long)
@@ -154,6 +177,17 @@ class Repository(val database: MyDatabase, uuid:String) {
             {},
             { _getStationsByTerm.postValue(it) },
             { Log.d("getNetworksFiltered", it.toString()) })
+    }
+
+
+    suspend fun getNvvStationIdAsync(searchTerm: String, type: String, max: Long)
+    {
+        launch(instance.apiMarudor.getNvvStationIdAsync(searchTerm, type, max),
+                {},
+                {
+                    it
+                    _getNvvStation.postValue(it) },
+                { Log.d("getNvvStationIdAsync", it.toString()) })
     }
 
     suspend fun getBirdToken(body: EmailBody) {

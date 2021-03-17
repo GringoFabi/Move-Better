@@ -2,6 +2,7 @@ package com.group1.movebetter.network
 
 import com.group1.movebetter.model.*
 import com.group1.movebetter.util.Constants.Companion.URL_MARUDOR_HAFAS
+import com.group1.movebetter.util.Constants.Companion.URL_MARUDOR_HAFAS2
 import com.group1.movebetter.util.Constants.Companion.URL_MARUDOR_IRIS
 import com.group1.movebetter.util.Constants.Companion.URL_MARUDOR_STATION
 import kotlinx.coroutines.Deferred
@@ -18,6 +19,11 @@ interface MarudorService {
         @Query("lookahead") lookahead: Long,
     ): Deferred<Response<Departures>>
 
+    @GET(URL_MARUDOR_HAFAS2 + "arrivalStationBoard")
+    fun getArrivalNvvAsync(
+            @Query("station") station: String,
+    ): Deferred<Response<NvvDepartures>>
+
     @GET(URL_MARUDOR_HAFAS + "geoStation")
     fun getNextStationsAsync(
         @Query("lat") lat: Double,
@@ -29,4 +35,11 @@ interface MarudorService {
     fun getStationsByTermAsync(
             @Path("searchTerm") searchTerm: String,
     ): Deferred<Response<NextStations>>
+
+    @GET(URL_MARUDOR_STATION + "search/{searchTerm}")
+    fun getNvvStationIdAsync(
+            @Path("searchTerm") searchTerm: String,
+            @Query("type") type: String,
+            @Query("max") max: Long,
+    ): Deferred<Response<NextNvvStations>>
 }

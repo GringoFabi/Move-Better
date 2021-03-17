@@ -13,6 +13,13 @@ class MarudorController (private val viewModelScope: CoroutineScope, private val
         }
     }
 
+    fun getNvvArrival(evaId: String)
+    {
+        viewModelScope.launch {
+            repository.getArrivalNvvAsync(evaId)
+        }
+    }
+
     fun getNextStations(lat: Double, lng: Double, maxDist: Long = 3000)
     {
         viewModelScope.launch {
@@ -27,6 +34,11 @@ class MarudorController (private val viewModelScope: CoroutineScope, private val
         }
     }
 
-
+    fun getNvvStation(searchTerm: String, type: String = "hafas", max: Long = 1)
+    {
+        viewModelScope.launch {
+            repository.getNvvStationIdAsync(searchTerm, type, max)
+        }
+    }
 
 }
