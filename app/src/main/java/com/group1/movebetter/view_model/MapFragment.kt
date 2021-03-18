@@ -362,9 +362,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         when {
             provider.equals("bikes") -> {
                 binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature), this::openNextBike, this::onMapsNavigateTo)
+                binding.singleLocationRecyclerView.visibility = View.VISIBLE
             }
             provider.equals("birds") -> {
                 binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird, this::onMapsNavigateTo)
+                binding.singleLocationRecyclerView.visibility = View.VISIBLE
             }
             provider.equals("nvv") -> {
                 val name = feature.getStringProperty("name") + " Kassel"
@@ -377,8 +379,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 mapViewModel.marudorController.getArrival(evaId, 60)
             }
         }
-
-        binding.singleLocationRecyclerView.visibility = View.VISIBLE
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -536,6 +536,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                             this::onMapsNavigateTo,
                             mapViewModel.stadaStationController.selectedStation
                     )
+                    binding.singleLocationRecyclerView.visibility = View.VISIBLE
                 }
             }
         }
@@ -550,6 +551,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                             this::onMapsNavigateTo,
                             mapViewModel.nvvController.selectedStation
                     )
+                    binding.singleLocationRecyclerView.visibility = View.VISIBLE
                 }
             }
         }
