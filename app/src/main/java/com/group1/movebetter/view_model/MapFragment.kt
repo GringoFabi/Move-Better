@@ -369,9 +369,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 binding.singleLocationRecyclerView.visibility = View.VISIBLE
             }
             provider.equals("nvv") -> {
-                val name = feature.getStringProperty("name") + " Kassel"
+                var name = feature.getStringProperty("name")
+                if (name.contains("Ri.")) {
+                    val index = name.indexOf("Ri.")
+                    name = name.substring(0, index)
+                }
                 mapViewModel.nvvController.setSelectedStation(feature.getNumberProperty("latitude") as Double, feature.getNumberProperty("longitude") as Double)
-                mapViewModel.marudorController.getNvvStation(name)
+                mapViewModel.marudorController.getNvvStation("$name Kassel")
             }
             else -> {
                 val evaId = (feature.getNumberProperty("evaId") as Double).toLong()
