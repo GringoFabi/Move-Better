@@ -521,9 +521,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         // Observer for stations by term
         repository.getNvvStation.observe(viewLifecycleOwner) {
             if (it.nextStation.isNotEmpty()) {
-                if (it.nextStation[0].id != null) {
-                    val evaId = it.nextStation[0].id
-                    mapViewModel.marudorController.getNvvArrival(evaId)
+                val nextNvvStation = mapViewModel.nvvController.nearestEvaId(it.nextStation.filter { nextNvvStation -> nextNvvStation.id != null })
+                if (nextNvvStation != null) {
+                    mapViewModel.marudorController.getNvvArrival(nextNvvStation.id)
                 }
             }
         }

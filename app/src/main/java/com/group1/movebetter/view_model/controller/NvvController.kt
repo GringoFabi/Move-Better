@@ -1,5 +1,7 @@
 package com.group1.movebetter.view_model.controller
 
+import com.group1.movebetter.model.CityBikesStation
+import com.group1.movebetter.model.NextNvvStation
 import com.group1.movebetter.model.NvvStation
 import com.group1.movebetter.repository.Repository
 import com.mapbox.geojson.Feature
@@ -46,5 +48,17 @@ class NvvController(
 
     fun setSelectedStation(latitude: Double, longitude: Double) {
         selectedStation = LatLng(latitude, longitude)
+    }
+
+    fun nearestEvaId(nextStation: List<NextNvvStation>): NextNvvStation? {
+        val distances = ArrayList<Double>()
+        val distanceNetworkMap = HashMap<Double, NextNvvStation>()
+        for (station in nextStation) {
+            val d = mapController.haversineFormular(mapController.getLocation(station.coordinates.lat, station.coordinates.lng))
+            distances.add(d)
+            distanceNetworkMap[d] = station
+        }
+        val minDistance: Double? = distances.minByOrNull { it }
+        return distanceNetworkMap[minDistance]
     }
 }

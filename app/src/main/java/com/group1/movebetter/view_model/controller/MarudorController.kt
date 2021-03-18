@@ -34,7 +34,7 @@ class MarudorController (private val viewModelScope: CoroutineScope, private val
         }
     }
 
-    fun getNvvStation(searchTerm: String, type: String = "hafas", max: Long = 1)
+    fun getNvvStation(searchTerm: String, type: String = "hafas", max: Long = 10)
     {
         viewModelScope.launch {
             repository.getNvvStationIdAsync(searchTerm, type, max)
