@@ -191,7 +191,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         nearestTrain.adjustViewBounds = true
 
         nearestTrain.setOnClickListener {
-            Toast.makeText(context, "Navigate to nearest nvv train", Toast.LENGTH_SHORT).show()
+            val nearestStation = mapViewModel.nvvController.nearestStation
+            onMapsNavigateTo(nearestStation!!.lat, nearestStation.lng)
         }
     }
 
@@ -278,7 +279,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             // when clicked on map and a marker is selected, deselect it
             if (bikeStation.isEmpty() && scooter.isEmpty() && dbStation.isEmpty() && nvvStation.isEmpty()) {
                 // when card view is shown and user clicks on map, make it invisible
-                checkRVVisible()
+                setButtonsVisibleRVInvisible()
                 if (markerSelected) {
                     mapViewModel.mapController.deselectMarker(selectedMarkerLayer, style, true, SELECTED_MARKER)
                 }
@@ -341,7 +342,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         return true
     }
 
-    private fun checkRVVisible() {
+    private fun setButtonsVisibleRVInvisible() {
         binding.singleLocationRecyclerView.adapter = null
         binding.singleLocationRecyclerView.visibility = View.GONE
         binding.nearestBike.visibility = View.VISIBLE
@@ -352,19 +353,23 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         binding.nearestTram.visibility = View.VISIBLE
     }
 
-    private fun setAdapter(feature: Feature?) {
+    private fun setButtonsInvisible() {
         binding.nearestBike.visibility = View.GONE
         binding.nearestScooter.visibility = View.GONE
         binding.nearestTrain.visibility = View.GONE
         binding.nearestTram.visibility = View.GONE
+    }
 
+    private fun setAdapter(feature: Feature?) {
         val provider = feature!!.getStringProperty("provider")
         when {
             provider.equals("bikes") -> {
+                setButtonsInvisible()
                 binding.singleLocationRecyclerView.adapter = BikeAdapter(arrayListOf(feature), this::openNextBike, this::onMapsNavigateTo)
                 binding.singleLocationRecyclerView.visibility = View.VISIBLE
             }
             provider.equals("birds") -> {
+                setButtonsInvisible()
                 binding.singleLocationRecyclerView.adapter = BirdAdapter(arrayListOf(feature), this::openBird, this::onMapsNavigateTo)
                 binding.singleLocationRecyclerView.visibility = View.VISIBLE
             }
@@ -508,7 +513,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
             val stationSource = style.getSourceAs<GeoJsonSource>(NVV_TRAIN_STATION)
             if (it.stops.isNotEmpty()) {
                 val stations = mapViewModel.nvvController.createStationList(it.stops)
-                //mapViewModel.nvvController.getNearestStation(it)
+                mapViewModel.nvvController.getNearestStation(it.stops)
 
                 if (!binding.singleLocationRecyclerView.isVisible) {
                     binding.nearestTrain.visibility = View.VISIBLE
@@ -540,6 +545,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                             this::onMapsNavigateTo,
                             mapViewModel.stadaStationController.selectedStation
                     )
+                    setButtonsInvisible()
                     binding.singleLocationRecyclerView.visibility = View.VISIBLE
                 }
             }
@@ -555,6 +561,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                             this::onMapsNavigateTo,
                             mapViewModel.nvvController.selectedStation
                     )
+                    setButtonsInvisible()
                     binding.singleLocationRecyclerView.visibility = View.VISIBLE
                 }
             }

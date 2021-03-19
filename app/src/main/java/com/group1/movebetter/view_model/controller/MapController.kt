@@ -88,11 +88,10 @@ class MapController {
         source.setGeoJson(FeatureCollection.fromFeatures(featureList))
     }
 
-    fun haversineFormular(destination: Location): Double {
+    fun haversineFormular(destination: Location, start: Location = currentLocation) : Double {
 
         // Haversine formular (see more here: https://en.wikipedia.org/wiki/Haversine_formula)
 
-        val start = currentLocation
         val earthRadius = 6371
         val distanceLatitude = degreeToRadial(start.latitude - destination.latitude)
         val distanceLongitude = degreeToRadial(start.longitude - destination.longitude)
