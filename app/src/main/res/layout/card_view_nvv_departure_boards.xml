@@ -8,7 +8,7 @@
     android:tag="cards main container">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/tramCardView"
+        android:id="@+id/trainCardView"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_gravity="bottom"
@@ -38,14 +38,14 @@
                     android:textColor="@color/black"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/dbAppIcon"
+                    app:layout_constraintEnd_toStartOf="@id/nvvAppIcon"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:text="Bahnhof"/>
+                    android:text="Haltestelle"/>
 
                 <ImageView
-                    android:id="@+id/dbAppIcon"
-                    android:contentDescription="@string/db_app_icon"
+                    android:id="@+id/nvvAppIcon"
+                    android:contentDescription="@string/nvv_app_icon"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     android:layout_height="40dp"
@@ -66,8 +66,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:orientation="vertical"
-                    app:layout_constraintEnd_toStartOf="@+id/tram"
-                    app:layout_constraintStart_toStartOf="@+id/guideline"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline3"
+                    app:layout_constraintStart_toEndOf="@id/destination"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <TextView
@@ -77,7 +78,7 @@
                         android:layout_gravity="center"
                         android:text="Ankunft"
                         android:textColor="@color/black"
-                        android:textSize="20sp" />
+                        android:textSize="18sp" />
 
                     <TextView
                         android:id="@+id/delay"
@@ -86,7 +87,7 @@
                         android:layout_gravity="center"
                         android:text="Delay"
                         android:textColor="@color/black"
-                        android:textSize="16sp" />
+                        android:textSize="14sp" />
                 </LinearLayout>
 
                 <androidx.constraintlayout.widget.Guideline
@@ -97,14 +98,13 @@
                     app:layout_constraintGuide_end="361dp" />
 
                 <TextView
-                    android:id="@+id/tram"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/destination"
+                    android:layout_width="130dp"
+                    android:gravity="center"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp"
-                    android:text="Zug"
+                    android:text="Destination"
                     android:textColor="@color/black"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -112,15 +112,15 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/platform"
+                    android:id="@+id/train"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Platform"
+                    android:text="Zug"
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/guideline3"
-                    app:layout_constraintStart_toEndOf="@+id/tram"
+                    app:layout_constraintEnd_toStartOf="@id/destination"
+                    app:layout_constraintStart_toEndOf="@+id/guideline"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.constraintlayout.widget.Guideline
@@ -131,32 +131,6 @@
                     app:layout_constraintGuide_end="16dp" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <TextView
-                android:id="@+id/destination"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/black"
-                android:text="Destination"/>
-
-            <TextView
-                android:id="@+id/showVia"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:gravity="center"
-                android:textColor="@color/black"
-                android:text="Show via"/>
-
-            <TextView
-                android:id="@+id/messages"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="@color/red"
-                android:gravity="center"
-                android:text="Important Messages"/>
 
             <LinearLayout
                 android:layout_marginTop="5dp"
@@ -181,7 +155,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/black"
                     android:id="@+id/btnNVV"
-                    android:text="@string/open_db_app"
+                    android:text="@string/open_nvv_app"
                     />
 
             </LinearLayout>

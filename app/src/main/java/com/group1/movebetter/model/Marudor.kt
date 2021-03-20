@@ -89,6 +89,12 @@ data class NextNvvStations(
 data class NextNvvStation(
         val title: String,
         val id: String,
+        val coordinates: NvvLocation,
+)
+
+data class NvvLocation(
+        val lat: Double,
+        val lng: Double
 )
 
 data class Location(

@@ -1,10 +1,8 @@
 package com.group1.movebetter.view_model.controller
 
-import android.util.Log
-import com.group1.movebetter.model.EvaNumbers
-import com.group1.movebetter.model.MailingAddress
+import com.group1.movebetter.model.CityBikesStation
+import com.group1.movebetter.model.NextNvvStation
 import com.group1.movebetter.model.NvvStation
-import com.group1.movebetter.model.StaDaStation
 import com.group1.movebetter.repository.Repository
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.Point
@@ -18,6 +16,7 @@ class NvvController(
     private val mapController: MapController
 ) {
 
+    var selectedStation: LatLng? = null
     var nearestStation: NvvStation? = null
 
     fun getNvvStations()
@@ -31,21 +30,38 @@ class NvvController(
         val stationFeatures = ArrayList<Feature>()
 
         for (station in stops) {
-            val feature = createStationFeature(station.name, station.number, station.lat, station.lng)
+            val feature = createStationFeature(station.name, station.lat, station.lng)
             stationFeatures.add(feature)
         }
         return stationFeatures
     }
 
-    private fun createStationFeature(name: String, number: String, lat: Double, lng: Double): Feature {
+    private fun createStationFeature(name: String, lat: Double, lng: Double): Feature {
         //LatLng in coordinates
         val feature = Feature.fromGeometry(Point.fromLngLat(lng, lat))
 
         feature.addStringProperty("name", name)
-        feature.addStringProperty("provider", "trains")
+        feature.addStringProperty("provider", "nvv")
         feature.addNumberProperty("latitude", lat)
         feature.addNumberProperty("longitude", lng)
         return feature
+    }
+
+    fun setSelectedStation(latitude: Double, longitude: Double) {
+        selectedStation = LatLng(latitude, longitude)
+    }
+
+    fun nearestEvaId(nextStation: List<NextNvvStation>): NextNvvStation? {
+        val distances = ArrayList<Double>()
+        val distanceNetworkMap = HashMap<Double, NextNvvStation>()
+        for (station in nextStation) {
+            val d = mapController.haversineFormular(mapController.getLocation(station.coordinates.lat, station.coordinates.lng), mapController.getLocation(selectedStation!!.latitude, selectedStation!!.longitude))
+            distances.add(d)
+            distanceNetworkMap[d] = station
+        }
+        val minDistance: Double? = distances.minByOrNull { it }
+
+        return distanceNetworkMap[minDistance]
     }
 
     fun getNearestStation(stations: List<NvvStation>) {
@@ -53,10 +69,12 @@ class NvvController(
         val distanceNetworkMap = HashMap<Double, NvvStation>()
         for (station in stations) {
             val d = mapController.haversineFormular(mapController.getLocation(station.lat, station.lng))
+
             distances.add(d)
             distanceNetworkMap[d] = station
         }
         val minDistance: Double? = distances.minByOrNull { it }
+
         nearestStation = distanceNetworkMap[minDistance]
     }
 }

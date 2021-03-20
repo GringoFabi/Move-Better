@@ -24,15 +24,15 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class TramAdapter(private val data: List<Departure>,
-                  private val openNvvApp: () -> Unit,
-                  private val navigateTo: (Double, Double) -> Unit,
-                  private val selectedStation: LatLng?) : RecyclerView.Adapter<TramAdapter.TramViewHolder?>() {
+class DBTramAdapter(private val data: List<Departure>,
+                    private val openDbApp: () -> Unit,
+                    private val navigateTo: (Double, Double) -> Unit,
+                    private val selectedStation: LatLng?) : RecyclerView.Adapter<DBTramAdapter.DBTramViewHolder?>() {
 
     private lateinit var context: Context
     private lateinit var dbIconBitmap: Bitmap
 
-    class TramViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class DBTramViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var cv: CardView
         var station: TextView
         var dbAppIcon: ImageView
@@ -57,19 +57,19 @@ class TramAdapter(private val data: List<Departure>,
             destination = itemView.findViewById(R.id.destination)
             showVia = itemView.findViewById(R.id.showVia)
             messages = itemView.findViewById(R.id.messages)
-            button = itemView.findViewById(R.id.btnNVV)
+            button = itemView.findViewById(R.id.btnDB)
             navigateToButton = itemView.findViewById(R.id.btnGoToStation)
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TramViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DBTramViewHolder {
         context = parent.context
         dbIconBitmap = BitmapFactory.decodeResource(context.resources, R.raw.db_app_icon)
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.card_view_departure_boards, parent, false)
-        return TramViewHolder(v)
+        val v = LayoutInflater.from(parent.context).inflate(R.layout.card_view_db_departure_boards, parent, false)
+        return DBTramViewHolder(v)
     }
 
-    override fun onBindViewHolder(holder: TramViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: DBTramViewHolder, position: Int) {
         val content = SpannableString(data[position].currentStation.title)
         content.setSpan(UnderlineSpan(), 0, content.length, 0)
         holder.station.text = content
@@ -88,7 +88,7 @@ class TramAdapter(private val data: List<Departure>,
         setMessages(holder, data[position].messages)
 
         holder.button.setOnClickListener {
-            openNvvApp.invoke()
+            openDbApp.invoke()
         }
 
         holder.navigateToButton.setOnClickListener {
@@ -98,13 +98,13 @@ class TramAdapter(private val data: List<Departure>,
         }
     }
 
-    private fun setImages(holder: TramViewHolder) {
+    private fun setImages(holder: DBTramViewHolder) {
         holder.dbAppIcon.setImageBitmap(dbIconBitmap)
         holder.dbAppIcon.scaleType = ImageView.ScaleType.CENTER
         holder.dbAppIcon.adjustViewBounds = true
     }
 
-    private fun setMessages(holder: TramViewHolder, messages: Messages) {
+    private fun setMessages(holder: DBTramViewHolder, messages: Messages) {
         var text = ""
 
         if (!messages.delays.isNullOrEmpty()) {
@@ -137,7 +137,7 @@ class TramAdapter(private val data: List<Departure>,
     }
 
     @SuppressLint("NewApi")
-    private fun setDelay(holder: TramViewHolder, departure: Departure) {
+    private fun setDelay(holder: DBTramViewHolder, departure: Departure) {
         val delay = departure.arrival!!.delay
 
         if (delay <= 0) {
@@ -152,7 +152,7 @@ class TramAdapter(private val data: List<Departure>,
     }
 
     @SuppressLint("SimpleDateFormat")
-    private fun setDestinationTime(holder: TramViewHolder, departure: Departure) {
+    private fun setDestinationTime(holder: DBTramViewHolder, departure: Departure) {
         val dateFormat: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
         dateFormat.timeZone = TimeZone.getTimeZone("GMT")
         val time = dateFormat.parse(departure.arrival!!.time)
@@ -160,7 +160,7 @@ class TramAdapter(private val data: List<Departure>,
         holder.destinationTime.text = "${time.toString().subSequence(11, 16)}"
     }
 
-    private fun setShowVia(holder: TramViewHolder, route: List<RouteStation>) {
+    private fun setShowVia(holder: DBTramViewHolder, route: List<RouteStation>) {
         var text = ""
 
         for (routeStation in route) {
