@@ -196,6 +196,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    // method for handling the refresh menu item
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.refresh -> {
@@ -206,6 +207,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    // method for performing a manual refresh (called through menu item "refresh")
     private fun instantRefresh() {
         delayedRefreshRequestsJob?.cancel(CancellationException("Refresh"))
         if (delayedRefreshRequestsJob?.isCancelled == true) {

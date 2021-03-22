@@ -96,6 +96,7 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
         return feature
     }
 
+    // method for calculating the nearest bird in relation to the user's current location
     fun getNearestBird(birds: List<Bird>) {
         val distances = ArrayList<Double>()
         val distanceNetworkMap = HashMap<Double, Bird>()

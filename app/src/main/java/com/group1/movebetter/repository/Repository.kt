@@ -200,10 +200,14 @@ class Repository(val database: MyDatabase, uuid:String) {
             { Log.d("getNvvStationIdAsync", it.toString()) })
     }
 
+    // bird methods
+
+    // method for requesting the bird authentication mail
     suspend fun getBirdToken(body: EmailBody) {
         return instance.birdAuthApi.getAuthToken(body)
     }
 
+    // method for requesting the validation of the magic token
     suspend fun postMagicToken(body: Token) {
         withContext(Dispatchers.IO) {
             val response = instance.birdAuthApi.postAuthTokenAsync(body)
@@ -211,6 +215,7 @@ class Repository(val database: MyDatabase, uuid:String) {
         }
     }
 
+    // method for requesting a refresh of the user's access and fresh token
     suspend fun refresh(token: String) {
         withContext(Dispatchers.IO) {
             val response = instance.birdAuthApi.refreshAsync(token)
@@ -218,6 +223,7 @@ class Repository(val database: MyDatabase, uuid:String) {
         }
     }
 
+    // method for requesting bird scooter data
     suspend fun getBirds(lat: Double, lng: Double, rad: Int, token: String, location: String) {
         withContext(Dispatchers.IO){
             val response = instance.birdApi.getNearbyBirds(lat, lng, rad, token, location)

@@ -10,6 +10,9 @@ import retrofit2.http.Query
 
 interface BirdService {
 
+    // this service handles all requests which are sent to https://api-bird.prod.birdapp.com/
+
+    // call for receiving all bird scooters which are in reach of a given radius to the user
     @GET("bird/nearby")
     suspend fun getNearbyBirds(
             @Query("latitude") latitude: Double,

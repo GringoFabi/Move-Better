@@ -66,6 +66,7 @@ class NvvController(
         return distanceNetworkMap[minDistance]
     }
 
+    // method for calculating the nearest nvv station in relation to the user's current location
     fun getNearestStation(stations: List<NvvStation>) {
         val distances = ArrayList<Double>()
         val distanceNetworkMap = HashMap<Double, NvvStation>()

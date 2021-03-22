@@ -9,6 +9,8 @@ import okhttp3.Response
 
 class BirdInterceptor(uuid : String): Interceptor {
 
+    // custom interceptor for adding all required headers to each bird api call
+
     private val deviceID = uuid
 
     override fun intercept(chain: Interceptor.Chain): Response {

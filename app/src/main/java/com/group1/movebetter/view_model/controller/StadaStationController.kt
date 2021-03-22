@@ -68,6 +68,7 @@ class StadaStationController(
         return feature
     }
 
+    // method for calculating the nearest train station in relation to the user's current location
     fun getNearestStation(stations: List<StaDaStation>) {
         val distances = ArrayList<Double>()
         val distanceNetworkMap = HashMap<Double, StaDaStation>()

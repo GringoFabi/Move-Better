@@ -59,7 +59,7 @@ class RetrofitInstance(uuid: String) {
         addInterceptor(BirdInterceptor(uuid))
     }.build()
 
-    // auth api
+    // auth api (manages all token related requests)
     private val birdAuthRetrofit by lazy {
         Retrofit.Builder()
                 .addCallAdapterFactory(CoroutineCallAdapterFactory())
@@ -73,7 +73,7 @@ class RetrofitInstance(uuid: String) {
         birdAuthRetrofit.create(BirdAuthService::class.java)
     }
 
-    // normal api
+    // normal api (manages all data related requests)
     private val birdRetrofit by lazy {
         Retrofit.Builder()
                 .baseUrl(BIRD_URL)

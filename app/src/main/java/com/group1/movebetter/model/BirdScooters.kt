@@ -3,6 +3,8 @@ package com.group1.movebetter.model
 import com.group1.movebetter.database.DatabaseBird
 import com.group1.movebetter.database.DatabaseBirdTokens
 
+// data model for the bird api
+
 data class Birds (
         val birds : List<Bird>,
 )

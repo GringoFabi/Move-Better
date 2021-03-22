@@ -88,6 +88,7 @@ class MapController {
         source.setGeoJson(FeatureCollection.fromFeatures(featureList))
     }
 
+    // method for calculating the relative distances between to geo coordinates
     fun haversineFormular(destination: Location, start: Location = currentLocation) : Double {
 
         // Haversine formular (see more here: https://en.wikipedia.org/wiki/Haversine_formula)
@@ -109,6 +110,7 @@ class MapController {
         return degree * (Math.PI/180)
     }
 
+    // method for constructing a location object on given data
     fun getLocation(lat: Double, lng: Double) : Location {
         val location = Location("default")
         location.latitude = lat
@@ -116,6 +118,7 @@ class MapController {
         return location
     }
 
+    // method for requesting the user's current location
     @SuppressLint("MissingPermission")
     fun getCurrentLocation(activity: FragmentActivity): Task<Location> {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
@@ -132,6 +135,7 @@ class MapController {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     var currentLocation: Location = initLocation()
 
+    // method for setting a default location which is used when Location Permissions are not granted
     private fun initLocation() : Location {
 
         // Setting default location to Berlin
