@@ -27,11 +27,13 @@ class MapController {
     var markerAnimator: ValueAnimator? = null
     var markerSelected = false
 
+    // Reset selected-marker-source
     fun resetSelectedMarkerLayer(style: Style, selectedMarker: String) {
         val source = style.getSourceAs<GeoJsonSource>(selectedMarker)
         source?.setGeoJson(FeatureCollection.fromFeatures(arrayOf()))
     }
 
+    // Deselect Marker animation (reset the marker size to original)
     fun deselectMarker(iconLayer: SymbolLayer, style: Style, clickedOnMap: Boolean, selectedMarker: String) {
         markerAnimator!!.setObjectValues(0.6f, 0.3f)
         markerAnimator!!.duration = 300
@@ -42,15 +44,14 @@ class MapController {
         }
         if (clickedOnMap) {
             markerAnimator!!.doOnEnd {
-                // Reset selected-marker-source
-                val source = style.getSourceAs<GeoJsonSource>(selectedMarker)
-                source?.setGeoJson(FeatureCollection.fromFeatures(arrayOf()))
+                resetSelectedMarkerLayer(style, selectedMarker)
             }
         }
         markerAnimator!!.start()
         markerSelected = false
     }
 
+    // Select Marker animation (make marker bigger)
     fun selectMarker(iconLayer: SymbolLayer) {
         markerAnimator = ValueAnimator()
         markerAnimator!!.setObjectValues(0.3f, 0.6f)
@@ -64,6 +65,7 @@ class MapController {
         markerSelected = true
     }
 
+    // method for animating camera position
     fun animateCameraPosition(mapboxMap: MapboxMap, feature: Feature?) {
         val latitude = feature!!.getNumberProperty("latitude") as Double
         val longitude = feature.getNumberProperty("longitude") as Double
@@ -81,6 +83,7 @@ class MapController {
         mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(builder.build()), 500)
     }
 
+    // Refresh marker source
     fun refreshSource(source: GeoJsonSource, featureList: ArrayList<Feature>) {
         source.setGeoJson(FeatureCollection.fromFeatures(featureList))
     }

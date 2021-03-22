@@ -31,6 +31,7 @@ class StadaStationController(
         selectedStation = evaIdLatLngMap[evaId]
     }
 
+    // prepare marker list for inserting in layer as source
     fun createStationList(stations: List<StaDaStation>): ArrayList<Feature> {
         val stationFeatures = ArrayList<Feature>()
 

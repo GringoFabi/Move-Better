@@ -24,10 +24,10 @@ import com.group1.movebetter.database.getDatabase
 import com.group1.movebetter.databinding.FragmentMapBinding
 import com.group1.movebetter.repository.Repository
 import com.group1.movebetter.util.Constants.Companion.DELAY_MILLIS
-import com.group1.movebetter.card_views.BikeAdapter
-import com.group1.movebetter.card_views.BirdAdapter
-import com.group1.movebetter.card_views.DBTramAdapter
-import com.group1.movebetter.card_views.NVVTrainAdapter
+import com.group1.movebetter.adapters.BikeAdapter
+import com.group1.movebetter.adapters.BirdAdapter
+import com.group1.movebetter.adapters.DBTramAdapter
+import com.group1.movebetter.adapters.NVVTrainAdapter
 import com.group1.movebetter.view_model.controller.MenuController
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -229,6 +229,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    // Init Ids for layers, sources and icons
     private fun initIds() {
         BIKE_STATION_LAYER = resources.getString(R.string.BIKE_STATION_LAYER)
         BIKE_STATIONS = resources.getString(R.string.BIKE_STATION)
@@ -315,9 +316,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 mapViewModel.mapController.deselectMarker(selectedMarkerLayer, style, false, SELECTED_MARKER)
             }
 
-            // if clicked on a bike station/ scooter/ tram station,
-            // make it bigger and show information
-            // and animate camera
+            // if clicked on a bike station/ scooter/ db station/ nvv station,
+            // make it bigger, show information, and animate camera
             when {
                 bikeStation.size > 0 -> {
                     mapViewModel.mapController.animateCameraPosition(mapboxMap, bikeStation[0])
@@ -344,6 +344,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         return true
     }
 
+    // Make Recycler View invisible and the "navigate to nearest" buttons visible
     private fun setButtonsVisibleRVInvisible() {
         binding.singleLocationRecyclerView.adapter = null
         binding.singleLocationRecyclerView.visibility = View.GONE
@@ -355,6 +356,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         binding.nearestTram.visibility = View.VISIBLE
     }
 
+    // Make the "navigate to nearest" buttons invisible
     private fun setButtonsInvisible() {
         binding.nearestBike.visibility = View.GONE
         binding.nearestScooter.visibility = View.GONE
@@ -362,6 +364,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         binding.nearestTram.visibility = View.GONE
     }
 
+    // Set Adapter of RecyclerView based on provider (bikes, birds, nvv, db)
     private fun setAdapter(feature: Feature?) {
         val provider = feature!!.getStringProperty("provider")
         when {
@@ -628,6 +631,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    // load images in map
     private fun loadImages(style: Style) {
         style.addImage(BIKE_STATION_ICON_ID, BitmapFactory.decodeResource(resources, R.raw.bike))
         style.addImage(BIKE_NETWORK_ICON_ID, BitmapFactory.decodeResource(resources, R.raw.network))

@@ -1,4 +1,4 @@
-package com.group1.movebetter.card_views
+package com.group1.movebetter.adapters
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -51,6 +51,7 @@ class BirdAdapter(private val data: ArrayList<Feature>, private val openBirdApp:
         return BirdViewHolder(v)
     }
 
+    // Add information to card view
     override fun onBindViewHolder(holder: BirdViewHolder, position: Int) {
         val content = SpannableString(data[position].getStringProperty("vehicleClass"))
         content.setSpan(UnderlineSpan(), 0, content.length, 0)
