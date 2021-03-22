@@ -30,10 +30,8 @@ import com.group1.movebetter.model.asDatabaseDevUuid
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.group1.movebetter.bird_dialog.BirdDialog
-import com.group1.movebetter.model.BirdTokens
 import com.group1.movebetter.view_model.controller.MenuController
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.*

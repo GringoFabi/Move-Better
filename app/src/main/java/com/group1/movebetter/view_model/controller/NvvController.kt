@@ -1,6 +1,5 @@
 package com.group1.movebetter.view_model.controller
 
-import com.group1.movebetter.model.CityBikesStation
 import com.group1.movebetter.model.NextNvvStation
 import com.group1.movebetter.model.NvvStation
 import com.group1.movebetter.repository.Repository

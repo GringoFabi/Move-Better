@@ -2,7 +2,6 @@ package com.group1.movebetter.view_model.controller
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.content.Context
 import android.location.Location
 import android.location.LocationManager
 import androidx.core.animation.doOnEnd
@@ -10,8 +9,6 @@ import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
-import com.group1.movebetter.view_model.MapFragment
-import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.mapboxsdk.camera.CameraPosition

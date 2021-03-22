@@ -1,11 +1,6 @@
 package com.group1.movebetter.model
 
-import com.google.gson.Gson
-import com.group1.movebetter.database.DatabaseCityBikesNetworks
-import com.group1.movebetter.database.DatabaseDeparture
 import com.group1.movebetter.database.DatabaseNvvStation
-import com.group1.movebetter.database.DatabaseStaDaStation
-
 
 data class NvvStations (
     val stops: List<NvvStation>

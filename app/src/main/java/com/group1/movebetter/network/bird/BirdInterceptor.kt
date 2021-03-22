@@ -1,9 +1,5 @@
 package com.group1.movebetter.network.bird
 
-import androidx.lifecycle.LiveData
-import com.group1.movebetter.database.MyDatabase
-import com.group1.movebetter.database.getDatabase
-import com.group1.movebetter.model.BirdTokens
 import okhttp3.Interceptor
 import okhttp3.Response
 

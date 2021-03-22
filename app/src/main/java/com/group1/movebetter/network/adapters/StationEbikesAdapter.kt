@@ -1,6 +1,5 @@
 package com.group1.movebetter.network.adapters
 
-import com.group1.movebetter.model.Company
 import com.group1.movebetter.model.StationEbikes
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
