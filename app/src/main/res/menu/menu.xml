@@ -28,10 +28,10 @@
     </group>
 
     <item
-        android:id="@+id/overlay"
+        android:id="@+id/overlap"
         android:checkable="true"
         android:checked="false"
-        android:title="@string/overlay" />
+        android:title="@string/overlap" />
 
     <item
         android:id="@+id/refresh"

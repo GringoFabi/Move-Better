@@ -182,7 +182,7 @@ class MainActivity : AppCompatActivity() {
             R.id.refresh -> {
                 false
             }
-            R.id.overlay -> {
+            R.id.overlap -> {
                 menuController!!.overlayItem.postValue(item.isChecked)
                 true
             }

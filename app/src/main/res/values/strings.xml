@@ -41,7 +41,7 @@
     <string name="nvv">NVV</string>
     <string name="bird_scooter">Bird Scooter</string>
     <string name="db">DB</string>
-    <string name="overlay">Overlay</string>
+    <string name="overlap">Overlap</string>
     <string name="refresh">Refresh</string>
     <string name="open_db_app">Open DB App</string>
 </resources>
