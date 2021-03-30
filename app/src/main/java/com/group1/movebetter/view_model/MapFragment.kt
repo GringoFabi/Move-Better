@@ -553,10 +553,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         // Observer for Nvv Departure Board
         repository.getResponseNvvArrival.observe(viewLifecycleOwner) {
-            if (it.departures.isNotEmpty()) {
+            if (it.isNotEmpty()) {
                 if (mapViewModel.nvvController.selectedStation != null) {
                     binding.singleLocationRecyclerView.adapter = NVVTrainAdapter(
-                            it.departures,
+                            it,
                             this::openNvv,
                             this::onMapsNavigateTo,
                             mapViewModel.nvvController.selectedStation

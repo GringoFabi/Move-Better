@@ -111,7 +111,19 @@ interface DatabaseNextNvvStationDao {
     fun insertAll( stations: List<DatabaseNextNvvStation>)
 }
 
-@Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class, DatabaseStaDaStation::class, DatabaseDeparture::class, DatabaseBird::class, DatabaseBirdTokens::class, DatabaseDevUuid::class, DatabaseNvvStation::class, DatabaseNextNvvStation::class], version = 10)
+@Dao
+interface DatabaseNvvDepartureDao {
+    @Query("select * from databasenvvdeparture")
+    fun getDeparture(): LiveData<List<DatabaseNvvDeparture>>
+
+    @Query("delete from databasenvvdeparture")
+    fun clearTable()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll( departures: List<DatabaseNvvDeparture>)
+}
+
+@Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class, DatabaseStaDaStation::class, DatabaseDeparture::class, DatabaseBird::class, DatabaseBirdTokens::class, DatabaseDevUuid::class, DatabaseNvvStation::class, DatabaseNextNvvStation::class, DatabaseNvvDeparture::class], version = 11)
 abstract class MyDatabase: RoomDatabase() {
     abstract val cityBikesNetworksDao: CityBikesNetworksDao
     abstract val cityBikesNetworkDao: CityBikesNetworkDao
@@ -122,6 +134,7 @@ abstract class MyDatabase: RoomDatabase() {
     abstract val databaseDevUuidDao: DatabaseDevUuidDao
     abstract val databaseNvvStationDao: DatabaseNvvStationDao
     abstract val databaseNextNvvStationDao: DatabaseNextNvvStationDao
+    abstract val databaseNvvDepartureDao: DatabaseNvvDepartureDao
 }
 
 private lateinit var INSTANCE: MyDatabase

@@ -223,3 +223,22 @@ fun List<DatabaseNextNvvStation>.asNextNvvStationList(): List<NextNvvStation> {
                 NextNvvStation(it.title, it.id, NvvLocation(it.coordinatesLat, it.coordinatesLng))
         }
 }
+
+@Entity(tableName = "databasenvvdeparture")
+data class DatabaseNvvDeparture(
+        @PrimaryKey(autoGenerate = true)
+        val id: Long = 0L,
+        val trainName: String,
+        val finalDestination: String,
+        val currentStationTitle: String,
+        val currentStationId: String,
+        val arrivalTime: String,
+        val arrivalPlatform: String,
+        val arrivalDelay: Long
+
+)
+fun List<DatabaseNvvDeparture>.asNvvDepartureList(): List<NvvDeparture> {
+        return map {
+                NvvDeparture(Train(it.trainName), it.finalDestination, CurrentStation(it.currentStationTitle,it.currentStationId),Arrival(it.arrivalTime, it.arrivalPlatform, it.arrivalDelay))
+        }
+}

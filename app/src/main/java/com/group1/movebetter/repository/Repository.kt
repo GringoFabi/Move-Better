@@ -53,9 +53,9 @@ class Repository(val database: MyDatabase, uuid:String) {
         it.asNextNvvStationList()
     }
 
-    private val _getResponseNvvArrival: MutableLiveData<NvvDepartures> = MutableLiveData()
-    val getResponseNvvArrival: LiveData<NvvDepartures>
-        get() = _getResponseNvvArrival
+    val getResponseNvvArrival: LiveData<List<NvvDeparture>> = Transformations.map(database.databaseNvvDepartureDao.getDeparture()){
+        it.asNvvDepartureList()
+    }
 
     private val _myResponse: MutableLiveData<EmailBody> = MutableLiveData()
     val myResponse: LiveData<EmailBody>
@@ -162,7 +162,10 @@ class Repository(val database: MyDatabase, uuid:String) {
     suspend fun getArrivalNvvAsync(evaId: String)
     {
         launch(instance.apiMarudor.getArrivalNvvAsync(evaId), {}, {
-            _getResponseNvvArrival.postValue(it)
+            if (it != null){
+                database.databaseNvvDepartureDao.clearTable()
+                database.databaseNvvDepartureDao.insertAll(it.departures.asDatabaseNvvDepartureList())
+            }
         }, { Log.d("getArrivalNvvAsync", it.toString()) })
     }
 
