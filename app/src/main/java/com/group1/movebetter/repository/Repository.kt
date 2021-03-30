@@ -25,10 +25,9 @@ class Repository(val database: MyDatabase, uuid:String) {
     val getResponseNetworksFiltered: LiveData<CityBikes>
         get() = _getResponseNetworksFiltered
 
-
-    private val _getNvvStations: MutableLiveData<NvvStations> = MutableLiveData()
-    val getNvvStations: LiveData<NvvStations>
-        get() = _getNvvStations
+    val getNvvStations: LiveData<List<NvvStation>> = Transformations.map(database.databaseNvvStationDao.getStations()){
+        it.asNvvStationList()
+    }
 
     val getResponseNetwork: LiveData<List<CityBikesNetwork>> = Transformations.map(database.cityBikesNetworkDao.getCityBikesNetwork()){
         it.asCityBikesNetworkList()
@@ -50,9 +49,9 @@ class Repository(val database: MyDatabase, uuid:String) {
     val getStationsByTerm: LiveData<NextStations>
         get() = _getStationsByTerm
 
-    private val _getNvvStation: MutableLiveData<NextNvvStations> = MutableLiveData()
-    val getNvvStation: LiveData<NextNvvStations>
-        get() = _getNvvStation
+    val getNvvStation: LiveData<List<NextNvvStation>> = Transformations.map(database.databaseNextNvvStationDao.getNextStations()){
+        it.asNextNvvStationList()
+    }
 
     private val _getResponseNvvArrival: MutableLiveData<NvvDepartures> = MutableLiveData()
     val getResponseNvvArrival: LiveData<NvvDepartures>
@@ -144,7 +143,9 @@ class Repository(val database: MyDatabase, uuid:String) {
     suspend fun getNvvStations()
     {
         launch(instance.apiNvv.getNvvStationsAsync(), {}, {
-            _getNvvStations.postValue(it)
+            if (it != null) {
+                database.databaseNvvStationDao.insertAll(it.stops.asDatabaseNvvStationList())
+            }
         }, { Log.d("getNvvStations", it.toString()) })
     }
 
@@ -186,11 +187,14 @@ class Repository(val database: MyDatabase, uuid:String) {
     suspend fun getNvvStationIdAsync(searchTerm: String, type: String, max: Long)
     {
         launch(instance.apiMarudor.getNvvStationIdAsync(searchTerm, type, max),
-                {},
-                {
-                    it
-                    _getNvvStation.postValue(it) },
-                { Log.d("getNvvStationIdAsync", it.toString()) })
+            {},
+            {
+                if (it != null) {
+                    database.databaseNextNvvStationDao.insertAll(it.nextStation.filter { nextNvvStation -> nextNvvStation.id != null }
+                        .asDatabaseNextNvvStationList())
+                }
+            },
+            { Log.d("getNvvStationIdAsync", it.toString()) })
     }
 
     suspend fun getBirdToken(body: EmailBody) {

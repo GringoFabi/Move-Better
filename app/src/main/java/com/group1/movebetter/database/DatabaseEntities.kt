@@ -192,3 +192,34 @@ data class DatabaseDevUuid (
 fun DatabaseDevUuid.asDevUuid(): DevUuid {
         return DevUuid(this.uuid)
 }
+
+@Entity(tableName = "databasenvvstation")
+data class DatabaseNvvStation (
+        @PrimaryKey
+        val number: String,
+        val name: String,
+        val lat: Double,
+        val lng: Double
+)
+
+fun List<DatabaseNvvStation>.asNvvStationList(): List<NvvStation> {
+        return map {
+                NvvStation(it.number, it.name, it.lat, it.lng)
+        }
+}
+
+
+@Entity(tableName = "databasenextnvvstation")
+data class DatabaseNextNvvStation(
+        @PrimaryKey
+        val id: String,
+        val title: String,
+        val coordinatesLat: Double,
+        val coordinatesLng: Double,
+)
+
+fun List<DatabaseNextNvvStation>.asNextNvvStationList(): List<NextNvvStation> {
+        return map {
+                NextNvvStation(it.title, it.id, NvvLocation(it.coordinatesLat, it.coordinatesLng))
+        }
+}

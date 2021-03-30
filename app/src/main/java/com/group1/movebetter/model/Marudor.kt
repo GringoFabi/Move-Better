@@ -2,6 +2,7 @@ package com.group1.movebetter.model
 
 import com.google.gson.Gson
 import com.group1.movebetter.database.DatabaseDeparture
+import com.group1.movebetter.database.DatabaseNextNvvStation
 
 
 data class Departures (
@@ -85,6 +86,11 @@ data class NextNvvStations(
         val nextStation: List<NextNvvStation>
 )
 
+fun List<NextNvvStation>.asDatabaseNextNvvStationList(): List<DatabaseNextNvvStation> {
+    return map {
+        DatabaseNextNvvStation(it.id, it.title, it.coordinates.lat, it.coordinates.lng)
+    }
+}
 
 data class NextNvvStation(
         val title: String,
