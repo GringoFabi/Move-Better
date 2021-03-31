@@ -25,7 +25,7 @@ import java.lang.reflect.Type
 
 
 /**
- * Database entities go in this file. These are responsible for reading and writing from the
+ * Database entities in this file. These are responsible for reading and writing from the
  * database.
  */
 
@@ -43,7 +43,9 @@ data class DatabaseCityBikesNetworks constructor(
         val locationCountry: String
 )
 
-
+/**
+ * Convert Database-Model to App-Model
+ */
 fun List<DatabaseCityBikesNetworks>.asCityBikesNetworksList(): List<CityBikesNetworks> {
         return map {
                 CityBikesNetworks(
@@ -79,6 +81,9 @@ data class DatabaseCityBikesNetwork constructor(
 )
 
 
+/**
+ * Convert Database-Model to App-Model
+ */
 fun List<DatabaseCityBikesNetwork>.asCityBikesNetworkList(): List<CityBikesNetwork> {
         return map {
                 val listType: Type = object : TypeToken<ArrayList<CityBikesStation>>() {}.type
@@ -112,6 +117,9 @@ data class DatabaseStaDaStation constructor(
         val ril100Identifiers: String
 )
 
+/**
+ * Convert Database-Model to App-Model
+ */
 fun List<DatabaseStaDaStation>.asStaDaStationList(): List<StaDaStation> {
         return map {
                 val evaListType: Type = object : TypeToken<ArrayList<EvaNumbers>>() {}.type
@@ -138,6 +146,9 @@ data class DatabaseDeparture (
         val currentStationId: String
 )
 
+/**
+ * Convert Database-Model to App-Model
+ */
 fun List<DatabaseDeparture>.asDepartureList(): List<Departure> {
         return map {
                 val listType: Type = object : TypeToken<ArrayList<RouteStation>>() {}.type
@@ -162,6 +173,9 @@ data class DatabaseBird (
         val area_key: String,
 )
 
+/**
+ * Convert Database-Model to App-Model
+ */
 fun List<DatabaseBird>.asBirdList(): List<Bird> {
         return map {
                 Bird(it.id, BirdLocation(it.locationLatitude,it.locationLongitude), it.code, it.model, it.vehicle_class,it.captive,it.nest_id,it.partner_id,it.battery_level,it.estimated_range,it.area_key)
@@ -176,6 +190,9 @@ data class DatabaseBirdTokens (
         val refresh: String,
 )
 
+/**
+ * Convert Database-Model to App-Model
+ */
 fun List<DatabaseBirdTokens>.asBirdTokensList(): List<BirdTokens> {
         return map {
                 BirdTokens(it.access,it.refresh)
@@ -189,6 +206,9 @@ data class DatabaseDevUuid (
         val uuid : String,
 )
 
+/**
+ * Convert Database-Model to App-Model
+ */
 fun DatabaseDevUuid.asDevUuid(): DevUuid {
         return DevUuid(this.uuid)
 }
@@ -202,6 +222,9 @@ data class DatabaseNvvStation (
         val lng: Double
 )
 
+/**
+ * Convert Database-Model to App-Model
+ */
 fun List<DatabaseNvvStation>.asNvvStationList(): List<NvvStation> {
         return map {
                 NvvStation(it.number, it.name, it.lat, it.lng)
@@ -218,6 +241,9 @@ data class DatabaseNextNvvStation(
         val coordinatesLng: Double,
 )
 
+/**
+ * Convert Database-Model to App-Model
+ */
 fun List<DatabaseNextNvvStation>.asNextNvvStationList(): List<NextNvvStation> {
         return map {
                 NextNvvStation(it.title, it.id, NvvLocation(it.coordinatesLat, it.coordinatesLng))
@@ -237,6 +263,10 @@ data class DatabaseNvvDeparture(
         val arrivalDelay: Long
 
 )
+
+/**
+ * Convert Database-Model to App-Model
+ */
 fun List<DatabaseNvvDeparture>.asNvvDepartureList(): List<NvvDeparture> {
         return map {
                 NvvDeparture(Train(it.trainName), it.finalDestination, CurrentStation(it.currentStationTitle,it.currentStationId),Arrival(it.arrivalTime, it.arrivalPlatform, it.arrivalDelay))
