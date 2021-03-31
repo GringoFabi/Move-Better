@@ -6,7 +6,7 @@ import com.squareup.moshi.JsonReader
 import java.lang.Exception
 
 class EmptySlotsAdapter {
-
+    //Adapter to convert an unexpected response to set the empty slots correct
     @FromJson
     fun fromJson(reader: JsonReader) : EmptySlots {
         var amount = -1L

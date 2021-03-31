@@ -6,7 +6,7 @@ import com.squareup.moshi.JsonReader
 import java.lang.Exception
 
 class FreeBikesAdapter {
-
+    //Adapter to convert an unexpected response to a FreeBikes value
     @FromJson
     fun fromJson(reader: JsonReader) : FreeBikes {
         var amount = -1L

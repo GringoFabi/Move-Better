@@ -7,6 +7,7 @@ import java.lang.Exception
 
 class CityBikesStationExtraStatusAdapter {
 
+    //Adapter to convert an unexpected response to a StationExtraStatus
     @FromJson
     fun fromJson(reader: JsonReader) : StationExtraStatus {
         val status = ArrayList<String>()

@@ -76,6 +76,7 @@ class Repository(val database: MyDatabase, uuid:String) {
         }, { Log.d("getNetworks", it.toString()) })
     }
 
+    //Function to intercept errors in case of an unexpected response.
     private suspend fun <T> launch(
             request: Deferred<Response<T>>,
             onLoading: suspend () -> Unit,
@@ -116,12 +117,13 @@ class Repository(val database: MyDatabase, uuid:String) {
         }
     }
 
-
+    // method to get CityBike networks with set values. Should've implemented to save data.
     suspend fun getNetworksFiltered(fields: String)
     {
         launch(instance.apiCityBikes.getNetworksFilteredAsync(fields), {}, { _getResponseNetworksFiltered.postValue(it) }, { Log.d("getNetworksFiltered", it.toString()) })
     }
 
+    // method to get CityBike network
     suspend fun getNetwork(networkId: String)
     {
         launch(instance.apiCityBikes.getNetworkAsync(networkId), {}, {
@@ -131,6 +133,7 @@ class Repository(val database: MyDatabase, uuid:String) {
         }, { Log.d("getNetworks", it.toString()) })
     }
 
+    // method to get db stations
     suspend fun getStations()
     {
         launch(instance.apiStadaStations.getStationsAsync(), {}, {
@@ -140,6 +143,7 @@ class Repository(val database: MyDatabase, uuid:String) {
         }, { Log.d("getStations", it.toString()) })
     }
 
+    // method to get nvv stations
     suspend fun getNvvStations()
     {
         launch(instance.apiNvv.getNvvStationsAsync(), {}, {
@@ -149,6 +153,7 @@ class Repository(val database: MyDatabase, uuid:String) {
         }, { Log.d("getNvvStations", it.toString()) })
     }
 
+    // method to get arrival of a db station
     suspend fun getArrival(evaId: Long, lookahead: Long)
     {
         launch(instance.apiMarudor.getArrivalAsync(evaId, lookahead), {}, {
@@ -159,6 +164,7 @@ class Repository(val database: MyDatabase, uuid:String) {
         }, { Log.d("getArrival", it.toString()) })
     }
 
+    // method to get arrival of a Nvv station
     suspend fun getArrivalNvvAsync(evaId: String)
     {
         launch(instance.apiMarudor.getArrivalNvvAsync(evaId), {}, {
@@ -169,6 +175,7 @@ class Repository(val database: MyDatabase, uuid:String) {
         }, { Log.d("getArrivalNvvAsync", it.toString()) })
     }
 
+    // method to get closest db station
     suspend fun getNextStations(lat: Double, lng: Double, radius: Long)
     {
         launch(instance.apiMarudor.getNextStationsAsync(lat, lng, radius),
@@ -178,6 +185,7 @@ class Repository(val database: MyDatabase, uuid:String) {
             { Log.d("getNetworksFiltered", it.toString()) })
     }
 
+    // method to find a station via name
     suspend fun getStationsByTerm(searchTerm: String)
     {
         launch(instance.apiMarudor.getStationsByTermAsync(searchTerm),
@@ -186,7 +194,7 @@ class Repository(val database: MyDatabase, uuid:String) {
             { Log.d("getNetworksFiltered", it.toString()) })
     }
 
-
+    // method for requesting data of a NvvStation
     suspend fun getNvvStationIdAsync(searchTerm: String, type: String, max: Long)
     {
         launch(instance.apiMarudor.getNvvStationIdAsync(searchTerm, type, max),

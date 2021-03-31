@@ -7,6 +7,7 @@ import java.lang.Exception
 
 class StationNameAdapter {
 
+    //Adapter to convert an unexpected response to a StationName
     @FromJson
     fun fromJson(reader: JsonReader) : StationName {
         val stationNameList = ArrayList<String>()

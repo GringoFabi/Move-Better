@@ -6,6 +6,7 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 
 class NvvDeparturesAdapter {
+    //Adapter to convert an unexpected response to a NvvDeapture List
     @FromJson
     fun fromJson(reader: JsonReader, jsonAdapter: JsonAdapter<NvvDeparture>): NvvDepartures {
         val list = ArrayList<NvvDeparture>()

@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 
 class MarudorController (private val viewModelScope: CoroutineScope, private val repository: Repository) {
 
+    // ID of station and the lookahead to set how many minutes ahead you want to retrieve.
     fun getArrival(evaId: Long, lookahead: Long = 0)
     {
         viewModelScope.launch {
@@ -20,6 +21,7 @@ class MarudorController (private val viewModelScope: CoroutineScope, private val
         }
     }
 
+    //get nearest Station within in a specific distance
     fun getNextStations(lat: Double, lng: Double, maxDist: Long = 3000)
     {
         viewModelScope.launch {
@@ -27,6 +29,7 @@ class MarudorController (private val viewModelScope: CoroutineScope, private val
         }
     }
 
+    //get Stations which match with a term
     fun getStationsByTerm(searchTerm: String)
     {
         viewModelScope.launch {
@@ -34,6 +37,7 @@ class MarudorController (private val viewModelScope: CoroutineScope, private val
         }
     }
 
+    //get Stations which match with a term which belong to the hafas network and get a response of max 50 stations
     fun getNvvStation(searchTerm: String, type: String = "hafas", max: Long = 50)
     {
         viewModelScope.launch {

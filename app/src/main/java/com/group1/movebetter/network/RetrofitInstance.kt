@@ -16,8 +16,9 @@ import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-
+//Implementation of Retrofit-Instance
 class RetrofitInstance(uuid: String) {
+    //Create retrofit with a base url, a CallAdapter and with Moshi.
     private val retrofit by lazy {
         Retrofit.Builder()
                 .baseUrl(URL_CITYBIKES)
@@ -37,18 +38,22 @@ class RetrofitInstance(uuid: String) {
                 ).build()
     }
 
+    //Create CityBike Service
     val apiCityBikes: CityBikesService by lazy {
         retrofit.create(CityBikesService::class.java)
     }
 
+    //Create StaDa Service
     val apiStadaStations: StadaService by lazy {
         retrofit.create(StadaService::class.java)
     }
 
+    //Create Marodor Service
     val apiMarudor: MarudorService by lazy {
         retrofit.create(MarudorService::class.java)
     }
 
+    //Create Nvv Service
     val apiNvv: NvvService by lazy {
         retrofit.create(NvvService::class.java)
     }

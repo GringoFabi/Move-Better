@@ -7,6 +7,7 @@ import java.lang.Exception
 
 class StationEbikesAdapter {
 
+    //Adapter to convert an unexpected response to a StationEbike
     @FromJson
     fun fromJson(reader: JsonReader) : StationEbikes {
         var amount = 0L

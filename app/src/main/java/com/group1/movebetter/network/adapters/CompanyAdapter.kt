@@ -6,7 +6,7 @@ import com.squareup.moshi.JsonReader
 import java.lang.Exception
 
 class CompanyAdapter {
-
+    //Adapter to convert an unexpected response to a proper Company. Response can be a String or a list of Strings
     @FromJson
     fun fromJson(reader: JsonReader) : Company {
         val companyList = ArrayList<String>()
