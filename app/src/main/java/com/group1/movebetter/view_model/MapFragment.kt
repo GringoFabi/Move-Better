@@ -52,6 +52,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.coroutines.*
 import java.util.*
 import java.util.concurrent.CancellationException
+import kotlin.random.Random.Default.nextInt
 
 
 class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxMap.OnMapClickListener {
@@ -193,6 +194,34 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         nearestTrain.setOnClickListener {
             val nearestStation = mapViewModel.nvvController.nearestStation
             onMapsNavigateTo(nearestStation!!.lat, nearestStation.lng)
+        }
+
+        // Navigate to random nearest provider
+        val nearestRandom = binding.random
+        nearestRandom.setImageBitmap(BitmapFactory.decodeResource(resources, R.raw.random))
+        nearestRandom.scaleType = ImageView.ScaleType.CENTER
+        nearestRandom.adjustViewBounds = true
+
+        nearestRandom.setOnClickListener {
+            val random = nextInt(0, 4)
+            if (random == 0) {
+                if (mapViewModel.cityBikeController.nearestBike != null) {
+                    nearestBike.performClick()
+                }
+            } else if (random == 1) {
+                if (mapViewModel.birdController.nearestBird != null) {
+                    nearestScooter.performClick()
+                }
+            } else if (random == 2) {
+                if (mapViewModel.stadaStationController.nearestStation != null) {
+                    nearestTram.performClick()
+                }
+            } else {
+                if (mapViewModel.nvvController.nearestStation != null) {
+                    nearestTrain.performClick()
+                }
+            }
+            Toast.makeText(context, "The choice of a professional!", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -351,6 +380,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
         binding.nearestTrain.visibility = View.VISIBLE
         binding.nearestTram.visibility = View.VISIBLE
+        binding.random.visibility = View.VISIBLE
     }
 
     private fun setButtonsInvisible() {
@@ -358,6 +388,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         binding.nearestScooter.visibility = View.GONE
         binding.nearestTrain.visibility = View.GONE
         binding.nearestTram.visibility = View.GONE
+        binding.random.visibility = View.GONE
     }
 
     private fun setAdapter(feature: Feature?) {
