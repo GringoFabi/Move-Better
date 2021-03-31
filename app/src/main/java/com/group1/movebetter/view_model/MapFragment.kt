@@ -205,15 +205,21 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         nearestRandom.setOnClickListener {
             val random = nextInt(0, 4)
             if (random == 0) {
-                nearestBike.performClick()
+                if (mapViewModel.cityBikeController.nearestBike != null) {
+                    nearestBike.performClick()
+                }
             } else if (random == 1) {
                 if (mapViewModel.birdController.nearestBird != null) {
                     nearestScooter.performClick()
                 }
             } else if (random == 2) {
-                nearestTram.performClick()
+                if (mapViewModel.stadaStationController.nearestStation != null) {
+                    nearestTram.performClick()
+                }
             } else {
-                nearestTrain.performClick()
+                if (mapViewModel.nvvController.nearestStation != null) {
+                    nearestTrain.performClick()
+                }
             }
         }
     }
