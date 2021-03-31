@@ -732,8 +732,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     // Open other Apps or their link to play store
 
+    /**
+     * Open Google-Maps with an active walking Route to given Lat/lng
+     */
     private fun onMapsNavigateTo(lat: Double, lng: Double) {
-        val gmmIntentUri: Uri = Uri.parse("google.navigation:q=$lat,$lng&mode=w")
+        val gmmIntentUri: Uri = Uri.parse("google.navigation:q=$lat,$lng&mode=w") //mode w for walking
         val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
         mapIntent.setPackage("com.google.android.apps.maps")
 
@@ -744,6 +747,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    /**
+     * opens Bird Application or their ref. in PlayStore
+     */
     private fun openBird() {
         val intentL = context!!.packageManager.getLaunchIntentForPackage("co.bird.android")
 
@@ -754,6 +760,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    /**
+     * opens NVV Application or their ref. in PlayStore
+     */
     private fun openNvv() {
         val intentL = context!!.packageManager.getLaunchIntentForPackage("de.hafas.android.nvv")
 
@@ -764,6 +773,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    /**
+     * opens NextBike Application or their ref. in PlayStore
+     */
     private fun openNextBike() {
         val intentL = context!!.packageManager.getLaunchIntentForPackage("de.nextbike")
 
@@ -774,6 +786,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    /**
+     * opens DB Application or their ref. in PlayStore
+     */
     private fun openDB() {
         val intentL = context!!.packageManager.getLaunchIntentForPackage("de.hafas.android.db")
 
@@ -784,6 +799,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    /**
+     * opens Playstore Application or their ref. in Browser
+     */
     private fun openPlayStoreFor(packageName: String) {
         try {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
