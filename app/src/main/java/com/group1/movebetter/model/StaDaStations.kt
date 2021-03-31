@@ -27,20 +27,27 @@ fun List<StaDaStation>.asDatabaseStaDaStationList(): List<DatabaseStaDaStation> 
 }
 
 
-// List of Ril100 Identifiers (Short string for the name of the Station) and a Boolean isMain to check which Identifier is the latest.
+/**
+ * List of Ril100 Identifiers (Short string for the name of the Station)
+ * and a Boolean isMain to check which Identifier is the latest.
+ */
 data class Ril100Identifiers (
     val rilIdentifier: String,
     val isMain: Boolean
 )
 
-// List of Numbers and a Boolean isMain to check which number is the latest.
+/**
+ * List of Numbers and a Boolean isMain to check which number is the latest.
+ */
 data class EvaNumbers (
     val number: Long,
     val geographicCoordinates: GeoCoordinates?,
     val isMain: Boolean
 )
 
-// Region name, most likely unimportant
+/**
+ * Region name, most likely unimportant
+ */
 data class RegionalBereich (
     val number: Long,
     val name: String
@@ -52,7 +59,9 @@ data class MailingAddress (
     val street: String
 )
 
-// List of Doubles which should have 2 doubles only.
+/**
+ * List of Doubles which should have 2 doubles only.
+ */
 data class GeoCoordinates (
     val coordinates: List<Double>,
 )

@@ -138,7 +138,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         return binding.root
     }
 
-    // Buttons for the "navigate to nearest bike/scooter/tram station" feature
+    /**
+     * Buttons for the "navigate to nearest bike/scooter/tram station" feature
+     */
     private fun initButtons() {
         // Navigate to nearest bike station
         val nearestBike = binding.nearestBike
@@ -196,7 +198,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
-    // method for handling the refresh menu item
+    /**
+     * method for handling the refresh menu item
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.refresh -> {
@@ -207,7 +211,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
-    // method for performing a manual refresh (called through menu item "refresh")
+    /**
+     * method for performing a manual refresh (called through menu item "refresh")
+     */
     private fun instantRefresh() {
         delayedRefreshRequestsJob?.cancel(CancellationException("Refresh"))
         if (delayedRefreshRequestsJob?.isCancelled == true) {
@@ -229,7 +235,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
-    // Init Ids for layers, sources and icons
+    /**
+     * Init Ids for layers, sources and icons
+     */
     private fun initIds() {
         BIKE_STATION_LAYER = resources.getString(R.string.BIKE_STATION_LAYER)
         BIKE_STATIONS = resources.getString(R.string.BIKE_STATION)
@@ -344,7 +352,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         return true
     }
 
-    // Make Recycler View invisible and the "navigate to nearest" buttons visible
+    /**
+     * Make Recycler View invisible and the "navigate to nearest" buttons visible
+     */
     private fun setButtonsVisibleRVInvisible() {
         binding.singleLocationRecyclerView.adapter = null
         binding.singleLocationRecyclerView.visibility = View.GONE
@@ -356,7 +366,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         binding.nearestTram.visibility = View.VISIBLE
     }
 
-    // Make the "navigate to nearest" buttons invisible
+    /**
+     * Make the "navigate to nearest" buttons invisible
+     */
     private fun setButtonsInvisible() {
         binding.nearestBike.visibility = View.GONE
         binding.nearestScooter.visibility = View.GONE
@@ -364,7 +376,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         binding.nearestTram.visibility = View.GONE
     }
 
-    // Set Adapter of RecyclerView based on provider (bikes, birds, nvv, db)
+    /**
+     * Set Adapter of RecyclerView based on provider (bikes, birds, nvv, db)
+     */
     private fun setAdapter(feature: Feature?) {
         val provider = feature!!.getStringProperty("provider")
         when {
@@ -631,7 +645,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
-    // load images in map
+    /**
+     * load images in map
+     */
     private fun loadImages(style: Style) {
         style.addImage(BIKE_STATION_ICON_ID, BitmapFactory.decodeResource(resources, R.raw.bike))
         style.addImage(BIKE_NETWORK_ICON_ID, BitmapFactory.decodeResource(resources, R.raw.network))
@@ -642,10 +658,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     @SuppressLint("MissingPermission")
     private fun enableLocationComponent(loadedMapStyle: Style) {
-// Check if permissions are enabled and if not request
+        // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(context)) {
 
-// Create and customize the LocationComponent's options
+            // Create and customize the LocationComponent's options
             val customLocationComponentOptions = LocationComponentOptions.builder(context!!)
                 .trackingGesturesManagement(true)
                 .accuracyColor(ContextCompat.getColor(context!!, R.color.blue))
@@ -655,19 +671,19 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 .locationComponentOptions(customLocationComponentOptions)
                 .build()
 
-// Get an instance of the LocationComponent and then adjust its settings
+            // Get an instance of the LocationComponent and then adjust its settings
             mapboxMap.locationComponent.apply {
 
-// Activate the LocationComponent with options
+                // Activate the LocationComponent with options
                 activateLocationComponent(locationComponentActivationOptions)
 
-// Enable to make the LocationComponent visible
+                // Enable to make the LocationComponent visible
                 isLocationComponentEnabled = true
 
-// Set the LocationComponent's camera mode
+                // Set the LocationComponent's camera mode
                 cameraMode = CameraMode.TRACKING
 
-// Set the LocationComponent's render mode
+                // Set the LocationComponent's render mode
                 renderMode = RenderMode.COMPASS
             }
         } else {
