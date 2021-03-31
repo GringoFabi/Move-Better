@@ -17,10 +17,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
+/**
+ * this dialog is shown when the user has not authenticated himself with the bird api
+ * authentication is needed for using the bird api
+ */
 class BirdDialog : AppCompatDialogFragment() {
-
-    // this dialog is shown when the user has not authenticated himself with the bird api
-    // authentication is needed for using the bird api
 
     var email: String = ""
     private var tokenFlag: Boolean = false
@@ -87,16 +88,20 @@ class BirdDialog : AppCompatDialogFragment() {
         return alertDialog
     }
 
-    // method for making the api call which verifies the user's magic token
+    /**
+     * method for making the api call which verifies the user's magic token
+     */
     private fun verify(magicToken: String?) {
         if (magicToken != null) {
             birdDialogViewModel.birdController.postAuthToken(magicToken)
         }
     }
 
-    // method constructs the second page of the bird dialog
-    // first page: asking the user for his mail
-    // second page: asking the user for the magic token which he received in his validation mail
+    /**
+     * method constructs the second page of the bird dialog
+     * first page: asking the user for his mail
+     * second page: asking the user for the magic token which he received in his validation mail
+     */
     private fun changeToMagicToken() {
 
         // clearing the entire container
@@ -136,7 +141,9 @@ class BirdDialog : AppCompatDialogFragment() {
         set.applyTo(binding.containerConstraint)
     }
 
-    // method for sending the user's mail to the bird api and switching to the second page
+    /**
+     * method for sending the user's mail to the bird api and switching to the second page
+     */
     private fun send() {
         birdDialogViewModel.birdController.getAuthToken(email)
         tokenFlag = true

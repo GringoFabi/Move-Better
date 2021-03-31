@@ -69,7 +69,9 @@ class DBTramAdapter(private val data: List<Departure>,
         return DBTramViewHolder(v)
     }
 
-    // Add information to card view
+    /**
+     * Add information to card view
+     */
     override fun onBindViewHolder(holder: DBTramViewHolder, position: Int) {
         val content = SpannableString(data[position].currentStation.title)
         content.setSpan(UnderlineSpan(), 0, content.length, 0)

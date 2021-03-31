@@ -6,8 +6,10 @@ import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 
+/**
+ * Adapter to convert an unexpected response to a NextStations List
+ */
 class NextStationsAdapter {
-    //Adapter to convert an unexpected response to a NextStations List
     @FromJson
     fun fromJson(reader: JsonReader, jsonAdapter: JsonAdapter<NextStation>): NextStations {
         val list = ArrayList<NextStation>()

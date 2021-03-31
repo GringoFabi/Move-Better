@@ -3,10 +3,10 @@ package com.group1.movebetter.network.bird
 import okhttp3.Interceptor
 import okhttp3.Response
 
+/**
+ * custom interceptor for adding all required headers to each bird api call
+ */
 class BirdInterceptor(uuid : String): Interceptor {
-
-    // custom interceptor for adding all required headers to each bird api call
-
     private val deviceID = uuid
 
     override fun intercept(chain: Interceptor.Chain): Response {
