@@ -1,12 +1,13 @@
 package com.group1.movebetter.network.adapters
 
 import com.group1.movebetter.model.*
-import com.mapbox.mapboxsdk.style.expressions.Expression.let
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
-import java.lang.Exception
 
+/**
+ * Adapter to convert an unexpected response to a NextNvvStations List
+ */
 class NextNvvStationsAdapter {
     @FromJson
     fun fromJson(reader: JsonReader, jsonAdapter: JsonAdapter<NextNvvStation>): NextNvvStations {

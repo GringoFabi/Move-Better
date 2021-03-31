@@ -5,6 +5,9 @@ import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
 import java.lang.Exception
 
+/**
+ * Adapter to convert an unexpected response to a StationExtraStatus
+ */
 class CityBikesStationExtraStatusAdapter {
 
     @FromJson

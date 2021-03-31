@@ -24,10 +24,10 @@ import com.group1.movebetter.database.getDatabase
 import com.group1.movebetter.databinding.FragmentMapBinding
 import com.group1.movebetter.repository.Repository
 import com.group1.movebetter.util.Constants.Companion.DELAY_MILLIS
-import com.group1.movebetter.card_views.BikeAdapter
-import com.group1.movebetter.card_views.BirdAdapter
-import com.group1.movebetter.card_views.DBTramAdapter
-import com.group1.movebetter.card_views.NVVTrainAdapter
+import com.group1.movebetter.adapters.BikeAdapter
+import com.group1.movebetter.adapters.BirdAdapter
+import com.group1.movebetter.adapters.DBTramAdapter
+import com.group1.movebetter.adapters.NVVTrainAdapter
 import com.group1.movebetter.view_model.controller.MenuController
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -139,7 +139,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         return binding.root
     }
 
-    // Buttons for the "navigate to nearest bike/scooter/tram station" feature
+    /**
+     * Buttons for the "navigate to nearest bike/scooter/tram station" feature
+     */
     private fun initButtons() {
         // Navigate to nearest bike station
         val nearestBike = binding.nearestBike
@@ -225,6 +227,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    /**
+     * method for handling the refresh menu item
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.refresh -> {
@@ -235,6 +240,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    /**
+     * method for performing a manual refresh (called through menu item "refresh")
+     */
     private fun instantRefresh() {
         delayedRefreshRequestsJob?.cancel(CancellationException("Refresh"))
         if (delayedRefreshRequestsJob?.isCancelled == true) {
@@ -256,6 +264,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    /**
+     * Init Ids for layers, sources and icons
+     */
     private fun initIds() {
         BIKE_STATION_LAYER = resources.getString(R.string.BIKE_STATION_LAYER)
         BIKE_STATIONS = resources.getString(R.string.BIKE_STATION)
@@ -342,9 +353,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 mapViewModel.mapController.deselectMarker(selectedMarkerLayer, style, false, SELECTED_MARKER)
             }
 
-            // if clicked on a bike station/ scooter/ tram station,
-            // make it bigger and show information
-            // and animate camera
+            // if clicked on a bike station/ scooter/ db station/ nvv station,
+            // make it bigger, show information, and animate camera
             when {
                 bikeStation.size > 0 -> {
                     mapViewModel.mapController.animateCameraPosition(mapboxMap, bikeStation[0])
@@ -371,6 +381,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         return true
     }
 
+    /**
+     * Make Recycler View invisible and the "navigate to nearest" buttons visible
+     */
     private fun setButtonsVisibleRVInvisible() {
         binding.singleLocationRecyclerView.adapter = null
         binding.singleLocationRecyclerView.visibility = View.GONE
@@ -383,6 +396,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         binding.random.visibility = View.VISIBLE
     }
 
+    /**
+     * Make the "navigate to nearest" buttons invisible
+     */
     private fun setButtonsInvisible() {
         binding.nearestBike.visibility = View.GONE
         binding.nearestScooter.visibility = View.GONE
@@ -391,6 +407,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         binding.random.visibility = View.GONE
     }
 
+    /**
+     * Set Adapter of RecyclerView based on provider (bikes, birds, nvv, db)
+     */
     private fun setAdapter(feature: Feature?) {
         val provider = feature!!.getStringProperty("provider")
         when {
@@ -657,6 +676,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    /**
+     * load images in map
+     */
     private fun loadImages(style: Style) {
         style.addImage(BIKE_STATION_ICON_ID, BitmapFactory.decodeResource(resources, R.raw.bike))
         style.addImage(BIKE_NETWORK_ICON_ID, BitmapFactory.decodeResource(resources, R.raw.network))
@@ -667,10 +689,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     @SuppressLint("MissingPermission")
     private fun enableLocationComponent(loadedMapStyle: Style) {
-// Check if permissions are enabled and if not request
+        // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(context)) {
 
-// Create and customize the LocationComponent's options
+            // Create and customize the LocationComponent's options
             val customLocationComponentOptions = LocationComponentOptions.builder(context!!)
                 .trackingGesturesManagement(true)
                 .accuracyColor(ContextCompat.getColor(context!!, R.color.blue))
@@ -680,19 +702,19 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                 .locationComponentOptions(customLocationComponentOptions)
                 .build()
 
-// Get an instance of the LocationComponent and then adjust its settings
+            // Get an instance of the LocationComponent and then adjust its settings
             mapboxMap.locationComponent.apply {
 
-// Activate the LocationComponent with options
+                // Activate the LocationComponent with options
                 activateLocationComponent(locationComponentActivationOptions)
 
-// Enable to make the LocationComponent visible
+                // Enable to make the LocationComponent visible
                 isLocationComponentEnabled = true
 
-// Set the LocationComponent's camera mode
+                // Set the LocationComponent's camera mode
                 cameraMode = CameraMode.TRACKING
 
-// Set the LocationComponent's render mode
+                // Set the LocationComponent's render mode
                 renderMode = RenderMode.COMPASS
             }
         } else {
@@ -757,8 +779,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
     // Open other Apps or their link to play store
 
+    /**
+     * Open Google-Maps with an active walking Route to given Lat/lng
+     */
     private fun onMapsNavigateTo(lat: Double, lng: Double) {
-        val gmmIntentUri: Uri = Uri.parse("google.navigation:q=$lat,$lng&mode=w")
+        val gmmIntentUri: Uri = Uri.parse("google.navigation:q=$lat,$lng&mode=w") //mode w for walking
         val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
         mapIntent.setPackage("com.google.android.apps.maps")
 
@@ -769,6 +794,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    /**
+     * opens Bird Application or their ref. in PlayStore
+     */
     private fun openBird() {
         val intentL = context!!.packageManager.getLaunchIntentForPackage("co.bird.android")
 
@@ -779,6 +807,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    /**
+     * opens NVV Application or their ref. in PlayStore
+     */
     private fun openNvv() {
         val intentL = context!!.packageManager.getLaunchIntentForPackage("de.hafas.android.nvv")
 
@@ -789,6 +820,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    /**
+     * opens NextBike Application or their ref. in PlayStore
+     */
     private fun openNextBike() {
         val intentL = context!!.packageManager.getLaunchIntentForPackage("de.nextbike")
 
@@ -799,6 +833,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    /**
+     * opens DB Application or their ref. in PlayStore
+     */
     private fun openDB() {
         val intentL = context!!.packageManager.getLaunchIntentForPackage("de.hafas.android.db")
 
@@ -809,6 +846,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         }
     }
 
+    /**
+     * opens Playstore Application or their ref. in Browser
+     */
     private fun openPlayStoreFor(packageName: String) {
         try {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))

@@ -3,6 +3,8 @@ package com.group1.movebetter.model
 import com.group1.movebetter.database.DatabaseBird
 import com.group1.movebetter.database.DatabaseBirdTokens
 
+// data model for the bird api
+
 data class Birds (
         val birds : List<Bird>,
 )
@@ -22,6 +24,9 @@ data class Bird (
 )
 
 
+/**
+ * Convert App-Model to Database-Model
+ */
 fun List<Bird>.asDatabaseBirdList(): List<DatabaseBird> {
         return map {
                 DatabaseBird(it.id, it.location.latitude, it.location.longitude, it.code, it.model, it.vehicle_class,it.captive,it.nest_id ?: "N/A",it.partner_id,it.battery_level,it.estimated_range,it.area_key)
@@ -38,6 +43,10 @@ data class BirdTokens (
         val refresh: String,
 )
 
+/**
+ * Convert App-Model to Database-Model
+ * db-key constant set to 1 to store only one Token-pair
+ */
 fun List<BirdTokens>.asDatabaseBirdTokensList(): List<DatabaseBirdTokens> {
         return map {
                 DatabaseBirdTokens("1",it.access,it.refresh)

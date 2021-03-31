@@ -18,6 +18,9 @@ data class CityBikesNetworks (
         val id: String
 )
 
+/**
+ * Convert App-Model to Database-Model
+ */
 fun List<CityBikesNetworks>.asDatabaseCityBikesNetworksList(): List<DatabaseCityBikesNetworks> {
         return map {
                 DatabaseCityBikesNetworks(it.id, Gson().toJson(it.company), it.href, it.name, it.location?.latitude ?: -1.0, it.location?.city ?: "N/A", it.location?.longitude ?: -1.0, it.location?.country ?: "N/A")
@@ -49,6 +52,10 @@ data class CityBikesNetwork (
         val stations: List<CityBikesStation>
 )
 
+/**
+ * Convert App-Model to Database-Model
+ * db-key constant set to 1 to store only one Network
+ */
 fun CityBikesNetwork.asDatabaseCityBikesNetworkList(): List<DatabaseCityBikesNetwork> {
         return listOf(DatabaseCityBikesNetwork("1",this.id, Gson().toJson(this.company), this.href, this.name, this.location.latitude, this.location.city, this.location.longitude, this.location.country, Gson().toJson(this.stations)))
 }

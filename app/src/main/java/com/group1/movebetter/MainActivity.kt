@@ -30,10 +30,8 @@ import com.group1.movebetter.model.asDatabaseDevUuid
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.group1.movebetter.bird_dialog.BirdDialog
-import com.group1.movebetter.model.BirdTokens
 import com.group1.movebetter.view_model.controller.MenuController
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.*
@@ -50,6 +48,8 @@ class MainActivity : AppCompatActivity() {
                 db.databaseDevUuidDao.insertAll(listOf(DevUuid(UUID.randomUUID().toString()).asDatabaseDevUuid()))
             }.join()
         }
+
+        // Checking if Location Permissions are granted
         if (ContextCompat.checkSelfPermission(this,
                         Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Location permissions are granted", Toast.LENGTH_SHORT).show()
@@ -59,6 +59,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * method is called when Location Permissions are granted
+     */
     private fun startApp() {
         var access: String? = null
         runBlocking {
@@ -67,25 +70,37 @@ class MainActivity : AppCompatActivity() {
                 access = db.databaseBirdTokensDao.getBirdToken("1")?.access
             }.join()
         }
+
+        // if Bird Tokens are unset a dialog is opened which asks for authentication
         if (access == null || access!!.isEmpty()) {
             openDialog()
         }
+
+        // loads the main app in the background (behind the dialog if opened)
         setContentView(R.layout.activity_main)
     }
 
-
+    /**
+     * method is called when Bird Tokens are unset
+     */
     private fun openDialog(): BirdDialog {
         val birdDialog = BirdDialog()
         birdDialog.show(supportFragmentManager, "bird dialog")
         return birdDialog
     }
 
+    /**
+     * if Location Permissions are not granted during request this method stops the app safely
+     */
     private fun closeApp() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             finishAndRemoveTask()
         }
     }
 
+    /**
+     * method for requesting Location Permission
+     */
     private fun requestFineLocationPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
             permissionDialog().show()
@@ -94,6 +109,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * opens the permission dialog which informs the user on why location permission are needed
+     */
     private fun permissionDialog(): AlertDialog {
         return AlertDialog.Builder(this)
             .setTitle("Standort Erlaubnis")
@@ -108,6 +126,9 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * method for handling the result of the permission request
+     */
     override fun onRequestPermissionsResult(
             requestCode: Int,
             permissions: Array<out String>,
@@ -115,9 +136,13 @@ class MainActivity : AppCompatActivity() {
     ) {
         if (requestCode == FINE_LOCATION_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                // on grant: Location Permission are given -> start the app
                 Toast.makeText(this, "Erlaubnis erteilt", Toast.LENGTH_SHORT).show()
                 startApp()
             } else {
+
+                // on deny: Location Permission are not given -> shut down the app
                 Toast.makeText(this, "Erlaubnis verweigert", Toast.LENGTH_SHORT).show()
                 closeApp()
             }
@@ -125,10 +150,14 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
+    /**
+     * method for requesting permissions
+     */
     private fun requestPermission(permissionName: String, permissionRequestCode: Int) {
         ActivityCompat.requestPermissions(this, arrayOf(permissionName), permissionRequestCode)
     }
 
+    // menu setup
     private var menu: Menu? = null
     private val menuController = MenuController.getInstance()
 
@@ -142,6 +171,9 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+    /**
+     * method for handling given input on the menu items
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.isCheckable) {
             item.isChecked = !item.isChecked
@@ -166,7 +198,7 @@ class MainActivity : AppCompatActivity() {
             R.id.refresh -> {
                 false
             }
-            R.id.overlay -> {
+            R.id.overlap -> {
                 menuController!!.overlayItem.postValue(item.isChecked)
                 true
             }

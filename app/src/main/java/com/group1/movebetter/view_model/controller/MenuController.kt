@@ -14,6 +14,9 @@ class MenuController {
 
     val overlayItem: MutableLiveData<Boolean> = MutableLiveData(false)
 
+    /**
+     * singleton construct since only one menu controller is needed during execution
+     */
     companion object {
         private var instance: MenuController? = null
 

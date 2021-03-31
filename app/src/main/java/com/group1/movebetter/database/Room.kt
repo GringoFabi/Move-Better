@@ -20,6 +20,10 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.*
 
+/**
+ * Data Access Objects for Database
+ */
+
 @Dao
 interface CityBikesNetworksDao {
     @Query("select * from databasecitybikesnetworks")
@@ -123,6 +127,9 @@ interface DatabaseNvvDepartureDao {
     fun insertAll( departures: List<DatabaseNvvDeparture>)
 }
 
+/**
+ * Database Class
+ */
 @Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class, DatabaseStaDaStation::class, DatabaseDeparture::class, DatabaseBird::class, DatabaseBirdTokens::class, DatabaseDevUuid::class, DatabaseNvvStation::class, DatabaseNextNvvStation::class, DatabaseNvvDeparture::class], version = 11)
 abstract class MyDatabase: RoomDatabase() {
     abstract val cityBikesNetworksDao: CityBikesNetworksDao
@@ -139,6 +146,9 @@ abstract class MyDatabase: RoomDatabase() {
 
 private lateinit var INSTANCE: MyDatabase
 
+/**
+ * Get the Singleton-instance of the Database
+ */
 fun getDatabase(context: Context): MyDatabase {
     synchronized(MyDatabase::class.java) {
         if (!::INSTANCE.isInitialized) {

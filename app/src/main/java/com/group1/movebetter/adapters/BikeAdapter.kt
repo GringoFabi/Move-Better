@@ -1,4 +1,4 @@
-package com.group1.movebetter.card_views
+package com.group1.movebetter.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -59,6 +59,7 @@ class BikeAdapter(private val data: ArrayList<Feature>, private val openNextBike
     }
 
     @SuppressLint("SimpleDateFormat")
+    // Add information to card view
     override fun onBindViewHolder(holder: BikeViewHolder, position: Int) {
         val content = SpannableString(data[position].getStringProperty("name"))
         content.setSpan(UnderlineSpan(), 0, content.length, 0)

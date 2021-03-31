@@ -13,6 +13,7 @@ import retrofit2.http.Query
 
 interface MarudorService {
 
+
     @GET(URL_MARUDOR_IRIS + "abfahrten/{evaId}")
     fun getArrivalAsync(
         @Path("evaId") evaId: Long,

@@ -9,6 +9,9 @@ import retrofit2.http.*
 
 interface StadaService {
 
+    /**
+     * Returns Deutsche Bahn stations + additional information
+     */
     @Headers("Authorization: $STADA_API_KEY")
     @GET(URL_STADA + "stations/")
     fun getStationsAsync(

@@ -1,4 +1,4 @@
-package com.group1.movebetter.card_views
+package com.group1.movebetter.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -61,12 +61,17 @@ class NVVTrainAdapter(private val data: List<NvvDeparture>,
         return NVVTrainViewHolder(v)
     }
 
+    /**
+     * Add information to card view
+     */
     override fun onBindViewHolder(holder: NVVTrainViewHolder, position: Int) {
         val content = SpannableString(data[position].currentStation.title)
         content.setSpan(UnderlineSpan(), 0, content.length, 0)
         holder.station.text = content
 
-        setImages(holder)
+        holder.nvvAppIcon.setImageBitmap(nvvIconBitmap)
+        holder.nvvAppIcon.scaleType = ImageView.ScaleType.CENTER
+        holder.nvvAppIcon.adjustViewBounds = true
 
         setDelay(holder, data[position])
         holder.train.text = data[position].train.name
@@ -83,12 +88,6 @@ class NVVTrainAdapter(private val data: List<NvvDeparture>,
                 navigateTo.invoke(selectedStation.latitude, selectedStation.longitude)
             }
         }
-    }
-
-    private fun setImages(holder: NVVTrainViewHolder) {
-        holder.nvvAppIcon.setImageBitmap(nvvIconBitmap)
-        holder.nvvAppIcon.scaleType = ImageView.ScaleType.CENTER
-        holder.nvvAppIcon.adjustViewBounds = true
     }
 
     @SuppressLint("NewApi")

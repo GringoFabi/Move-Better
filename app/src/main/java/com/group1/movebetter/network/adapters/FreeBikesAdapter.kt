@@ -1,14 +1,14 @@
 package com.group1.movebetter.network.adapters
 
-import com.group1.movebetter.model.Company
 import com.group1.movebetter.model.FreeBikes
-import com.group1.movebetter.model.StationEbikes
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
 import java.lang.Exception
 
+/**
+ * Adapter to convert an unexpected response to a FreeBikes value
+ */
 class FreeBikesAdapter {
-
     @FromJson
     fun fromJson(reader: JsonReader) : FreeBikes {
         var amount = -1L

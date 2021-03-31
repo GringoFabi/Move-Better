@@ -30,6 +30,9 @@ class CityBikeController(private val viewModelScope: CoroutineScope, private val
     private var currentNetwork: CityBikesNetwork? = null
     var nearestBike: CityBikesStation? = null
 
+    /**
+     * prepare marker list for inserting in layer as source
+     */
     fun createBikeNetworkList(cityBikes: List<CityBikesNetworks>): ArrayList<Feature> {
         for (network in cityBikes) {
             val feature = createBikeFeature(network.id, network.location!!, true)
@@ -87,7 +90,6 @@ class CityBikeController(private val viewModelScope: CoroutineScope, private val
     }
 
     fun exchangeNetworkWithStations(network: CityBikesNetwork): ArrayList<Feature> {
-        // Add stations to map
         val featureList = ArrayList<Feature>()
 
         for (station in network.stations) {
@@ -109,6 +111,9 @@ class CityBikeController(private val viewModelScope: CoroutineScope, private val
 
     lateinit var closestNetwork: CityBikesNetworks
 
+    /**
+     * method for calculating the nearest city bike network in relation to the user's current location
+     */
     fun getNearestNetwork(res: List<CityBikesNetworks>) {
         val distances = ArrayList<Double>()
         val distanceNetworkMap = HashMap<Double, CityBikesNetworks>()
@@ -122,6 +127,9 @@ class CityBikeController(private val viewModelScope: CoroutineScope, private val
         closestNetwork = distanceNetworkMap[minDistance]!!
     }
 
+    /**
+     * method for calculating the nearest city bike in relation to the user's current location
+     */
     private fun getNearestBike(stations: List<CityBikesStation>): CityBikesStation? {
         val distances = ArrayList<Double>()
         val distanceNetworkMap = HashMap<Double, CityBikesStation>()

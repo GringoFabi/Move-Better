@@ -9,11 +9,13 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 
+    <!-- get package permissions to open third party apps -->
     <queries>
         <package android:name="co.bird.android" />
         <package android:name="com.google.android.apps.maps" />
         <package android:name="de.hafas.android.nvv" />
         <package android:name="de.nextbike" />
+        <package android:name="de.hafas.android.db" />
     </queries>
 
     <application
