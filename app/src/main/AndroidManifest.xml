@@ -14,6 +14,7 @@
         <package android:name="com.google.android.apps.maps" />
         <package android:name="de.hafas.android.nvv" />
         <package android:name="de.nextbike" />
+        <package android:name="de.hafas.android.db" />
     </queries>
 
     <application
