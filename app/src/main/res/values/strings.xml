@@ -44,4 +44,5 @@
     <string name="overlay">Overlay</string>
     <string name="refresh">Refresh</string>
     <string name="open_db_app">Open DB App</string>
+    <string name="navigate_to_randomness">Navigate to nearest randomness</string>
 </resources>
