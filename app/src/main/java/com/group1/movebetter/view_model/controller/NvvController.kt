@@ -25,7 +25,9 @@ class NvvController(
         }
     }
 
-    // prepare marker list for inserting in layer as source
+    /**
+     * prepare marker list for inserting in layer as source
+     */
     fun createStationList(stops: List<NvvStation>): ArrayList<Feature> {
         val stationFeatures = ArrayList<Feature>()
 
@@ -50,7 +52,9 @@ class NvvController(
         selectedStation = LatLng(latitude, longitude)
     }
 
-    // method for calculating the nearest nvv station in relation to the selected station location
+    /**
+     * method for calculating the nearest nvv station in relation to the selected station location
+     */
     fun nearestEvaId(nextStation: List<NextNvvStation>): NextNvvStation? {
         val distances = ArrayList<Double>()
         val distanceNetworkMap = HashMap<Double, NextNvvStation>()
@@ -66,7 +70,9 @@ class NvvController(
         return distanceNetworkMap[minDistance]
     }
 
-    // method for calculating the nearest nvv station in relation to the user's current location
+    /**
+     * method for calculating the nearest nvv station in relation to the user's current location
+     */
     fun getNearestStation(stations: List<NvvStation>) {
         val distances = ArrayList<Double>()
         val distanceNetworkMap = HashMap<Double, NvvStation>()

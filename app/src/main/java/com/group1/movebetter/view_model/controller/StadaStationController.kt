@@ -31,7 +31,9 @@ class StadaStationController(
         selectedStation = evaIdLatLngMap[evaId]
     }
 
-    // prepare marker list for inserting in layer as source
+    /**
+     * prepare marker list for inserting in layer as source
+     */
     fun createStationList(stations: List<StaDaStation>): ArrayList<Feature> {
         val stationFeatures = ArrayList<Feature>()
 
@@ -69,7 +71,9 @@ class StadaStationController(
         return feature
     }
 
-    // method for calculating the nearest train station in relation to the user's current location
+    /**
+     * method for calculating the nearest train station in relation to the user's current location
+     */
     fun getNearestStation(stations: List<StaDaStation>) {
         val distances = ArrayList<Double>()
         val distanceNetworkMap = HashMap<Double, StaDaStation>()

@@ -59,7 +59,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // method is called when Location Permissions are granted
+    /**
+     * method is called when Location Permissions are granted
+     */
     private fun startApp() {
         var access: String? = null
         runBlocking {
@@ -78,21 +80,27 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
-    // method is called when Bird Tokens are unset
+    /**
+     * method is called when Bird Tokens are unset
+     */
     private fun openDialog(): BirdDialog {
         val birdDialog = BirdDialog()
         birdDialog.show(supportFragmentManager, "bird dialog")
         return birdDialog
     }
 
-    // if Location Permissions are not granted during request this method stops the app safely
+    /**
+     * if Location Permissions are not granted during request this method stops the app safely
+     */
     private fun closeApp() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             finishAndRemoveTask()
         }
     }
 
-    // method for requesting Location Permission
+    /**
+     * method for requesting Location Permission
+     */
     private fun requestFineLocationPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
             permissionDialog().show()
@@ -101,7 +109,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // opens the permission dialog which informs the user on why location permission are needed
+    /**
+     * opens the permission dialog which informs the user on why location permission are needed
+     */
     private fun permissionDialog(): AlertDialog {
         return AlertDialog.Builder(this)
             .setTitle("Standort Erlaubnis")
@@ -116,7 +126,9 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    // method for handling the result of the permission request
+    /**
+     * method for handling the result of the permission request
+     */
     override fun onRequestPermissionsResult(
             requestCode: Int,
             permissions: Array<out String>,
@@ -138,7 +150,9 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    // method for requesting permissions
+    /**
+     * method for requesting permissions
+     */
     private fun requestPermission(permissionName: String, permissionRequestCode: Int) {
         ActivityCompat.requestPermissions(this, arrayOf(permissionName), permissionRequestCode)
     }
@@ -157,7 +171,9 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    // method for handling given input on the menu items
+    /**
+     * method for handling given input on the menu items
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.isCheckable) {
             item.isChecked = !item.isChecked

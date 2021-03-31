@@ -12,7 +12,9 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
 
     var nearestBird: Bird? = null
 
-    // sends email to the auth api
+    /**
+     * sends email to the auth api
+     */
     fun getAuthToken(email: String) {
         val body = EmailBody(email)
         viewModelScope.launch {
@@ -20,7 +22,9 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
         }
     }
 
-    // sends the token from the verifying mail to the auth api (retrieves the tokens)
+    /**
+     * sends the token from the verifying mail to the auth api (retrieves the tokens)
+     */
     fun postAuthToken(token: String) {
         val body = Token(token)
         runBlocking {
@@ -28,7 +32,9 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
         }
     }
 
-    // sends the refresh-token to the auth api (overwrites the current tokens)
+    /**
+     * sends the refresh-token to the auth api (overwrites the current tokens)
+     */
     fun refresh() {
         var refresh = ""
         runBlocking {
@@ -41,7 +47,9 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
         }
     }
 
-    // sends the access-token to the api (retrieves the scooter)
+    /**
+     * sends the access-token to the api (retrieves the scooter)
+     */
     fun getBirds(location: Location) {
 
         val position = Position(
@@ -72,7 +80,9 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
         }
     }
 
-    // create feature list for birds
+    /**
+     * create feature list for birds
+     */
     fun createBirdList(birds: List<Bird>): ArrayList<Feature> {
         val birdsFeature = ArrayList<Feature>()
 
@@ -96,7 +106,9 @@ class BirdController(private val viewModelScope: CoroutineScope, private val rep
         return feature
     }
 
-    // method for calculating the nearest bird in relation to the user's current location
+    /**
+     * method for calculating the nearest bird in relation to the user's current location
+     */
     fun getNearestBird(birds: List<Bird>) {
         val distances = ArrayList<Double>()
         val distanceNetworkMap = HashMap<Double, Bird>()

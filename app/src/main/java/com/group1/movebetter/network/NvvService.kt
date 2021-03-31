@@ -8,7 +8,9 @@ import retrofit2.http.*
 
 interface NvvService {
 
-    //Get Nvv Station Data
+    /**
+     * Get Nvv Station Data
+     */
     @GET(URL_NVV)
     fun getNvvStationsAsync(
     ): Deferred<Response<NvvStations>>

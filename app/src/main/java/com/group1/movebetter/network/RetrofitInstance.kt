@@ -16,7 +16,10 @@ import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-//Implementation of Retrofit-Instance
+
+/**
+ * Implementation of Retrofit-Instance
+ */
 class RetrofitInstance(uuid: String) {
     //Create retrofit with a base url, a CallAdapter and with Moshi.
     private val retrofit by lazy {
