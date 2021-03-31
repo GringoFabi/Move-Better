@@ -17,6 +17,11 @@ class Repository(val database: MyDatabase, uuid:String) {
 
     val instance: RetrofitInstance = RetrofitInstance(uuid)
 
+    //Get LiveData's from Database and Transform them to App-Model
+
+    /**
+     * CityBike Networks
+     */
     val getResponseNetworks: LiveData<List<CityBikesNetworks>> = Transformations.map(database.cityBikesNetworksDao.getCityBikesNetworks()){
         it.asCityBikesNetworksList()
     }
@@ -25,14 +30,23 @@ class Repository(val database: MyDatabase, uuid:String) {
     val getResponseNetworksFiltered: LiveData<CityBikes>
         get() = _getResponseNetworksFiltered
 
+    /**
+     * NVV Stations
+     */
     val getNvvStations: LiveData<List<NvvStation>> = Transformations.map(database.databaseNvvStationDao.getStations()){
         it.asNvvStationList()
     }
 
+    /**
+     * CityBike Stations
+     */
     val getResponseNetwork: LiveData<List<CityBikesNetwork>> = Transformations.map(database.cityBikesNetworkDao.getCityBikesNetwork()){
         it.asCityBikesNetworkList()
     }
 
+    /**
+     * Departure Data for DB
+     */
     val getResponseArrival: LiveData<List<Departure>> = Transformations.map(database.databaseDepartureDao.getDeparture()){
         it.asDepartureList()
     }
@@ -49,6 +63,9 @@ class Repository(val database: MyDatabase, uuid:String) {
     val getStationsByTerm: LiveData<NextStations>
         get() = _getStationsByTerm
 
+    /**
+     * ?? TODO ??
+     */
     val getNvvStation: LiveData<List<NextNvvStation>> = Transformations.map(database.databaseNextNvvStationDao.getNextStations()){
         it.asNextNvvStationList()
     }
@@ -76,7 +93,9 @@ class Repository(val database: MyDatabase, uuid:String) {
         }, { Log.d("getNetworks", it.toString()) })
     }
 
-    //Function to intercept errors in case of an unexpected response.
+    /**
+     * Function to intercept errors in case of an unexpected response.
+     */
     private suspend fun <T> launch(
             request: Deferred<Response<T>>,
             onLoading: suspend () -> Unit,
