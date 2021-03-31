@@ -221,6 +221,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
                     nearestTrain.performClick()
                 }
             }
+            Toast.makeText(context, "The choice of a professional!", Toast.LENGTH_LONG).show()
         }
     }
 
