@@ -17,7 +17,9 @@ data class StaDaStation (
     val ril100Identifiers: List<Ril100Identifiers>
 )
 
-
+/**
+ * Convert App-Model to Database-Model
+ */
 fun List<StaDaStation>.asDatabaseStaDaStationList(): List<DatabaseStaDaStation> {
     return map {
         DatabaseStaDaStation(it.number, it.name, it.mailingAddress?.city ?: "N/A", it.mailingAddress?.zipcode ?: "N/A", it.mailingAddress?.street ?: "N/A", it.regionalbereich.number, it.regionalbereich.name, Gson().toJson(it.evaNumbers), Gson().toJson(it.ril100Identifiers))

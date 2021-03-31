@@ -32,6 +32,9 @@ data class NvvDeparture(
 
 )
 
+/**
+ * Convert App-Model to Database-Model
+ */
 fun List<NvvDeparture>.asDatabaseNvvDepartureList(): List<DatabaseNvvDeparture> {
     return map {
         DatabaseNvvDeparture(trainName = it.train.name, finalDestination = it.finalDestination, currentStationId = it.currentStation.id, currentStationTitle = it.currentStation.title, arrivalDelay = it.arrival.delay, arrivalPlatform = it.arrival.platform ?: "N/A", arrivalTime = it.arrival.time)
@@ -44,6 +47,9 @@ data class CurrentStation (
         val id: String
 )
 
+/**
+ * Convert App-Model to Database-Model
+ */
 fun List<Departure>.asDatabaseDepartureList(): List<DatabaseDeparture> {
     return map {
         DatabaseDeparture(scheduledDestination = it.scheduledDestination, trainName =  it.train.name, cancelled =  it.cancelled, messages =  Gson().toJson(it.messages), arrivalTime =  it.arrival?.time ?: "N/A", arrivalPlatform =  it.arrival?.platform ?: "N/A", arrivalDelay =  it.arrival?.delay ?: 0, route =  Gson().toJson(it.route), currentStationTitle =  it.currentStation.title, currentStationId =  it.currentStation.id)
@@ -94,6 +100,9 @@ data class NextNvvStations(
         val nextStation: List<NextNvvStation>
 )
 
+/**
+ * Convert App-Model to Database-Model
+ */
 fun List<NextNvvStation>.asDatabaseNextNvvStationList(): List<DatabaseNextNvvStation> {
     return map {
         DatabaseNextNvvStation(it.id, it.title, it.coordinates.lat, it.coordinates.lng)

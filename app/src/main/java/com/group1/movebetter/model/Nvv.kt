@@ -13,7 +13,9 @@ data class NvvStation (
     val lng: Double
 )
 
-
+/**
+ * Convert App-Model to Database-Model
+ */
 fun List<NvvStation>.asDatabaseNvvStationList(): List<DatabaseNvvStation> {
     return map {
         DatabaseNvvStation(it.number, it.name, it.lat, it.lng);
