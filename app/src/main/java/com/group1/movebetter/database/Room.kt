@@ -93,8 +93,37 @@ interface DatabaseDevUuidDao {
 }
 
 
+@Dao
+interface DatabaseNvvStationDao {
+    @Query("select * from databasenvvstation")
+    fun getStations(): LiveData<List<DatabaseNvvStation>>
 
-@Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class, DatabaseStaDaStation::class, DatabaseDeparture::class, DatabaseBird::class, DatabaseBirdTokens::class, DatabaseDevUuid::class], version = 8)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll( stations: List<DatabaseNvvStation>)
+}
+
+@Dao
+interface DatabaseNextNvvStationDao {
+    @Query("select * from databasenextnvvstation")
+    fun getNextStations(): LiveData<List<DatabaseNextNvvStation>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll( stations: List<DatabaseNextNvvStation>)
+}
+
+@Dao
+interface DatabaseNvvDepartureDao {
+    @Query("select * from databasenvvdeparture")
+    fun getDeparture(): LiveData<List<DatabaseNvvDeparture>>
+
+    @Query("delete from databasenvvdeparture")
+    fun clearTable()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll( departures: List<DatabaseNvvDeparture>)
+}
+
+@Database(entities = [DatabaseCityBikesNetworks::class, DatabaseCityBikesNetwork::class, DatabaseStaDaStation::class, DatabaseDeparture::class, DatabaseBird::class, DatabaseBirdTokens::class, DatabaseDevUuid::class, DatabaseNvvStation::class, DatabaseNextNvvStation::class, DatabaseNvvDeparture::class], version = 11)
 abstract class MyDatabase: RoomDatabase() {
     abstract val cityBikesNetworksDao: CityBikesNetworksDao
     abstract val cityBikesNetworkDao: CityBikesNetworkDao
@@ -103,6 +132,9 @@ abstract class MyDatabase: RoomDatabase() {
     abstract val databaseBirdDao: DatabaseBirdDao
     abstract val databaseBirdTokensDao: DatabaseBirdTokensDao
     abstract val databaseDevUuidDao: DatabaseDevUuidDao
+    abstract val databaseNvvStationDao: DatabaseNvvStationDao
+    abstract val databaseNextNvvStationDao: DatabaseNextNvvStationDao
+    abstract val databaseNvvDepartureDao: DatabaseNvvDepartureDao
 }
 
 private lateinit var INSTANCE: MyDatabase

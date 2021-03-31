@@ -511,9 +511,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
         // Observer for nvv stations
         repository.getNvvStations.observe(viewLifecycleOwner) {
             val stationSource = style.getSourceAs<GeoJsonSource>(NVV_TRAIN_STATION)
-            if (it.stops.isNotEmpty()) {
-                val stations = mapViewModel.nvvController.createStationList(it.stops)
-                mapViewModel.nvvController.getNearestStation(it.stops)
+            if (it.isNotEmpty()) {
+                val stations = mapViewModel.nvvController.createStationList(it)
+                mapViewModel.nvvController.getNearestStation(it)
 
                 if (!binding.singleLocationRecyclerView.isVisible) {
                     binding.nearestTrain.visibility = View.VISIBLE
@@ -525,8 +525,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         // Observer for stations by term
         repository.getNvvStation.observe(viewLifecycleOwner) {
-            if (it.nextStation.isNotEmpty()) {
-                val nextNvvStation = mapViewModel.nvvController.nearestEvaId(it.nextStation.filter { nextNvvStation -> nextNvvStation.id != null })
+            if (it.isNotEmpty()) {
+                val nextNvvStation = mapViewModel.nvvController.nearestEvaId(it.filter { nextNvvStation -> nextNvvStation.id != null })
                 if (nextNvvStation != null) {
                     mapViewModel.marudorController.getNvvArrival(nextNvvStation.id)
                 }
@@ -553,10 +553,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener, MapboxM
 
         // Observer for Nvv Departure Board
         repository.getResponseNvvArrival.observe(viewLifecycleOwner) {
-            if (it.departures.isNotEmpty()) {
+            if (it.isNotEmpty()) {
                 if (mapViewModel.nvvController.selectedStation != null) {
                     binding.singleLocationRecyclerView.adapter = NVVTrainAdapter(
-                            it.departures,
+                            it,
                             this::openNvv,
                             this::onMapsNavigateTo,
                             mapViewModel.nvvController.selectedStation

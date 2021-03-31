@@ -54,10 +54,12 @@ class NvvController(
     fun nearestEvaId(nextStation: List<NextNvvStation>): NextNvvStation? {
         val distances = ArrayList<Double>()
         val distanceNetworkMap = HashMap<Double, NextNvvStation>()
-        for (station in nextStation) {
-            val d = mapController.haversineFormular(mapController.getLocation(station.coordinates.lat, station.coordinates.lng), mapController.getLocation(selectedStation!!.latitude, selectedStation!!.longitude))
-            distances.add(d)
-            distanceNetworkMap[d] = station
+        if (nextStation.isNotEmpty() && selectedStation != null){
+            for (station in nextStation) {
+                val d = mapController.haversineFormular(mapController.getLocation(station.coordinates.lat, station.coordinates.lng), mapController.getLocation(selectedStation!!.latitude, selectedStation!!.longitude))
+                distances.add(d)
+                distanceNetworkMap[d] = station
+            }
         }
         val minDistance: Double? = distances.minByOrNull { it }
 
