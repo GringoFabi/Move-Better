@@ -17,7 +17,7 @@ data class Departure (
     val messages: Messages,
     val arrival: Arrival?,
     val route: List<RouteStation>,
-    val currentStation: CurrentStation
+    val currentStopPlace: CurrentStation
 )
 
 data class NvvDepartures(
@@ -27,7 +27,7 @@ data class NvvDepartures(
 data class NvvDeparture(
         val train: Train,
         val finalDestination: String,
-        val currentStation: CurrentStation,
+        val currentStation: CurrentStationNvv,
         val arrival: Arrival
 
 )
@@ -37,14 +37,18 @@ data class NvvDeparture(
  */
 fun List<NvvDeparture>.asDatabaseNvvDepartureList(): List<DatabaseNvvDeparture> {
     return map {
-        DatabaseNvvDeparture(trainName = it.train.name, finalDestination = it.finalDestination, currentStationId = it.currentStation.id, currentStationTitle = it.currentStation.title, arrivalDelay = it.arrival.delay, arrivalPlatform = it.arrival.platform ?: "N/A", arrivalTime = it.arrival.time)
+        DatabaseNvvDeparture(trainName = it.train.name, finalDestination = it.finalDestination, currentStationId = it.currentStation.title, currentStationTitle = it.currentStation.id, arrivalDelay = it.arrival.delay, arrivalPlatform = it.arrival.platform ?: "N/A", arrivalTime = it.arrival.time)
     }
 }
 
+data class CurrentStationNvv (
+    val id: String,
+    val title: String
+)
 
 data class CurrentStation (
-        val title: String,
-        val id: String
+    val name: String,
+    val evaNumber: String
 )
 
 /**
@@ -52,7 +56,7 @@ data class CurrentStation (
  */
 fun List<Departure>.asDatabaseDepartureList(): List<DatabaseDeparture> {
     return map {
-        DatabaseDeparture(scheduledDestination = it.scheduledDestination, trainName =  it.train.name, cancelled =  it.cancelled, messages =  Gson().toJson(it.messages), arrivalTime =  it.arrival?.time ?: "N/A", arrivalPlatform =  it.arrival?.platform ?: "N/A", arrivalDelay =  it.arrival?.delay ?: 0, route =  Gson().toJson(it.route), currentStationTitle =  it.currentStation.title, currentStationId =  it.currentStation.id)
+        DatabaseDeparture(scheduledDestination = it.scheduledDestination, trainName =  it.train.name, cancelled =  it.cancelled, messages =  Gson().toJson(it.messages), arrivalTime =  it.arrival?.time ?: "N/A", arrivalPlatform =  it.arrival?.platform ?: "N/A", arrivalDelay =  it.arrival?.delay ?: 0, route =  Gson().toJson(it.route), currentStationTitle =  it.currentStopPlace.name, currentStationId =  it.currentStopPlace.evaNumber)
     }
 }
 
