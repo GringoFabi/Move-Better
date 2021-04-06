@@ -269,6 +269,6 @@ data class DatabaseNvvDeparture(
  */
 fun List<DatabaseNvvDeparture>.asNvvDepartureList(): List<NvvDeparture> {
         return map {
-                NvvDeparture(Train(it.trainName), it.finalDestination, CurrentStation(it.currentStationTitle,it.currentStationId),Arrival(it.arrivalTime, it.arrivalPlatform, it.arrivalDelay))
+                NvvDeparture(Train(it.trainName), it.finalDestination, CurrentStationNvv(it.currentStationTitle,it.currentStationId),Arrival(it.arrivalTime, it.arrivalPlatform, it.arrivalDelay))
         }
 }
